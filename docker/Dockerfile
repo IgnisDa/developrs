@@ -1,5 +1,20 @@
 FROM alpine:3.13
 
+LABEL maintainer="ignisda2001@gmail.com"
+
+ARG BUILD_DATE
+ARG VCS_REF
+ARG BUILD_VERSION
+
+# Labels.
+LABEL org.label-schema.schema-version="1.0"
+LABEL org.label-schema.build-date=$BUILD_DATE
+LABEL org.label-schema.name="IgnisDa/developr-workspace"
+LABEL org.label-schema.description="The containerized workspace for smooth code development"
+LABEL org.label-schema.vcs-url="https://github.com/IgnisDa/developr"
+LABEL org.label-schema.vcs-ref=$VCS_REF
+LABEL org.label-schema.version=$BUILD_VERSION
+
 ENV USERNAME=developr
 ARG UUID=1000
 ARG GUID=$UUID
