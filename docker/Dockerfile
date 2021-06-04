@@ -20,7 +20,7 @@ ARG UUID=1000
 ARG GUID=$UUID
 
 RUN apk update && \
-    apk add postgresql=13.3-r0 sudo fish git neovim bash openssh \
+    apk add postgresql=13.3-r0 sudo fish git neovim bash openssh exa bat \
     curl gcc libressl-dev musl-dev libffi-dev python3 nodejs yarn npm
 
 RUN addgroup -S sudo; \
