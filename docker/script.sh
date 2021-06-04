@@ -98,7 +98,7 @@ main() {
     if [ "$LEN_USERS" == 0 ] || [ "$LEN_DATABASES" == 0 ]; then
         echo "Either \$DEVELOPR_DATABASE_NAMES or \$DEVELOPR_DATABASE_USERS empty. Exiting cleanly..."
         return 0
-    else
+    fi
 
     if [[ "$LEN_USERS" == "1" ]]; then
         if psql -t -c '\du' -U postgres | cut -d \| -f 1 | grep -qw "${USERS}"; then
