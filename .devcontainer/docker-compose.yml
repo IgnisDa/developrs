@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  development-machine:
+    image: ignisda/developr-workspace
+
+    volumes:
+      - ..:/workspace/developrs:cached
+      - postgres_data:/var/lib/postgresql/data
+
+    command: sleep infinity
+
+volumes:
+  postgres_data:

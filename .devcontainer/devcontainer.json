@@ -1,0 +1,15 @@
+{
+  "name": "developr",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "development-machine",
+  "workspaceFolder": "/workspace/developrs",
+  "postCreateCommand": "script.sh",
+  "remoteEnv": {
+    "DEVELOPR_DATABASE_NAMES": "server_db|website-db",
+    "DEVELOPR_DATABASE_USERS": "username",
+    "GIT_AUTHOR_NAME": "${localEnv:GIT_AUTHOR_NAME}",
+    "GIT_AUTHOR_EMAIL": "${localEnv:GIT_AUTHOR_EMAIL}",
+    "GIT_COMMITTER_NAME": "${localEnv:GIT_COMMITTER_NAME}",
+    "GIT_COMMITTER_EMAIL": "${localEnv:GIT_COMMITTER_EMAIL}"
+  }
+}
