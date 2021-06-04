@@ -21,7 +21,7 @@ ARG GUID=$UUID
 
 RUN apk update && \
     apk add postgresql=13.3-r0 sudo fish git neovim bash openssh exa bat \
-    curl gcc libressl-dev musl-dev libffi-dev python3 nodejs yarn npm
+    curl gcc libressl-dev musl-dev libffi-dev python3 nodejs yarn npm python3-dev openssl-dev cargo
 
 RUN addgroup -S sudo; \
     addgroup -g $GUID $USERNAME \
@@ -45,8 +45,7 @@ ENV POSTGRES_PASSWORD=admin-password
 ENV POSTGRES_USER=postgres
 
 RUN set -eux; \
-    pip3 install cookiecutter; \
-    apk add poetry --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing/ ; \
+    pip3 install cookiecutter poetry; \
     curl https://starship.rs/install.sh -sSf | sh -s -- --force ; \
     curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/bin ;
 
