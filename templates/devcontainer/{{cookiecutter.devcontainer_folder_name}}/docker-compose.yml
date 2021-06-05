@@ -6,6 +6,8 @@ services:
       context: ..
       dockerfile: {{ cookiecutter.devcontainer_folder_name }}/Dockerfile
 
+    container_name: {{ cookiecutter.devcontainer_folder_name }}
+
     volumes:
       - ..:/workspace/{{ cookiecutter.project_name }}:cached
       - postgres_data:/var/lib/postgresql/data
