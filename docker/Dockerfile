@@ -1,4 +1,4 @@
-FROM alpine:3.13
+FROM frolvlad/alpine-glibc
 
 LABEL maintainer="ignisda2001@gmail.com"
 
