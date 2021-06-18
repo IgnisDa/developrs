@@ -6,7 +6,7 @@ services:
       context: ..
       dockerfile: {{ cookiecutter.devcontainer_folder_name }}/Dockerfile
 
-    container_name: {{ cookiecutter.devcontainer_folder_name }}
+    container_name: {{ cookiecutter.project_name }}
 
     volumes:
       - ..:/workspace/{{ cookiecutter.project_name }}:cached
