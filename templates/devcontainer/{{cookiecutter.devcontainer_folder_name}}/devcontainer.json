@@ -3,9 +3,10 @@
   "dockerComposeFile": "docker-compose.yml",
   "service": "development-machine",
   "workspaceFolder": "/workspace/{{ cookiecutter.project_name }}",
-  "postCreateCommand": "script.sh",
+  "postCreateCommand": "script.sh && ${containerWorkspaceFolder}/{{ cookiecutter.devcontainer_folder_name }}/scripts/base.sh",
   "remoteEnv": {
     "DEVELOPR_DATABASE_NAMES": "{{ cookiecutter.databases }}",
+    "PROJECT_FOLDER": "/workspace/{{ cookiecutter.project_name }}",
     "DEVELOPR_DATABASE_USERS": "{{ cookiecutter.database_usernames }}",
     "GIT_AUTHOR_NAME": "${localEnv:GIT_AUTHOR_NAME}",
     "GIT_AUTHOR_EMAIL": "${localEnv:GIT_AUTHOR_EMAIL}",
