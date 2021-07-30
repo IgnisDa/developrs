@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "sdras.vue-vscode-extensionpack",
+        "wakatime.vscode-wakatime",
+        "bradlc.vscode-tailwindcss",
+        "heybourn.headwind",
+        "ms-vscode-remote.remote-containers",
+        "dbaeumer.vscode-eslint"
+    ]
+}

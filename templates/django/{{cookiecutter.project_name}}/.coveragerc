@@ -1,0 +1,16 @@
+[run]
+omit =
+    **/.env/**
+    **/env/**
+    **/.venv/**
+    */migrations/*
+    **.cache**
+   **.vscode**
+    *apps.py
+    *migrations/*
+    *settings*
+   **/wsgi.py
+   **/asgi.py
+    __init__.py
+    *tox*
+    new.py

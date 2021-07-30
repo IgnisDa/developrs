@@ -1,0 +1,19 @@
+{
+    "project_name": "",
+    "github_username": "IgnisDa",
+    "github_name": "Diptesh Choudhuri",
+    "github_email": "ignisda2001@gmail.com",
+    "django_project_name": "{{ cookiecutter.project_name|lower|replace(' ', '_')|replace('-', '_') }}",
+    "django_user_model_app": "accounts",
+    "postgres_admin_user": "admin-user",
+    "postgres_password": "admin-password",
+    "postgres_database_name": "website-db",
+    "_copy_without_render": [
+        "**/index.js",
+        "**/node_modules/*",
+        "**/docs/*.md"
+    ],
+    "_extensions": [
+        "cookiecutter.extensions.RandomStringExtension"
+    ]
+}
