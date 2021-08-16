@@ -3,7 +3,7 @@
   "dockerComposeFile": "docker-compose.yml",
   "service": "development-machine",
   "workspaceFolder": "/workspace/{{ cookiecutter.project_name }}",
-  "postCreateCommand": "script.sh && ${containerWorkspaceFolder}/{{ cookiecutter.devcontainer_folder_name }}/scripts/base.sh",
+  "postCreateCommand": "script.sh && sh ${containerWorkspaceFolder}/{{ cookiecutter.devcontainer_folder_name }}/scripts/base.sh",
   "remoteEnv": {
     "DEVELOPR_DATABASE_NAMES": "{{ cookiecutter.databases }}",
     "PROJECT_FOLDER": "/workspace/{{ cookiecutter.project_name }}",
