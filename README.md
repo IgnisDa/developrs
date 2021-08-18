@@ -3,9 +3,23 @@
 A set of tools to provision development environments, and templates that make it easy to
 bootstrap new projects.
 
+## Docker development environment
+
+The [docker](./docker) directory contains the configuration that is used to create the
+[developr workspace](https://hub.docker.com/r/ignisda/developr-workspace). This image can
+be used for creating
+[remote development environments](https://code.visualstudio.com/docs/remote/containers).
+
+It has a couple of environment variables configured for database and user creation.
+
+- `DEVELOPR_DATABASE_NAMES`
+- `DEVELOPR_DATABASE_USERS`
+
+For more information, consult the comments in [`script.sh`](./docker/script.sh).
+
 ## Templates
 
-[Cookiecutter](https://cookiecutter.readthedocs.io/) template that I use to
+[Cookiecutter](https://cookiecutter.readthedocs.io/) templates that I use to
 initialize new projects. The following templates exist for different kind of projects:
 
 1. devcontainer
