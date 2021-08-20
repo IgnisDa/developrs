@@ -1,4 +1,4 @@
-FROM frolvlad/alpine-glibc
+FROM debian:bookworm
 
 LABEL maintainer="ignisda2001@gmail.com"
 
@@ -15,49 +15,49 @@ LABEL org.label-schema.vcs-url="https://github.com/IgnisDa/developr"
 LABEL org.label-schema.vcs-ref=$VCS_REF
 LABEL org.label-schema.version=$BUILD_VERSION
 
+RUN apt-get update && \
+    apt-get install -y postgresql-13 postgresql-contrib-13 sudo fish git gcc \
+    neovim bash openssl exa bat wget python3 python3-pip nodejs yarn npm python3-dev curl
+
 ENV USERNAME=developr
 ARG UUID=1000
 ARG GUID=$UUID
+ENV HOME=/home/${USERNAME}
 
-RUN apk update && \
-    apk add postgresql=13.3-r0 sudo fish git neovim bash openssh exa bat \
-    curl gcc libressl-dev musl-dev libffi-dev python3 nodejs yarn npm python3-dev openssl-dev cargo
+RUN groupadd -g $GUID $USERNAME ; \
+    useradd -ms /bin/bash ${USERNAME} -u $UUID -g $USERNAME -g sudo ; \
+    echo "ALL ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} && chmod 0440 /etc/sudoers.d/${USERNAME} ;
 
-RUN addgroup -S sudo; \
-    addgroup -g $GUID $USERNAME \
-    && adduser -u $UUID -G $USERNAME -G sudo -s /bin/bash -D $USERNAME --disabled-password; \
-    echo "ALL ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME && chmod 0440 /etc/sudoers.d/$USERNAME
-
-RUN set -eux; \
-    ln -sf python3 /usr/bin/python && python3 -m ensurepip && pip3 install --no-cache --upgrade pip setuptools; \
-    mkdir -p /var/lib/postgresql; \
-    chown -R postgres:postgres /var/lib/postgresql; \
-    su - postgres -c "initdb /var/lib/postgresql/data"; \
-    echo "host all  all    0.0.0.0/0  md5" >> /var/lib/postgresql/data/pg_hba.conf; \
-    echo "listen_addresses='*'" >> /var/lib/postgresql/data/postgresql.conf; \
-    sed -i '66d' /var/lib/postgresql/data/postgresql.conf; \
-    echo "unix_socket_directories = '/tmp'" >> /var/lib/postgresql/data/postgresql.conf; \
-    su - postgres -c "pg_ctl start -D /var/lib/postgresql/data -l /var/lib/postgresql/log.log"; \
-    su - postgres -c "createuser ${USERNAME}"
-
-ENV PGDATA=/var/lib/postgresql/data
-ENV POSTGRES_PASSWORD=admin-password
-ENV POSTGRES_USER=postgres
-
-RUN set -eux; \
-    pip3 install cookiecutter poetry; \
+RUN set -eux ; \
+    pip3 install cookiecutter poetry ; \
     curl https://starship.rs/install.sh -sSf | sh -s -- --force ; \
-    curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/bin ;
+    curl https://raw.githubusercontent.com/IgnisDa/printr/main/get-printr.sh | sh -s -- --yes ; \
+    curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/bin
 
 USER ${USERNAME}
 
-RUN set -eux; \
-    curl https://raw.githubusercontent.com/IgnisDa/printr/main/get-printr.sh | sh -s -- --yes ; \
+# Setup PostgreSQL server for user gitpod
+ENV PATH="$PATH:/usr/lib/postgresql/13/bin"
+ENV PGDATA="${HOME}/.pgsql/data"
+RUN mkdir -p ~/.pg_ctl/bin ~/.pg_ctl/sockets \
+    && printf '#!/bin/bash\n[ ! -d $PGDATA ] && mkdir -p $PGDATA && initdb -D $PGDATA\npg_ctl -D $PGDATA -l ~/.pg_ctl/log -o "-k ~/.pg_ctl/sockets" start\n' > ~/.pg_ctl/bin/pg_start \
+    && printf '#!/bin/bash\npg_ctl -D $PGDATA -l ~/.pg_ctl/log -o "-k ~/.pg_ctl/sockets" stop\n' > ~/.pg_ctl/bin/pg_stop \
+    && chmod +x ~/.pg_ctl/bin/*
+ENV DATABASE_URL="postgresql://${USERNAME}@localhost"
+ENV PGHOSTADDR="127.0.0.1"
+ENV PGDATABASE="postgres"
+ENV PATH="$PATH:${HOME}/.pg_ctl/bin"
+
+RUN set -eux ; \
     git config --global pull.rebase true ; \
+    sudo npm install -g pnpm ; \
     curl -sSL https://raw.githubusercontent.com/IgnisDa/Gitzer/main/get-gitzer.py | python3 ;
 
-COPY script.sh /usr/local/bin/
+# This is a bit of a hack. At the moment we have no means of starting background
+# tasks from a Dockerfile. This workaround checks, on each bashrc eval, if the
+# PostgreSQL server is running, and if not starts it.
+RUN printf "\n# Auto-start PostgreSQL server.\n[[ \$(pg_ctl status | grep PID) ]] || pg_start > /dev/null\n" | sudo tee -a /etc/bash.bashrc
 
-ENTRYPOINT [ "script.sh" ]
-
-CMD [ "bash" ]
+# Install a snippet manager
+RUN cd /tmp && wget https://github.com/knqyf263/pet/releases/download/v0.3.0/pet_0.3.0_linux_amd64.deb \
+    && sudo dpkg -i pet_0.3.0_linux_amd64.deb
