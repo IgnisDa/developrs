@@ -1,6 +1,4 @@
 {
     "devcontainer_folder_name": ".devcontainer",
-    "project_name": "",
-    "databases": "",
-    "database_usernames": ""
+    "project_name": ""
 }
