@@ -8,7 +8,7 @@
     8534
   ],
   "workspaceFolder": "/workspace/{{ cookiecutter.project_name }}",
-  "postCreateCommand": "sh ${containerWorkspaceFolder}/{{ cookiecutter.devcontainer_folder_name }}/scripts/base.sh",
+  "postCreateCommand": ". ${containerWorkspaceFolder}/{{ cookiecutter.devcontainer_folder_name }}/scripts/base.sh",
   "remoteEnv": {
     "PROJECT_FOLDER": "/workspace/{{ cookiecutter.project_name }}",
     "GIT_AUTHOR_NAME": "${localEnv:GIT_AUTHOR_NAME}",

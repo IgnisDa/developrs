@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # setup the git identities
 git config --global user.name "${GIT_AUTHOR_NAME}"
@@ -13,5 +13,5 @@ cd "$PROJECT_FOLDER"
 
 for filename in $PROJECT_FOLDER/.devcontainer/scripts/private-*; do
     [ -e "$filename" ] || continue
-    source "$filename"
+    . "$filename"
 done
