@@ -21,9 +21,10 @@ ENV USERNAME=developr
 ENV HOME=/home/${USERNAME}
 
 RUN set -eux ; \
-    apt-get update && \
-    apt-get install -y postgresql-13 postgresql-contrib-13 curl sudo fish git gcc \
-    neovim bash openssl exa bat wget python3 python3-pip nodejs npm python3-dev ; \
+    apt-get update && apt-get install -y curl ; \
+    curl -fsSL https://deb.nodesource.com/setup_16.x | bash - ; \
+    apt-get install -y postgresql-13 postgresql-contrib-13 sudo fish git \
+    neovim bash exa bat wget python3 python3-pip nodejs python3-dev procps ; \
     groupadd -g ${GUID} ${USERNAME} ; \
     useradd -ms /bin/bash ${USERNAME} -u ${UUID} -g ${USERNAME} -g sudo ; \
     npm install --global yarn pnpm ; \
