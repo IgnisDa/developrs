@@ -59,4 +59,5 @@ ENV PGDATABASE="postgres"
 ENV PATH="$PATH:${HOME}/.pg_ctl/bin"
 
 RUN git config --global pull.rebase true ; \
-    curl -sSL https://raw.githubusercontent.com/IgnisDa/Gitzer/main/get-gitzer.py | python3 ;
+    curl -sSL https://raw.githubusercontent.com/IgnisDa/Gitzer/main/get-gitzer.py | python3 ; \
+    npm config set store-dir ~/.pnpm-store
