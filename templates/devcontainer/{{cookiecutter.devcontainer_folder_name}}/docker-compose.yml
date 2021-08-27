@@ -10,7 +10,7 @@ services:
 
     volumes:
       - ..:/workspace/{{ cookiecutter.project_name }}:cached
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/home/developr/.pgsql/data
 
     command: sleep infinity
 
