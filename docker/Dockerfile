@@ -48,6 +48,10 @@ RUN set -eux ; \
 
 USER ${USERNAME}
 
+RUN git config --global pull.rebase true ; \
+    curl -sSL https://raw.githubusercontent.com/IgnisDa/Gitzer/main/get-gitzer.py | python3 ; \
+    npm config set store-dir ~/.pnpm-store
+
 # Setup PostgreSQL server for user, taken from
 # https://github.com/gitpod-io/workspace-images/blob/master/postgres/Dockerfile
 RUN set -eux ; \
@@ -55,13 +59,10 @@ RUN set -eux ; \
     && printf '#!/bin/bash\n[ ! -d $PGDATA ] && mkdir -p $PGDATA && initdb -D $PGDATA\npg_ctl -D $PGDATA -l ${PSQL_BASE_PATH}/.pg_ctl/log -o "-k ${PSQL_BASE_PATH}/.pg_ctl/sockets" start\n' > ${PSQL_BASE_PATH}/.pg_ctl/bin/pg_start \
     && printf '#!/bin/bash\npg_ctl -D $PGDATA -l ${PSQL_BASE_PATH}/.pg_ctl/log -o "-k ${PSQL_BASE_PATH}/.pg_ctl/sockets" stop\n' > ${PSQL_BASE_PATH}/.pg_ctl/bin/pg_stop \
     && chmod +x ${PSQL_BASE_PATH}/.pg_ctl/bin/* ; \
-    printf "[[ \$(pg_ctl status | grep PID) ]] || pg_start > /dev/null\n" | tee -a ${HOME}/.bashrc
-
+    printf "sudo chown -R \$USERNAME:\$USERNAME \"\$PGDATA\"\n" | sudo tee -a /etc/bash.bashrc ; \
+    printf "if [ -z \"\$(ls -A \"\$PGDATA\")\" ];\n     then initdb;\nfi\n" | sudo tee -a /etc/bash.bashrc ; \
+    printf "[[ \$(pg_ctl status | grep PID) ]] || pg_start > /dev/null\n" | sudo tee -a /etc/bash.bashrc ;
 
 ENV DATABASE_URL="postgresql://${USERNAME}@localhost"
 ENV PGHOSTADDR="127.0.0.1"
 ENV PATH="$PATH:${PSQL_BASE_PATH}/.pg_ctl/bin"
-
-RUN git config --global pull.rebase true ; \
-    curl -sSL https://raw.githubusercontent.com/IgnisDa/Gitzer/main/get-gitzer.py | python3 ; \
-    npm config set store-dir ~/.pnpm-store
