@@ -4,11 +4,13 @@ There are two images in this directory. The [`Dockerfile`](./Dockerfile) contain
 `developr-workspace`. The [`rust.Dockerfile`](./rust.Dockerfile) contains the image for the
 `developr-workspace:rust`.
 
+## Building
+
 To build the image, execute the following command in this directory:
 
 **Note**: Replace `<VERSION>` with the correct version number, for example `0.1.1`.
 
-## Base
+### Base
 
 - To build the image:
 
@@ -22,7 +24,7 @@ To build the image, execute the following command in this directory:
     docker push ignisda/developr-workspace:latest
     ```
 
-## Rust
+### Rust
 
 - To build the image:
 
@@ -35,3 +37,11 @@ To build the image, execute the following command in this directory:
     ```bash
     docker push ignisda/developr-workspace:rust
     ```
+
+## Data persistence
+
+If you want to persist the data, make sure you mount the
+`/workspace/.postgresql/pgsql/data` directory.
+
+[Here](https://github.com/IgnisDa/learning/blob/main/.devcontainer/docker-compose.yml) is
+an example.
