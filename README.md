@@ -5,17 +5,19 @@ bootstrap new projects.
 
 ## Docker development environment
 
-The [docker](./docker) directory contains the configuration that is used to create the
+The directory contains the configuration that is used to create the
 [developr workspace](https://hub.docker.com/r/ignisda/developr-workspace). This image can
 be used for creating
 [remote development environments](https://code.visualstudio.com/docs/remote/containers).
 
-It has a couple of environment variables configured for database and user creation.
+It has a PostgreSQL database server running by default.
 
-- `DEVELOPR_DATABASE_NAMES`
-- `DEVELOPR_DATABASE_USERS`
+It has two images:
 
-For more information, consult the comments in [`script.sh`](./docker/script.sh).
+- Python and node projects
+- Rust projects
+
+Learn more [here](./docker).
 
 ## Templates
 
