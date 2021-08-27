@@ -50,7 +50,6 @@ RUN set -eux ; \
     && printf '#!/bin/bash\n[ ! -d $PGDATA ] && mkdir -p $PGDATA && initdb -D $PGDATA\npg_ctl -D $PGDATA -l ${PSQL_BASE_PATH}/.pg_ctl/log -o "-k ${PSQL_BASE_PATH}/.pg_ctl/sockets" start\n' > ${PSQL_BASE_PATH}/.pg_ctl/bin/pg_start \
     && printf '#!/bin/bash\npg_ctl -D $PGDATA -l ${PSQL_BASE_PATH}/.pg_ctl/log -o "-k ${PSQL_BASE_PATH}/.pg_ctl/sockets" stop\n' > ${PSQL_BASE_PATH}/.pg_ctl/bin/pg_stop \
     && chmod +x ${PSQL_BASE_PATH}/.pg_ctl/bin/* ; \
-    printf "\n# Auto-start PostgreSQL server.\n[[ \$(pg_ctl status | grep PID) ]] || pg_start > /dev/null\n" | sudo tee -a /etc/bash.bashrc ; \
     chown -R ${USERNAME}:${USERNAME} ${PSQL_BASE_PATH}
 
 USER ${USERNAME}
@@ -62,4 +61,5 @@ ENV PATH="$PATH:${PSQL_BASE_PATH}/.pg_ctl/bin"
 
 RUN git config --global pull.rebase true ; \
     curl -sSL https://raw.githubusercontent.com/IgnisDa/Gitzer/main/get-gitzer.py | python3 ; \
+    printf "\n# Auto-start PostgreSQL server.\n[[ \$(pg_ctl status | grep PID) ]] || pg_start > /dev/null\n" | tee -a ${HOME}/.bashrc ; \
     npm config set store-dir ~/.pnpm-store
