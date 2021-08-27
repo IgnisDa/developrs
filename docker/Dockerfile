@@ -39,24 +39,26 @@ RUN set -eux ; \
     # Install starship
     curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/bin
 
-USER ${USERNAME}
-
 # Setup PostgreSQL server for user
 ENV PATH="$PATH:/usr/lib/postgresql/13/bin"
-ENV PGDATA="${HOME}/.pgsql/data"
+ENV PSQL_BASE_PATH="/databases/postgresql"
+ENV PGDATA="${PSQL_BASE_PATH}/pgsql/data"
 
 # Taken from https://github.com/gitpod-io/workspace-images/blob/master/postgres/Dockerfile
 RUN set -eux ; \
-    mkdir -p ~/.pg_ctl/bin ~/.pg_ctl/sockets \
-    && printf '#!/bin/bash\n[ ! -d $PGDATA ] && mkdir -p $PGDATA && initdb -D $PGDATA\npg_ctl -D $PGDATA -l ~/.pg_ctl/log -o "-k ~/.pg_ctl/sockets" start\n' > ~/.pg_ctl/bin/pg_start \
-    && printf '#!/bin/bash\npg_ctl -D $PGDATA -l ~/.pg_ctl/log -o "-k ~/.pg_ctl/sockets" stop\n' > ~/.pg_ctl/bin/pg_stop \
-    && chmod +x ~/.pg_ctl/bin/* ; \
-    printf "\n# Auto-start PostgreSQL server.\n[[ \$(pg_ctl status | grep PID) ]] || pg_start > /dev/null\n" | sudo tee -a /etc/bash.bashrc ;
+    mkdir -p ${PSQL_BASE_PATH}/.pg_ctl/bin ${PSQL_BASE_PATH}/.pg_ctl/sockets \
+    && printf '#!/bin/bash\n[ ! -d $PGDATA ] && mkdir -p $PGDATA && initdb -D $PGDATA\npg_ctl -D $PGDATA -l ${PSQL_BASE_PATH}/.pg_ctl/log -o "-k ${PSQL_BASE_PATH}/.pg_ctl/sockets" start\n' > ${PSQL_BASE_PATH}/.pg_ctl/bin/pg_start \
+    && printf '#!/bin/bash\npg_ctl -D $PGDATA -l ${PSQL_BASE_PATH}/.pg_ctl/log -o "-k ${PSQL_BASE_PATH}/.pg_ctl/sockets" stop\n' > ${PSQL_BASE_PATH}/.pg_ctl/bin/pg_stop \
+    && chmod +x ${PSQL_BASE_PATH}/.pg_ctl/bin/* ; \
+    printf "\n# Auto-start PostgreSQL server.\n[[ \$(pg_ctl status | grep PID) ]] || pg_start > /dev/null\n" | sudo tee -a /etc/bash.bashrc ; \
+    chown -R ${USERNAME}:${USERNAME} ${PSQL_BASE_PATH}
+
+USER ${USERNAME}
 
 ENV DATABASE_URL="postgresql://${USERNAME}@localhost"
 ENV PGHOSTADDR="127.0.0.1"
 ENV PGDATABASE="postgres"
-ENV PATH="$PATH:${HOME}/.pg_ctl/bin"
+ENV PATH="$PATH:${PSQL_BASE_PATH}/.pg_ctl/bin"
 
 RUN git config --global pull.rebase true ; \
     curl -sSL https://raw.githubusercontent.com/IgnisDa/Gitzer/main/get-gitzer.py | python3 ; \
