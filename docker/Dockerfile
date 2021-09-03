@@ -63,6 +63,5 @@ RUN set -eux ; \
     printf "if [ -z \"\$(ls -A \"\$PGDATA\")\" ];\n     then initdb;\nfi\n" | sudo tee -a /etc/bash.bashrc ; \
     printf "[[ \$(pg_ctl status | grep PID) ]] || pg_start > /dev/null\n" | sudo tee -a /etc/bash.bashrc ;
 
-ENV DATABASE_URL="postgresql://${USERNAME}@localhost"
 ENV PGHOSTADDR="127.0.0.1"
 ENV PATH="$PATH:${PSQL_BASE_PATH}/.pg_ctl/bin"
