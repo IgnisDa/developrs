@@ -1,0 +1,107 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""Details about the user object"""
+type UserDto {
+  """The primary key of the user"""
+  id: ID!
+
+  """The name of the user"""
+  username: String!
+
+  """The email of the user"""
+  email: String!
+}
+
+type Query {
+  """Query to login using a username and password"""
+  loginUser(LoginUserInput: LoginUserInput!): LoginResultUnion!
+
+  """Get the refresh token using the authorization request header"""
+  refreshToken: RefreshTokenResultUnion!
+}
+
+"""Result type returned as the result when someone tries to login"""
+union LoginResultUnion = LoginResult | LoginError
+
+"""The type returned on successful login"""
+type LoginResult {
+  """The user this login result is associated with"""
+  user: UserDto!
+
+  """The JWT token to be used for authentication"""
+  token: String!
+}
+
+"""The type returned for the errors when login is unsuccessful"""
+type LoginError implements APIError {
+  """The error message"""
+  message: String!
+}
+
+"""
+The standard interface that contains the error message when something goes wrong
+"""
+interface APIError {
+  """The error message"""
+  message: String!
+}
+
+"""The input type used while logging in"""
+input LoginUserInput {
+  """The username of the user logging in"""
+  username: String!
+
+  """The password of the user logging in"""
+  password: String!
+}
+
+"""
+Result type returned as the result when a client tries to create a refresh token
+"""
+union RefreshTokenResultUnion = RefreshTokenError | RefreshToken
+
+"""The error returned when trying to refresh the token"""
+type RefreshTokenError implements APIError {
+  """The error message when getting a refresh token"""
+  message: String!
+}
+
+"""The type that contains the return token"""
+type RefreshToken {
+  """The refresh token"""
+  token: String!
+}
+
+type Mutation {
+  """Mutation to create a new user"""
+  createUser(userCreateInput: CreateUserInput!): CreateUserResultUnion!
+}
+
+"""Result type returned as the result when new user is created"""
+union CreateUserResultUnion = CreateUserError | UserDto
+
+"""Type returned for the errors when a new user is created"""
+type CreateUserError {
+  """The error associated with username"""
+  usernameErrors: [String!]
+
+  """The error associated with email"""
+  emailErrors: [String!]
+
+  """The error associated with password"""
+  passwordErrors: [String!]
+}
+
+"""Type to use while creating a new user"""
+input CreateUserInput {
+  """The username of the new user"""
+  username: String!
+
+  """The email of the new user"""
+  email: String!
+
+  """The password of the new user"""
+  password: String!
+}
