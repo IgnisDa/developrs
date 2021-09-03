@@ -1,8 +1,7 @@
 {
-  "name": "cookiecutter.project-name",
+  "name": "{{cookiecutter.project_name}}",
   "version": "0.0.1",
-  "description": "",
-  "author": "Diptesh Choudhuri",
+  "author": "{{cookiecutter.github_name}} <{{cookiecutter.github_email}}>",
   "private": true,
   "scripts": {
     "prebuild": "rimraf dist",

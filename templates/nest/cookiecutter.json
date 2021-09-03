@@ -1,0 +1,15 @@
+{
+    "project_name": "",
+    "github_username": "IgnisDa",
+    "github_name": "Diptesh Choudhuri",
+    "github_email": "ignisda2001@gmail.com",
+    "nuxt_project_name": "{{ cookiecutter.project_name|lower|replace(' ', '-')}}",
+    "_copy_without_render": [
+        "**/index.js",
+        "**/node_modules/*",
+        "**/docs/*.md"
+    ],
+    "_extensions": [
+        "cookiecutter.extensions.RandomStringExtension"
+    ]
+}
