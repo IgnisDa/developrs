@@ -1,14 +1,18 @@
-version: "3.8"
+version: "3.9"
 
 services:
   development-machine:
     build:
       context: ..
-      dockerfile: {{ cookiecutter.devcontainer_folder_name }}/Dockerfile
+      dockerfile: {{cookiecutter.devcontainer_folder_name}}/Dockerfile
 
     container_name: {{ cookiecutter.project_name }}
 
     volumes:
       - ..:/workspace/{{ cookiecutter.project_name }}:cached
+      - postgres_data:/workspace/.postgresql/pgsql/data
 
     command: sleep infinity
+
+volumes:
+  postgres_data:
