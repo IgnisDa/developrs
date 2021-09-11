@@ -1,6 +1,6 @@
 import { createUnionType, ObjectType } from '@nestjs/graphql';
 import { UserDto } from 'src/user/dto/user.dto';
-import { APIError } from './api-error.interface';
+import { APIError } from '../../core/dto/api-error.interface';
 
 @ObjectType({ description: 'The type returned on successful login' })
 export class LoginResult {

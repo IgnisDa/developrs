@@ -1,5 +1,5 @@
 import { createUnionType, ObjectType } from '@nestjs/graphql';
-import { APIError } from './api-error.interface';
+import { APIError } from '../../core/dto/api-error.interface';
 
 @ObjectType({ description: 'The type that contains the return token' })
 export class RefreshToken {
