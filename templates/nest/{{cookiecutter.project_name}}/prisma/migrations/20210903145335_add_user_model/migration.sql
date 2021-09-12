@@ -1,15 +1,16 @@
 -- CreateTable
 CREATE TABLE "User" (
-    "id" UUID NOT NULL,
-    "username" VARCHAR NOT NULL,
-    "email" VARCHAR NOT NULL,
-    "password" VARCHAR NOT NULL,
+    "id" TEXT NOT NULL,
+    "username" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
 
-    PRIMARY KEY ("id")
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User.username_unique" ON "User"("username");
+CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User.email_unique" ON "User"("email");
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
