@@ -4,11 +4,13 @@
   "service": "development-machine",
   "forwardPorts": [
     3000,
+    8000,
     8533,
     8534
   ],
   "workspaceFolder": "/workspace/{{ cookiecutter.project_name }}",
-  "postCreateCommand": ". ${containerWorkspaceFolder}/{{ cookiecutter.devcontainer_folder_name }}/scripts/base.sh",
+  "postCreateCommand": ". ${containerWorkspaceFolder}/.devcontainer/scripts/post-create.sh",
+  "postStartCommand": ". ${containerWorkspaceFolder}/.devcontainer/scripts/post-start.sh",
   "remoteEnv": {
     "PROJECT_FOLDER": "/workspace/{{ cookiecutter.project_name }}",
     "GIT_AUTHOR_NAME": "${localEnv:GIT_AUTHOR_NAME}",
@@ -16,18 +18,5 @@
     "GIT_COMMITTER_NAME": "${localEnv:GIT_COMMITTER_NAME}",
     "GIT_COMMITTER_EMAIL": "${localEnv:GIT_COMMITTER_EMAIL}",
     "VISUAL": "code --wait"
-  },
-  "extensions": [
-    "streetsidesoftware.code-spell-checker",
-    "aaron-bond.better-comments",
-    "eamodio.gitlens",
-    "mhutchie.git-graph",
-    "donjayamanne.githistory",
-    "mutantdino.resourcemonitor",
-    "usernamehw.errorlens",
-    "yzhang.markdown-all-in-one",
-    "davidanson.vscode-markdownlint",
-    "robole.marky-stats",
-    "skellock.just"
-  ]
+  }
 }
