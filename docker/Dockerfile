@@ -15,27 +15,29 @@ LABEL org.label-schema.version=$BUILD_VERSION
 
 ARG UUID=1000
 ARG GUID=$UUID
+ARG POSTGRES_VERSION=13
 ENV USERNAME=developr
 ENV HOME=/home/${USERNAME}
 ENV WORKSPACE="/workspace"
-ENV PATH="$PATH:/usr/lib/postgresql/13/bin"
+ENV PATH="$PATH:/usr/lib/postgresql/${POSTGRES_VERSION}/bin"
 ENV PSQL_BASE_PATH="${WORKSPACE}/.postgresql"
 ENV PGDATA="${PSQL_BASE_PATH}/pgsql/data"
 
 RUN set -eux ; \
-    apt-get update && apt-get install -y curl ; \
+    apt-get update -y && apt-get install -y curl wget gnupg2 lsb-release ; \
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - ;\
+    sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" >> /etc/apt/sources.list.d/pgdg.list' ;\
+    apt-get update -y ;\
     curl -fsSL https://deb.nodesource.com/setup_16.x | bash - ; \
-    apt-get install -y postgresql-13 postgresql-contrib-13 sudo fish git \
-    neovim bash exa bat wget python3 python3-pip nodejs python3-dev procps ; \
+    apt-get install -y postgresql-${POSTGRES_VERSION} postgresql-contrib-${POSTGRES_VERSION} sudo fish git \
+    neovim bash exa bat python3 python3-pip nodejs python3-dev procps ; \
     groupadd -g ${GUID} ${USERNAME} ; \
     useradd -ms /bin/bash ${USERNAME} -u ${UUID} -g ${USERNAME} -g sudo ; \
     npm install --global yarn pnpm ; \
     echo "ALL ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} && chmod 0440 /etc/sudoers.d/${USERNAME} ; \
     pip3 install cookiecutter poetry ; \
-    curl https://starship.rs/install.sh -sSf | sh -s -- --force ; \
-    # Install a snippet manager
-    cd /tmp && wget https://github.com/knqyf263/pet/releases/download/v0.3.0/pet_0.3.0_linux_amd64.deb ; \
-    dpkg -i pet_0.3.0_linux_amd64.deb ; \
+    # Install just command runner
+    curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/bin ;\
     # Setup user workspace
     mkdir -p ${WORKSPACE} && chown -R ${USERNAME}:${USERNAME} ${WORKSPACE} ; \
     # Setup locales
@@ -43,8 +45,11 @@ RUN set -eux ; \
     locale-gen en_US.UTF-8 ; \
     # Install printr
     curl https://raw.githubusercontent.com/IgnisDa/printr/main/get-printr.sh | sh -s -- --yes ; \
-    # Install starship
-    curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/bin
+    # Install tokei to count code count
+    wget --quiet -O tokei.tar.gz https://github.com/XAMPPRocky/tokei/releases/latest/download/tokei-x86_64-unknown-linux-gnu.tar.gz ;\
+    tar xf tokei.tar.gz -C /usr/local/bin ;\
+    tokei --version
+
 
 USER ${USERNAME}
 
