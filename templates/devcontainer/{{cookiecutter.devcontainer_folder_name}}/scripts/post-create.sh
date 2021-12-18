@@ -8,7 +8,6 @@ git config --global user.email "${GIT_AUTHOR_EMAIL}"
 set fish_greeting
 
 # Install the dependencies of each micro-service
-PROJECT_FOLDER="/workspace/incento-server"
 cd "$PROJECT_FOLDER"
 pnpm install --frozen-lockfile
 
