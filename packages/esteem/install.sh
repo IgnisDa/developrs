@@ -271,7 +271,7 @@ detect_target() {
 
 detect_version() {
   # adapted from https://gist.github.com/lukechilds/a83e1d7127b78fef38c2914c4ececc3c
-  curl --silent "https://api.github.com/repos/${APP_AUTHOR}/${APP_NAME}/releases/latest" |  # Get latest release from GitHub api
+  curl --silent "https://api.github.com/repos/${APP_AUTHOR}/developrs/releases/latest" |  # Get latest release from GitHub api
     grep '"tag_name":' |                                                                    # Get tag line
     sed -E 's/.*"([^"]+)".*/\1/'                                                            # Pluck JSON value
 }
@@ -342,7 +342,7 @@ is_build_available() {
     printf "\n" >&2
     info "If you would like to see a build for your configuration,"
     info "please create an issue requesting a build for ${MAGENTA}${target}${NO_COLOR}:"
-    info "${BOLD}${UNDERLINE}https://github.com/${APP_AUTHOR}/${APP_NAME}/issues/new/${NO_COLOR}"
+    info "${BOLD}${UNDERLINE}https://github.com/${APP_AUTHOR}/developrs/issues/new/${NO_COLOR}"
     printf "\n"
     exit 1
   fi
@@ -460,7 +460,7 @@ if [ "${PLATFORM}" = "pc-windows-msvc" ]; then
   EXT=zip
 fi
 
-URL="${BASE_URL}/latest/download/${APP_NAME}-${TARGET}.${EXT}"
+URL="${BASE_URL}/latest/download/${TARGET}.${EXT}"
 info "Tarball URL: ${UNDERLINE}${BLUE}${URL}${NO_COLOR}"
 confirm "Install ${APP_NAME} ${GREEN}latest${NO_COLOR} to ${BOLD}${GREEN}${BIN_DIR}${NO_COLOR}?"
 check_bin_dir "${BIN_DIR}"
