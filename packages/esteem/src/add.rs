@@ -59,6 +59,14 @@ impl Command for Add {
                     .push(serde_json::json!(f))
             }
         });
+        let mut sorted_dependencies = dependencies[add_to]
+            .as_array_mut()
+            .unwrap()
+            .iter()
+            .map(|f| f.as_str().unwrap().to_string())
+            .collect::<Vec<String>>();
+        sorted_dependencies.sort_by(|a, b| a.to_lowercase().cmp(&b.to_lowercase()));
+        dependencies[add_to] = sorted_dependencies.into();
         contents.insert("dependencies".into(), dependencies);
         info!(
             "Writing new workspace dependencies to {:?}",
