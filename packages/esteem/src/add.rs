@@ -1,4 +1,4 @@
-use crate::{Command, PackageManager};
+use crate::{Command, PackageManager, DEPENDENCIES_KEY, DEVELOPMENT_KEY, REQUIRED_KEY};
 use indexmap::IndexMap;
 use serde_json::Value;
 use std::{
@@ -21,8 +21,8 @@ impl Add {
         is_development: bool,
         to_add: Vec<String>,
         npm_package_manager: PackageManager,
-    ) -> Add {
-        Add {
+    ) -> Self {
+        Self {
             project_path,
             is_development,
             to_add,
@@ -36,10 +36,10 @@ impl Command for Add {
         let mut contents: IndexMap<String, Value> =
             serde_json::from_str(&fs::read_to_string(&self.project_path).unwrap())
                 .unwrap();
-        let mut dependencies = contents.get("dependencies").unwrap().clone();
+        let mut dependencies = contents.get(DEPENDENCIES_KEY).unwrap().clone();
         let add_to = match self.is_development {
-            true => "development",
-            false => "required",
+            true => DEVELOPMENT_KEY,
+            false => REQUIRED_KEY,
         };
         self.to_add.iter().for_each(|f| {
             if dependencies[add_to]
@@ -65,9 +65,9 @@ impl Command for Add {
             .iter()
             .map(|f| f.as_str().unwrap().to_string())
             .collect::<Vec<String>>();
-        sorted_dependencies.sort_by(|a, b| a.to_lowercase().cmp(&b.to_lowercase()));
+        sorted_dependencies.sort_by_key(|a| a.to_lowercase());
         dependencies[add_to] = sorted_dependencies.into();
-        contents.insert("dependencies".into(), dependencies);
+        contents.insert(DEPENDENCIES_KEY.into(), dependencies);
         info!(
             "Writing new workspace dependencies to {:?}",
             &self.project_path

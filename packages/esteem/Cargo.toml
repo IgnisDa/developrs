@@ -1,13 +1,13 @@
 [package]
 name = "esteem"
-version = "0.1.0"
+version = "0.2.0"
 description = "A small and fast monorepo manager"
 repository = "https://github.com/IgnisDa/esteem"
 categories = ["package-manager", "monorepo"]
 authors = ["Diptesh Choudhuri <ignisda2001@gmail.com>"]
 readme = "README.md"
 license = "MIT"
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 clap = { version = "3.0.4", features = ["derive", "cargo"] }

@@ -2,7 +2,7 @@ use clap::{app_from_crate, arg, App, AppSettings};
 use env_logger::Env;
 use esteem::{
     get_project_files_for_all_projects, perform_add, perform_init,
-    perform_install_isolated, Workspace, WORKSPACE_FILE,
+    perform_install_isolated, perform_remove, Workspace, WORKSPACE_FILE,
 };
 use std::{collections::HashMap, path::PathBuf};
 
@@ -10,6 +10,7 @@ use std::{collections::HashMap, path::PathBuf};
 extern crate log;
 
 const ADD_COMMAND: &str = "add";
+const REMOVE_COMMAND: &str = "remove";
 const INSTALL_ISOLATED_COMMAND: &str = "install-isolated";
 const INIT_COMMAND: &str = "init";
 
@@ -21,20 +22,19 @@ fn main() -> Result<(), String> {
 
     let workspace = Workspace::new();
 
-    let projects_file_paths: HashMap<String, PathBuf>;
+    let all_projects: HashMap<String, PathBuf>;
 
     match workspace {
         Ok(data) => {
-            projects_file_paths = get_project_files_for_all_projects(&data.projects);
+            all_projects = get_project_files_for_all_projects(&data.projects);
         }
         Err(_) => {
             warn!("This project does not have a {:?} file. The commands will not work as expected. Are you running esteem in the correct directory?", WORKSPACE_FILE);
-            projects_file_paths = HashMap::new();
+            all_projects = HashMap::new();
         }
     }
 
-    let project_names: Vec<&str> =
-        projects_file_paths.keys().map(|f| f.as_str()).collect();
+    let project_names: Vec<&str> = all_projects.keys().map(|f| f.as_str()).collect();
 
     let matches = app_from_crate!()
         .global_setting(AppSettings::PropagateVersion)
@@ -46,7 +46,7 @@ fn main() -> Result<(), String> {
         )
         .subcommand(
             App::new(ADD_COMMAND)
-                .about("Installs a dependency to a project")
+                .about("Installs dependencies to a project")
                 .arg(
                     arg!([PROJECT_NAME])
                         .required(true)
@@ -57,10 +57,27 @@ fn main() -> Result<(), String> {
                     arg!(<DEPENDENCIES>)
                         .required(true)
                         .min_values(1)
-                        .help("The name of the npm packages to install"),
+                        .help("The name(s) of the npm packages to install"),
                 )
                 .arg(
                     arg!(-D - -development).help("Add as development dependencies")
+                )
+        )
+        .subcommand(
+            App::new(REMOVE_COMMAND)
+                .about("Removes dependencies from a project (alias: rm)")
+                .alias("rm")
+                .arg(
+                    arg!([PROJECT_NAME])
+                        .required(true)
+                        .help("The name(s) of the project from which the dependency must be removed")
+                        .possible_values(&project_names)
+                )
+                .arg(
+                    arg!(<DEPENDENCIES>)
+                        .required(true)
+                        .min_values(1)
+                        .help("The name of the npm packages to remove"),
                 )
         )
         .subcommand(
@@ -80,7 +97,7 @@ fn main() -> Result<(), String> {
 
     match matches.subcommand() {
         Some((INIT_COMMAND, _)) => {
-            perform_init(projects_file_paths);
+            perform_init(all_projects);
         }
         Some((ADD_COMMAND, sub_matches)) => {
             let project_name = sub_matches.value_of("PROJECT_NAME").unwrap();
@@ -90,16 +107,29 @@ fn main() -> Result<(), String> {
                 .map(|f| f.to_string())
                 .collect::<Vec<String>>();
             let is_development = sub_matches.is_present("development");
-            let project_path = projects_file_paths.get(project_name).unwrap().clone();
+            let project_path = all_projects.get(project_name).unwrap().clone();
             trace!("Project Name: {:?}", project_name);
             trace!("Project path: {:?}", project_path);
             trace!("Dependencies to add: {:?}", to_add);
             trace!("Development: {:?}", is_development);
             perform_add(project_path, is_development, to_add);
         }
+        Some((REMOVE_COMMAND, sub_matches)) => {
+            let project_name = sub_matches.value_of("PROJECT_NAME").unwrap();
+            let to_remove = sub_matches
+                .values_of("DEPENDENCIES")
+                .unwrap()
+                .map(|f| f.to_string())
+                .collect::<Vec<String>>();
+            let project_path = all_projects.get(project_name).unwrap().clone();
+            trace!("Project Name: {:?}", project_name);
+            trace!("Project path: {:?}", project_path);
+            trace!("Dependencies to add: {:?}", to_remove);
+            perform_remove(project_path, to_remove, all_projects);
+        }
         Some((INSTALL_ISOLATED_COMMAND, sub_matches)) => {
             let project_name = sub_matches.value_of("PROJECT_NAME").unwrap();
-            let project_path = projects_file_paths.get(project_name).unwrap().clone();
+            let project_path = all_projects.get(project_name).unwrap().clone();
             perform_install_isolated(project_path)
         }
         _ => unreachable!(),

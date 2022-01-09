@@ -1,10 +1,12 @@
 mod add;
 mod init;
 mod install_isolated;
+mod remove;
 use crate::init::Init;
 use add::Add;
 use core::fmt;
 use install_isolated::InstallIsolated;
+use remove::Remove;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
@@ -17,10 +19,13 @@ use std::{
 #[macro_use]
 extern crate log;
 
+pub const WORKSPACE_FILE: &str = "workspace.json";
 const PACKAGE_JSON_BACKUP_FILE: &str = "package.backup.json";
 const PACKAGE_JSON_FILE: &str = "package.json";
-pub const WORKSPACE_FILE: &str = "workspace.json";
 const PROJECT_FILE: &str = "project.json";
+const DEPENDENCIES_KEY: &str = "dependencies";
+const REQUIRED_KEY: &str = "required";
+const DEVELOPMENT_KEY: &str = "development";
 
 #[derive(Debug)]
 pub struct LibraryError;
@@ -132,5 +137,18 @@ pub fn perform_init(projects_file_paths: HashMap<String, PathBuf>) {
 
 pub fn perform_install_isolated(project_path: PathBuf) {
     let a = InstallIsolated::new(project_path);
+    a.execute();
+}
+
+pub fn perform_remove(
+    project_path: PathBuf,
+    to_remove: Vec<String>,
+    all_projects: HashMap<String, PathBuf>,
+) {
+    let npm_package_manager = get_npm_package_manager().unwrap_or_else(|| {
+        error!("A valid lockfile was not found for this project.");
+        process::exit(1);
+    });
+    let a = Remove::new(project_path, to_remove, all_projects, npm_package_manager);
     a.execute();
 }

@@ -1,7 +1,10 @@
 use indexmap::IndexMap;
 use serde_json::Value;
 
-use crate::{Command, Package, PACKAGE_JSON_BACKUP_FILE, PACKAGE_JSON_FILE};
+use crate::{
+    Command, Package, DEPENDENCIES_KEY, DEVELOPMENT_KEY, PACKAGE_JSON_BACKUP_FILE,
+    PACKAGE_JSON_FILE, REQUIRED_KEY,
+};
 use std::{collections::HashMap, fs, path::PathBuf, process};
 
 pub(crate) struct InstallIsolated {
@@ -23,10 +26,12 @@ impl Command for InstallIsolated {
         let mut dependencies = HashMap::new();
         dependencies.extend(workspace.dependencies);
         dependencies.extend(workspace.dev_dependencies);
-        let project_dependencies = contents.get("dependencies").unwrap().clone();
-        let to_install_required_deps =
-            project_dependencies["required"].as_array().unwrap().clone();
-        let to_install_development_deps = project_dependencies["development"]
+        let project_dependencies = contents.get(DEPENDENCIES_KEY).unwrap().clone();
+        let to_install_required_deps = project_dependencies[REQUIRED_KEY]
+            .as_array()
+            .unwrap()
+            .clone();
+        let to_install_development_deps = project_dependencies[DEVELOPMENT_KEY]
             .as_array()
             .unwrap()
             .clone();
