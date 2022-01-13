@@ -76,7 +76,7 @@ impl Command for Remove {
                 {
                     warn!(
                         "Found {:?} in {}'s {:?}, won't be removing it!",
-                        package_name, REQUIRED_KEY, project_name
+                        package_name, project_name, REQUIRED_KEY
                     );
                     will_be_removed_from_package_json.insert(package_name, false);
                     break;
@@ -87,7 +87,7 @@ impl Command for Remove {
                 {
                     warn!(
                         "Found {:?} in {}'s {:?}, won't be removing it!",
-                        package_name, DEVELOPMENT_KEY, project_name
+                        package_name, project_name, DEVELOPMENT_KEY
                     );
                     will_be_removed_from_package_json.insert(package_name, false);
                     break;
