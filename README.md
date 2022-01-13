@@ -3,7 +3,12 @@
 A set of tools to provision development environments, and templates that make it easy to
 bootstrap new projects.
 
-## Docker development environment
+## Packages
+
+- [Esteem](./packages/esteem): Make your NX workspaces go easier on your disk
+- [Cinder](./packages/cinder): A project to make deployment for dokku projects easier
+
+## Docker development environments
 
 The directory contains the configuration that is used to create the
 [developr workspace](https://hub.docker.com/r/ignisda/developr-workspace). This image can
