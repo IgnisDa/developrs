@@ -66,8 +66,9 @@ Now for each `project.json`, you will have to manually add the dependent package
 project. So if project `server` depends on `nestjs` and `prettier`, you will have to make
 these changes.
 
+Eg: `apps/server/project.json`
+
 ```json
-// in apps/server/project.json
 {
   "dependencies": {
     "development": ["prettier"],
@@ -86,10 +87,23 @@ $ esteem add server redis luxon
 [WARN ] Dependency "luxon" already exists in "apps/server/project.json". Skipping...
 [INFO ] Writing new workspace dependencies to "apps/server/project.json"
 [INFO ] Installing package(s) ["redis", "luxon"] for you
-# your package manager called here
+# your package manager called automatically here
 ```
 
 Pass the `-D` flag to add it a development dependency.
+
+### `remove`
+
+Removes a dependency from a project taking into account whether other projects are
+dependent on that dependency.
+
+```bash
+$ esteem remove server luxon typescript bull
+[INFO ] Writing new workspace dependencies to "apps/server/project.json"
+[WARN ] Found "luxon" in site's "required", won't be removing it!
+[WARN ] Found "typescript" in site's "development", won't be removing it!
+# your package manager called automatically here
+```
 
 ### `install-isolated`
 
@@ -101,8 +115,14 @@ manager to install the dependencies.
 **_NOTE:_** The lockfile will **NOT** be in sync with `package.json` because `esteem` does
 not resolve dependencies. However this should not be a problem since dependencies have only
 been _removed_ and not _added_ (and they were already resolved). However, this means that
-`pnpm install --frozen-lockfile` and similar commands for the other package managers
-will fail. Just remove that flag and it should work fine.
+`pnpm install --frozen-lockfile` and similar commands **WILL** fail. Just remove that flag
+and it should work fine.
+
+## Example
+
+[Bookius](https://github.com/IgnisDa/bookius) is a project where `esteem` is used in
+conjunction with Dokku, Github Actions and Docker for deployment. All projects therein are
+deployed from a single Digital Ocean droplet.
 
 ## Contributing
 
