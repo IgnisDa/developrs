@@ -1,9 +1,9 @@
 use indexmap::IndexMap;
-use serde_json::Value;
+use serde_json::{json, Value};
 
 use crate::{
-    Command, Package, DEPENDENCIES_KEY, DEVELOPMENT_KEY, PACKAGE_JSON_BACKUP_FILE,
-    PACKAGE_JSON_FILE, REQUIRED_KEY,
+    Command, DEPENDENCIES_KEY, DEVELOPMENT_DEPENDENCIES_KEY, DEVELOPMENT_KEY,
+    PACKAGE_JSON_BACKUP_FILE, PACKAGE_JSON_FILE, REQUIRED_KEY,
 };
 use std::{collections::HashMap, fs, path::PathBuf, process};
 
@@ -19,13 +19,33 @@ impl InstallIsolated {
 
 impl Command for InstallIsolated {
     fn execute(&self) {
+        let mut package_file: IndexMap<String, Value> = serde_json::from_str(
+            &fs::read_to_string(PACKAGE_JSON_FILE).unwrap_or_else(|_| {
+                error!("Unable to read file: {:?}", PACKAGE_JSON_FILE);
+                process::exit(1);
+            }),
+        )
+        .unwrap();
+        let package_file_deps = package_file
+            .get(DEPENDENCIES_KEY)
+            .cloned()
+            .unwrap_or_else(|| json!({}))
+            .as_object()
+            .unwrap()
+            .clone();
+        let package_file_dev_deps = package_file
+            .get(DEVELOPMENT_DEPENDENCIES_KEY)
+            .cloned()
+            .unwrap_or_else(|| json!({}))
+            .as_object()
+            .unwrap()
+            .clone();
         let contents: IndexMap<String, Value> =
             serde_json::from_str(&fs::read_to_string(&self.project_path).unwrap())
                 .unwrap();
-        let workspace = Package::default();
-        let mut dependencies = HashMap::new();
-        dependencies.extend(workspace.dependencies);
-        dependencies.extend(workspace.dev_dependencies);
+        let mut workspace_dependencies = HashMap::new();
+        workspace_dependencies.extend(package_file_deps);
+        workspace_dependencies.extend(package_file_dev_deps);
         let project_dependencies = contents.get(DEPENDENCIES_KEY).unwrap().clone();
         let to_install_required_deps = project_dependencies[REQUIRED_KEY]
             .as_array()
@@ -40,7 +60,7 @@ impl Command for InstallIsolated {
             .map(|possible_package| {
                 (
                     possible_package.as_str().unwrap().to_string(),
-                    dependencies
+                    workspace_dependencies
                         .get(possible_package.as_str().unwrap())
                         .unwrap_or_else(|| {
                             error!(
@@ -51,6 +71,7 @@ impl Command for InstallIsolated {
                             process::exit(1);
                         })
                         .as_str()
+                        .unwrap()
                         .to_string(),
                 )
             })
@@ -60,7 +81,7 @@ impl Command for InstallIsolated {
             .map(|possible_package| {
                 (
                     possible_package.as_str().unwrap().to_string(),
-                    dependencies
+                    workspace_dependencies
                         .get(possible_package.as_str().unwrap())
                         .unwrap_or_else(|| {
                             error!(
@@ -71,12 +92,16 @@ impl Command for InstallIsolated {
                             process::exit(1);
                         })
                         .as_str()
+                        .unwrap()
                         .to_string(),
                 )
             })
             .collect::<HashMap<String, String>>();
-        let new_package_json_struct =
-            Package::from_hashmaps(filtered_required_deps, filtered_dev_deps);
+        package_file.insert(
+            DEVELOPMENT_DEPENDENCIES_KEY.into(),
+            json!(filtered_dev_deps),
+        );
+        package_file.insert(DEPENDENCIES_KEY.into(), json!(filtered_required_deps));
         info!(
             "Renaming file {:?} to {:?}",
             PACKAGE_JSON_FILE, PACKAGE_JSON_BACKUP_FILE
@@ -85,7 +110,7 @@ impl Command for InstallIsolated {
             error!("Unable to rename file");
         });
         info!("Writing to file {:?}", PACKAGE_JSON_FILE);
-        let to_write = serde_json::to_string_pretty(&new_package_json_struct).unwrap();
+        let to_write = serde_json::to_string_pretty(&package_file).unwrap();
         fs::write(PACKAGE_JSON_FILE, to_write).unwrap();
         println!("\n\nNOTE: Please run your package manager's install command to complete installing the dependencies.\n\n");
     }

@@ -24,6 +24,7 @@ const PACKAGE_JSON_BACKUP_FILE: &str = "package.backup.json";
 const PACKAGE_JSON_FILE: &str = "package.json";
 const PROJECT_FILE: &str = "project.json";
 const DEPENDENCIES_KEY: &str = "dependencies";
+const DEVELOPMENT_DEPENDENCIES_KEY: &str = "devDependencies";
 const REQUIRED_KEY: &str = "required";
 const DEVELOPMENT_KEY: &str = "development";
 
@@ -37,35 +38,6 @@ impl fmt::Display for LibraryError {
 }
 
 impl Error for LibraryError {}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub(crate) struct Package {
-    dev_dependencies: HashMap<String, String>,
-    dependencies: HashMap<String, String>,
-}
-
-impl Package {
-    pub(crate) fn from_hashmaps(
-        dependencies: HashMap<String, String>,
-        dev_dependencies: HashMap<String, String>,
-    ) -> Self {
-        Self {
-            dev_dependencies,
-            dependencies,
-        }
-    }
-}
-
-impl Default for Package {
-    fn default() -> Self {
-        let package_file = fs::read_to_string(PACKAGE_JSON_FILE).unwrap_or_else(|_| {
-            error!("Unable to read file: {:?}", PACKAGE_JSON_FILE);
-            process::exit(1);
-        });
-        serde_json::from_str(&package_file).unwrap()
-    }
-}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Workspace {
