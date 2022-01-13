@@ -8,7 +8,7 @@ This tool exists for a very simple reason - I am a :sparkles: cheapskate :sparkl
 would rather spend a weekend developing a tool instead of paying an additional $5 on
 Digital Ocean to buy some additional storage and calling it a day.
 
-> I present you - **esteem**!
+I present you with **_esteem_**!
 
 NX monorepos totally rock, but where they don't is when you need to deploy your projects
 and now a simple Next app takes up 2GBs of storage because you also had to install
@@ -112,11 +112,17 @@ This command is meant to be run only on CI environments because it changes your
 dependencies of the project into `package.json`. It is your job to call your package
 manager to install the dependencies.
 
-**_NOTE:_** The lockfile will **NOT** be in sync with `package.json` because `esteem` does
-not resolve dependencies. However this should not be a problem since dependencies have only
-been _removed_ and not _added_ (and they were already resolved). However, this means that
-`pnpm install --frozen-lockfile` and similar commands **WILL** fail. Just remove that flag
-and it should work fine.
+#### Some caveats
+
+- The lockfile will **NOT** be in sync with `package.json` because `esteem` does not
+  resolve dependencies. However this should not be a problem since dependencies have only
+  been _removed_ and not _added_ (and they were already resolved in the lockfile). However,
+  this means that `pnpm install --frozen-lockfile` and similar commands **WILL** fail. Just
+  remove that flag and it should work as expected.
+- `esteem` can not solve cross project dependencies. For example, if project `server`
+  depends on project `model` (as shown in [example repository](#example)) and `model`
+  depends on [Prisma](https://prisma.io/), you will **HAVE** to include `prisma` as a
+  dependency in `server`.
 
 ## Example
 
