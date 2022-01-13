@@ -5,7 +5,7 @@ use std::{
     collections::HashMap,
     fs,
     path::PathBuf,
-    process::{Command as ShellCommand, Stdio},
+    process::{self, Command as ShellCommand, Stdio},
 };
 
 #[derive(Debug)]
@@ -93,6 +93,14 @@ impl Command for Remove {
                     break;
                 };
             }
+        }
+        let are_any_packages_to_be_removed = will_be_removed_from_package_json
+            .values()
+            .cloned()
+            .any(|f| f == true);
+        if !are_any_packages_to_be_removed {
+            warn!("No packages to be uninstalled, quitting without calling package manager.");
+            return;
         }
         let mut command: ShellCommand;
         match self.npm_package_manager {
