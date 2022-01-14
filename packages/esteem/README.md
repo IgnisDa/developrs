@@ -2,11 +2,24 @@
 
 Make your [NX](https://nx.dev/) workspaces go easier on your disk
 
+- [esteem](#esteem)
+  - [Why?](#why)
+  - [How does it work?](#how-does-it-work)
+  - [Installation](#installation)
+  - [Usage](#usage)
+    - [`init`](#init)
+    - [`add`](#add)
+    - [`remove`](#remove)
+    - [`install-isolated`](#install-isolated)
+      - [Some caveats](#some-caveats)
+  - [Example](#example)
+  - [Contributing](#contributing)
+
 ## Why?
 
 This tool exists for a very simple reason - I am a :sparkles: cheapskate :sparkles:. I
-would rather spend a weekend developing a tool instead of paying an additional $5 on
-Digital Ocean to buy some additional storage and calling it a day.
+would rather spend a weekend developing a tool than pay an additional $5 on Digital Ocean
+to buy some additional storage and calling it a day.
 
 I present you with **_esteem_**!
 
@@ -55,7 +68,7 @@ package manager (npm, yarn, pnpm etc).
 
 Right now `esteem` is only compatible with NX monorepos (or all projects where there is a
 root level `workspace.json` and project level configurations in
-`apps/<project_name>/project.json`).
+`<project_type>/<project_name>/project.json`).
 
 **_Note_:** You can always run `esteem <subcommand> --help` for more information.
 
@@ -87,6 +100,9 @@ Eg: `apps/server/project.json`
   }
 }
 ```
+
+[Here](https://github.com/IgnisDa/bookius/blob/main/apps/server/project.json) is a
+`project.json` from the [example](#example) repository.
 
 ### `add`
 
@@ -131,9 +147,9 @@ manager to install the dependencies.
   this means that `pnpm install --frozen-lockfile` and similar commands **WILL** fail. Just
   remove that flag and it should work as expected.
 - `esteem` can not solve cross project dependencies. For example, if project `server`
-  depends on project `model` (as shown in [example repository](#example)) and `model`
-  depends on [Prisma](https://prisma.io/), you will **HAVE** to include `prisma` as a
-  dependency in `server`.
+  depends on project `model` and that depends on [Prisma](https://prisma.io/) (as in the
+  [example repository](#example)), you will **HAVE** to include `prisma` as a dependency in
+  `server`.
 
 ## Example
 
