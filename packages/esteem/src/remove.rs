@@ -5,7 +5,7 @@ use std::{
     collections::HashMap,
     fs,
     path::PathBuf,
-    process::{self, Command as ShellCommand, Stdio},
+    process::{Command as ShellCommand, Stdio},
 };
 
 #[derive(Debug)]
@@ -97,7 +97,7 @@ impl Command for Remove {
         let are_any_packages_to_be_removed = will_be_removed_from_package_json
             .values()
             .cloned()
-            .any(|f| f == true);
+            .any(|f| f);
         if !are_any_packages_to_be_removed {
             warn!("No packages to be uninstalled, quitting without calling package manager.");
             return;

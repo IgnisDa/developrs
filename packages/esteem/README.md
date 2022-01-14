@@ -1,6 +1,6 @@
 # esteem
 
-A manager for [NX](nx.dev/) monorepos.
+Make your [NX](https://nx.dev/) workspaces go easier on your disk
 
 ## Why?
 
