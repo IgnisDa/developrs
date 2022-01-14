@@ -28,14 +28,25 @@ call your package manager's install command and viola! you have a smaller `node_
 
 ## Installation
 
-```bash
-curl https://raw.githubusercontent.com/IgnisDa/developrs/main/packages/esteem/install.sh -o install.sh
-# Warning: always examine scripts downloaded from the internet before running them locally.
-bash install.sh
-```
+- Guided installation:
 
-You can also download the appropriate executable from the
-[releases](https://github.com/IgnisDa/developrs/releases) page.
+  ```bash
+  curl https://raw.githubusercontent.com/IgnisDa/developrs/main/packages/esteem/install.sh -o install.sh
+  # Warning: always examine scripts downloaded from the internet before running them locally.
+  bash install.sh
+  ```
+
+- Manual installation:
+
+  You can also download the appropriate executable from the
+  [releases](https://github.com/IgnisDa/developrs/releases) page.
+
+- CI environments:
+  For example in `Dockerfile`
+
+  ```Dockerfile
+  RUN curl https://raw.githubusercontent.com/IgnisDa/developrs/main/packages/esteem/install.sh | sh -s -- --yes
+  ```
 
 ## Usage
 
@@ -129,6 +140,10 @@ manager to install the dependencies.
 [Bookius](https://github.com/IgnisDa/bookius) is a project where `esteem` is used in
 conjunction with Dokku, Github Actions and Docker for deployment. All projects therein are
 deployed from a single Digital Ocean droplet.
+
+You can consult
+[`Dockerfile`](https://github.com/IgnisDa/bookius/blob/49713a5d0beb1528d471563faf565cabbbbe4ff5/apps/server/Dockerfile#L8)
+to see it being used in a docker environment.
 
 ## Contributing
 
