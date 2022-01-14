@@ -146,10 +146,23 @@ manager to install the dependencies.
   been _removed_ and not _added_ (and they were already resolved in the lockfile). However,
   this means that `pnpm install --frozen-lockfile` and similar commands **WILL** fail. Just
   remove that flag and it should work as expected.
+
 - `esteem` can not solve cross project dependencies. For example, if project `server`
   depends on project `model` and that depends on [Prisma](https://prisma.io/) (as in the
   [example repository](#example)), you will **HAVE** to include `prisma` as a dependency in
   `server`.
+
+- If you run the command `esteem install-isolated server`, the following files are expected to be
+  present (with the paths intact):
+
+  - `package.json`
+  - `pnpm-lock.yaml` (or your package manager's lockfile)
+  - `workspace.json`
+  - `apps/server/project.json`
+
+  You can refer to
+  [these lines](https://github.com/IgnisDa/bookius/blob/49713a5d0beb1528d471563faf565cabbbbe4ff5/apps/server/Dockerfile#L4-L5)
+  of the [example](#example) repository to see this in action in a `Dockerfile`.
 
 ## Example
 
