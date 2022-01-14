@@ -1,10 +1,9 @@
-use indexmap::IndexMap;
-use serde_json::{json, Value};
-
 use crate::{
     Command, DEPENDENCIES_KEY, DEVELOPMENT_DEPENDENCIES_KEY, DEVELOPMENT_KEY,
     PACKAGE_JSON_BACKUP_FILE, PACKAGE_JSON_FILE, REQUIRED_KEY,
 };
+use indexmap::IndexMap;
+use serde_json::{json, Value};
 use std::{collections::HashMap, fs, path::PathBuf, process};
 
 pub(crate) struct InstallIsolated {

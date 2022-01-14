@@ -4,7 +4,6 @@ use serde_json::{json, to_string_pretty, Value};
 use std::{collections::HashMap, fs, path::PathBuf, process};
 
 #[derive(Debug)]
-
 pub(crate) struct Init {
     projects_file_paths: HashMap<String, PathBuf>,
 }
@@ -28,7 +27,7 @@ impl Command for Init {
                     DEPENDENCIES_KEY.into(),
                     json!({ REQUIRED_KEY: [], DEVELOPMENT_KEY: []}),
                 );
-                info!("Writing to file {:?}", project_file_json);
+                info!("Writing to file {:?}", project_file_path);
                 let to_write = to_string_pretty(&project_file_json).unwrap();
                 fs::write(project_file_path, to_write).unwrap();
             } else {
