@@ -17,7 +17,7 @@ const INIT_COMMAND: &str = "init";
 fn main() -> Result<(), String> {
     env_logger::Builder::from_env(Env::default().default_filter_or("info"))
         .format_timestamp(None)
-        .format_target(false)
+        .format_target(true)
         .init();
 
     let workspace = Workspace::new();
