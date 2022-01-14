@@ -1,6 +1,6 @@
 # esteem
 
-Make your [NX](https://nx.dev/) workspaces go easier on your disk
+Make your [NX](https://nx.dev/) workspaces go easier on your disk.
 
 - [esteem](#esteem)
   - [Why?](#why)
@@ -58,7 +58,8 @@ call your package manager's install command and viola! you have a smaller `node_
   For example in `Dockerfile`
 
   ```Dockerfile
-  RUN curl https://raw.githubusercontent.com/IgnisDa/developrs/main/packages/esteem/install.sh | sh -s -- --yes
+  # This script writes to /usr/local/bin/, you can change this via the `--bin-dir` flag
+  RUN curl https://raw.githubusercontent.com/IgnisDa/developrs/main/packages/esteem/install.sh | sudo sh -s -- --yes
   ```
 
 ## Usage
