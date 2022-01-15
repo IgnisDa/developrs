@@ -6,8 +6,8 @@ use crate::schema::*;
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
 pub struct App {
     pub id: i32,
-    pub name: String,
     pub slug: String,
+    pub name: String,
     pub created_at: NaiveDateTime,
 }
 

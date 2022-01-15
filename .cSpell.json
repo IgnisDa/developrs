@@ -6,7 +6,9 @@
     // words - list of words to be always considered correct
     "words": [
         "actix",
+        "chrono",
         "dotenv",
+        "indexmap",
         "Insertable"
     ],
     // flagWords - list of words to be always considered incorrect
