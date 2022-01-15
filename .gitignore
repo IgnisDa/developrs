@@ -1,3 +1,4 @@
 personal
 node_modules
 target
+.env
