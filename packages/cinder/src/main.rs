@@ -29,6 +29,18 @@ async fn main() -> std::io::Result<()> {
     let conn = sea_orm::Database::connect(&db_url).await.unwrap();
     let state = AppState { conn };
 
+    if std::env::var("MODE").unwrap_or("development".to_string()) == "production" {
+        let pool = sqlx_core::postgres::PgPoolOptions::new()
+            .connect(&db_url)
+            .await
+            .unwrap();
+        sqlx::migrate!()
+            .run(&pool)
+            .await
+            .expect("Unable to run migrations");
+        pool.close().await;
+    }
+
     let bind = std::env::var("BIND")
         .or::<String>(Ok("127.0.0.1:8000".into()))
         .unwrap();
