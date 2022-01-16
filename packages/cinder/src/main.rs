@@ -15,6 +15,10 @@ pub struct AppState {
     conn: DatabaseConnection,
 }
 
+const DATABASE_URL: &str = "DATABASE_URL";
+const SERVER_HOST: &str = "SERVER_HOST";
+const MODE: &str = "MODE";
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
@@ -24,12 +28,12 @@ async fn main() -> std::io::Result<()> {
         .init();
 
     // set up database connection pool
-    let db_url =
-        std::env::var("DATABASE_URL").expect("DATABASE_URL environment variable");
+    let db_url = std::env::var(DATABASE_URL)
+        .unwrap_or_else(|_| panic!("{} environment variable not set", DATABASE_URL));
     let conn = sea_orm::Database::connect(&db_url).await.unwrap();
     let state = AppState { conn };
 
-    if std::env::var("MODE").unwrap_or("development".to_string()) == "production" {
+    if std::env::var(MODE).unwrap_or_else(|_| "development".to_string()) == "production" {
         let pool = sqlx_core::postgres::PgPoolOptions::new()
             .connect(&db_url)
             .await
@@ -41,9 +45,8 @@ async fn main() -> std::io::Result<()> {
         pool.close().await;
     }
 
-    let bind = std::env::var("BIND")
-        .or::<String>(Ok("127.0.0.1:8000".into()))
-        .unwrap();
+    let bind =
+        std::env::var(SERVER_HOST).unwrap_or_else(|_| "127.0.0.1:8000".to_string());
 
     println!("Starting server at: {:?}...", &bind);
 
