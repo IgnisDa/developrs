@@ -1,6 +1,6 @@
 use actix_web::http::StatusCode;
 use actix_web::{HttpResponse, ResponseError};
-use diesel::result::Error as DieselError;
+use sea_orm::DbErr;
 use serde::Deserialize;
 use serde_json::json;
 use std::fmt;
@@ -26,14 +26,14 @@ impl fmt::Display for ApiError {
     }
 }
 
-impl From<DieselError> for ApiError {
-    fn from(error: DieselError) -> ApiError {
+impl From<DbErr> for ApiError {
+    fn from(error: DbErr) -> ApiError {
         match error {
-            DieselError::DatabaseError(_, err) => {
-                ApiError::new(409, err.message().to_string())
+            DbErr::Query(err) => ApiError::new(409, err),
+            DbErr::RecordNotFound(err) => {
+                ApiError::new(404, format!("Record not found: {}", err))
             }
-            DieselError::NotFound => ApiError::new(404, "Record not found".to_string()),
-            err => ApiError::new(500, format!("Diesel error: {}", err)),
+            err => ApiError::new(500, format!("Database error: {}", err)),
         }
     }
 }
@@ -48,7 +48,7 @@ impl ResponseError for ApiError {
         let message = match status_code.as_u16() < 500 {
             true => self.message.clone(),
             false => {
-                error!("{}", self.message);
+                error!("Error: {}", self.message);
                 "Internal server error".to_string()
             }
         };

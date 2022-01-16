@@ -1,24 +1,19 @@
 use actix_web::{middleware, web, App, HttpServer};
-use diesel::{
-    r2d2::{self, ConnectionManager},
-    PgConnection,
-};
 use env_logger::Env;
+use sea_orm::DatabaseConnection;
 
-mod actions;
-mod api_errors;
-mod db;
-mod models;
+mod data;
+mod entities;
+mod errors;
 mod routes;
-mod schema;
-
-#[macro_use]
-extern crate diesel;
 
 #[macro_use]
 extern crate log;
 
-type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
+#[derive(Debug, Clone)]
+pub struct AppState {
+    conn: DatabaseConnection,
+}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -29,12 +24,10 @@ async fn main() -> std::io::Result<()> {
         .init();
 
     // set up database connection pool
-    let connection_string =
+    let db_url =
         std::env::var("DATABASE_URL").expect("DATABASE_URL environment variable");
-    let manager = ConnectionManager::<PgConnection>::new(connection_string);
-    let pool = r2d2::Pool::builder()
-        .build(manager)
-        .expect("Failed to create pool.");
+    let conn = sea_orm::Database::connect(&db_url).await.unwrap();
+    let state = AppState { conn };
 
     let bind = std::env::var("BIND")
         .or::<String>(Ok("127.0.0.1:8000".into()))
@@ -45,14 +38,14 @@ async fn main() -> std::io::Result<()> {
     // Start HTTP server
     HttpServer::new(move || {
         App::new()
-            .data(pool.clone())
+            .data(state.clone())
             .wrap(middleware::Logger::default())
             .service(
-                web::scope("/apps")
-                    .service(routes::create_app)
-                    .service(routes::get_all_apps)
-                    .service(routes::find_app_by_id),
+                web::scope("/{app_name}")
+                    .service(routes::update_app)
+                    .service(routes::find_app_by_name),
             )
+            .service(routes::get_all_apps)
     })
     .bind(&bind)?
     .run()
