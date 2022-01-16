@@ -4,9 +4,13 @@ use crate::models::App;
 
 type DbError = Box<dyn std::error::Error + Send + Sync>;
 
-pub fn find_app_by_id(app_id: i32, conn: &PgConnection) -> Result<Option<App>, DbError> {
+pub fn find_app_by_name(
+    app_name: &str,
+    conn: &PgConnection,
+) -> Result<Option<App>, DbError> {
     use crate::schema::apps::dsl::*;
-    let app = apps.filter(id.eq(app_id)).first(conn).optional()?;
+    let app = apps.filter(name.eq(app_name)).first(conn).optional()?;
+    info!("{:?}", app);
     Ok(app)
 }
 

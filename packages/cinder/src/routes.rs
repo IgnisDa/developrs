@@ -1,6 +1,12 @@
+use crate::{
+    actions,
+    api_errors::ApiError,
+    db,
+    models::{App, NewApp},
+    DbPool,
+};
 use actix_web::{get, post, web, Error, HttpResponse};
-
-use crate::{actions, models::NewApp, DbPool};
+use diesel::prelude::*;
 
 #[post("")]
 pub async fn create_app(
@@ -21,43 +27,21 @@ pub async fn create_app(
 }
 
 #[get("")]
-async fn get_all_apps(pool: web::Data<DbPool>) -> Result<HttpResponse, Error> {
-    let users = web::block(move || {
-        let conn = pool.get()?;
-        actions::get_all_apps(&conn)
-    })
-    .await
-    .map_err(|e| {
-        eprintln!("{}", e);
-        HttpResponse::InternalServerError().finish()
-    })?;
-
-    Ok(HttpResponse::Ok().json(users))
+async fn get_all_apps(pool: web::Data<DbPool>) -> Result<HttpResponse, ApiError> {
+    use crate::schema::apps::dsl::*;
+    let conn = db::connection()?;
+    let all_apps = apps.load::<App>(&conn)?;
+    Ok(HttpResponse::Ok().json(all_apps))
 }
 
-#[get("/{app_id}")]
+#[get("/{app_name}")]
 async fn find_app_by_id(
     pool: web::Data<DbPool>,
-    app_id: web::Path<i32>,
-) -> Result<HttpResponse, Error> {
-    let app_id = app_id.into_inner();
-
-    // use web::block to offload blocking Diesel code without blocking server thread
-    let user = web::block(move || {
-        let conn = pool.get()?;
-        actions::find_app_by_id(app_id, &conn)
-    })
-    .await
-    .map_err(|e| {
-        eprintln!("{}", e);
-        HttpResponse::InternalServerError().finish()
-    })?;
-
-    if let Some(user) = user {
-        Ok(HttpResponse::Ok().json(user))
-    } else {
-        let res =
-            HttpResponse::NotFound().body(format!("No app found with id: {:?}", app_id));
-        Ok(res)
-    }
+    app_name: web::Path<String>,
+) -> Result<HttpResponse, ApiError> {
+    use crate::schema::apps::dsl::*;
+    use crate::schema::deploys::dsl::*;
+    // let conn = db::connection()?;
+    // let app =
+    Ok(HttpResponse::Ok().json("{}"))
 }
