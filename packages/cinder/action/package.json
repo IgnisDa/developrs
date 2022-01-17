@@ -1,0 +1,14 @@
+{
+  "name": "cinder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "Diptesh Choudhuri",
+  "dependencies": {
+    "@actions/core": "1.6.0",
+    "axios": "^0.24.0",
+    "node-fetch": "^3.1.1"
+  }
+}
