@@ -107,7 +107,7 @@ pub fn perform_init(projects_file_paths: HashMap<String, PathBuf>) {
     a.execute();
 }
 
-pub fn perform_install_isolated(project_path: PathBuf) {
+pub fn perform_install_isolated(project_path: Vec<PathBuf>) {
     let a = InstallIsolated::new(project_path);
     a.execute();
 }

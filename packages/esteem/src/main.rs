@@ -83,13 +83,14 @@ fn main() -> Result<(), String> {
         .subcommand(
             App::new(INSTALL_ISOLATED_COMMAND)
                 .about(
-                    "Installs only the dependencies of a particular project.",
+                    "Isolate only dependencies of a few projects",
                 )
                 .after_help("NOTE: This mutates `package.json` in place and should be used with care.")
                 .arg(
-                    arg!([PROJECT_NAME])
+                    arg!([PROJECTS])
                         .required(true)
-                        .help("The name of the project whose dependencies should be installed")
+                        .min_values(1)
+                        .help("The names of the projects whose dependencies should be installed")
                         .possible_values(&project_names)
                 )
         )
@@ -128,9 +129,16 @@ fn main() -> Result<(), String> {
             perform_remove(project_path, to_remove, all_projects);
         }
         Some((INSTALL_ISOLATED_COMMAND, sub_matches)) => {
-            let project_name = sub_matches.value_of("PROJECT_NAME").unwrap();
-            let project_path = all_projects.get(project_name).unwrap().clone();
-            perform_install_isolated(project_path)
+            let project_names = sub_matches
+                .values_of("PROJECTS")
+                .unwrap()
+                .map(|f| f.to_string())
+                .collect::<Vec<String>>();
+            let project_paths = project_names
+                .iter()
+                .map(|f| all_projects.get(f).cloned().unwrap())
+                .collect::<Vec<PathBuf>>();
+            perform_install_isolated(project_paths)
         }
         _ => unreachable!(),
     }

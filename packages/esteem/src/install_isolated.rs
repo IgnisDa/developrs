@@ -7,12 +7,12 @@ use serde_json::{json, Value};
 use std::{collections::HashMap, fs, path::PathBuf, process};
 
 pub(crate) struct InstallIsolated {
-    project_path: PathBuf,
+    project_paths: Vec<PathBuf>,
 }
 
 impl InstallIsolated {
-    pub(crate) fn new(project_path: PathBuf) -> InstallIsolated {
-        InstallIsolated { project_path }
+    pub(crate) fn new(project_paths: Vec<PathBuf>) -> InstallIsolated {
+        InstallIsolated { project_paths }
     }
 }
 
@@ -39,21 +39,28 @@ impl Command for InstallIsolated {
             .as_object()
             .unwrap()
             .clone();
-        let contents: IndexMap<String, Value> =
-            serde_json::from_str(&fs::read_to_string(&self.project_path).unwrap())
-                .unwrap();
         let mut workspace_dependencies = HashMap::new();
         workspace_dependencies.extend(package_file_deps);
         workspace_dependencies.extend(package_file_dev_deps);
-        let project_dependencies = contents.get(DEPENDENCIES_KEY).unwrap().clone();
-        let to_install_required_deps = project_dependencies[REQUIRED_KEY]
-            .as_array()
-            .unwrap()
-            .clone();
-        let to_install_development_deps = project_dependencies[DEVELOPMENT_KEY]
-            .as_array()
-            .unwrap()
-            .clone();
+        let mut to_install_development_deps = Vec::new();
+        let mut to_install_required_deps = Vec::new();
+        for project_path in &self.project_paths {
+            let contents: IndexMap<String, Value> =
+                serde_json::from_str(&fs::read_to_string(project_path).unwrap()).unwrap();
+            let project_dependencies = contents.get(DEPENDENCIES_KEY).unwrap().clone();
+            to_install_required_deps.extend(
+                project_dependencies[REQUIRED_KEY]
+                    .as_array()
+                    .unwrap()
+                    .clone(),
+            );
+            to_install_development_deps.extend(
+                project_dependencies[DEVELOPMENT_KEY]
+                    .as_array()
+                    .unwrap()
+                    .clone(),
+            );
+        }
         let filtered_dev_deps = to_install_development_deps
             .iter()
             .map(|possible_package| {

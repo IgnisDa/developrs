@@ -140,6 +140,10 @@ This command is meant to be run only on CI environments because it changes your
 dependencies of the project into `package.json`. It is your job to call your package
 manager to install the dependencies.
 
+```bash
+esteem install-isolated server
+```
+
 #### Some caveats
 
 - The lockfile will **NOT** be in sync with `package.json` because `esteem` does not
@@ -148,10 +152,14 @@ manager to install the dependencies.
   this means that `pnpm install --frozen-lockfile` and similar commands **WILL** fail. Just
   remove that flag and it should work as expected.
 
-- `esteem` can not solve cross project dependencies. For example, if project `server`
-  depends on project `model` and that depends on [Prisma](https://prisma.io/) (as in the
-  [example repository](#example)), you will **HAVE** to include `prisma` as a dependency in
-  `server`.
+- `esteem` can not solve cross project dependencies. For example, project `server`
+  depends on project `model`, and both project's dependencies must be installed for `server`
+  to build (as in the [example repository](#example)). Instead you can call it for multiple
+  projects:
+
+  ```bash
+  esteem install-isolated server model
+  ```
 
 - If you run the command `esteem install-isolated server`, the following files are expected to be
   present (with the paths intact):
