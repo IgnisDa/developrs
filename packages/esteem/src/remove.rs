@@ -67,9 +67,18 @@ impl Command for Remove {
                 let contents: IndexMap<String, Value> =
                     serde_json::from_str(&fs::read_to_string(project_path).unwrap())
                         .unwrap();
-                let dependencies = contents.get(DEPENDENCIES_KEY).unwrap().clone();
-                let required = dependencies[REQUIRED_KEY].as_array().unwrap();
-                let development = dependencies[DEVELOPMENT_KEY].as_array().unwrap();
+                let dependencies = match contents.get(DEPENDENCIES_KEY) {
+                    Some(v) => v.clone(),
+                    None => continue,
+                };
+                let required = dependencies[REQUIRED_KEY]
+                    .as_array()
+                    .cloned()
+                    .unwrap_or_default();
+                let development = dependencies[DEVELOPMENT_KEY]
+                    .as_array()
+                    .cloned()
+                    .unwrap_or_default();
                 if required
                     .iter()
                     .any(|p_n| p_n.as_str().unwrap() == package_name)
