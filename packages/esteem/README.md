@@ -78,6 +78,9 @@ root level `workspace.json` and project level configurations in
 Prepares new repositories to be used with `esteem`. This will add an object of this
 structure to all `project.json` files.
 
+**_Note_:** You don't need to run this command if you don't want to, `esteem` can handle
+projects without `dependencies` key.
+
 ```json
 {
   "dependencies": {
