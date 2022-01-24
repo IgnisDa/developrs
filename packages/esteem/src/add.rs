@@ -1,6 +1,6 @@
 use crate::{Command, PackageManager, DEPENDENCIES_KEY, DEVELOPMENT_KEY, REQUIRED_KEY};
 use indexmap::IndexMap;
-use serde_json::Value;
+use serde_json::{json, Value};
 use std::{
     fs,
     path::PathBuf,
@@ -36,38 +36,55 @@ impl Command for Add {
         let mut contents: IndexMap<String, Value> =
             serde_json::from_str(&fs::read_to_string(&self.project_path).unwrap())
                 .unwrap();
-        let mut dependencies = contents.get(DEPENDENCIES_KEY).unwrap().clone();
         let add_to = match self.is_development {
             true => DEVELOPMENT_KEY,
             false => REQUIRED_KEY,
         };
-        self.to_add.iter().for_each(|f| {
-            if dependencies[add_to]
-                .as_array()
-                .unwrap()
-                .contains(&serde_json::json!(f))
-            {
-                warn!(
-                    "Dependency {:?} already exists in {:?}. Skipping...",
-                    f, &self.project_path
-                );
-            } else {
-                info!("Dependency {:?} added to {:?}.", f, &self.project_path);
-                dependencies[add_to]
+        // if user's first time running this, will be `None`
+        let maybe_dependencies = contents.get(DEPENDENCIES_KEY).cloned();
+        match maybe_dependencies {
+            Some(mut dependencies) => {
+                self.to_add.iter().for_each(|f| {
+                    if dependencies[add_to]
+                        .as_array()
+                        .unwrap()
+                        .contains(&serde_json::json!(f))
+                    {
+                        warn!(
+                            "Dependency {:?} already exists in {:?}. Skipping...",
+                            f, &self.project_path
+                        );
+                    } else {
+                        info!("Dependency {:?} added to {:?}.", f, &self.project_path);
+                        dependencies[add_to]
+                            .as_array_mut()
+                            .unwrap()
+                            .push(serde_json::json!(f))
+                    }
+                });
+                let mut sorted_dependencies = dependencies[add_to]
                     .as_array_mut()
                     .unwrap()
-                    .push(serde_json::json!(f))
+                    .iter()
+                    .map(|f| f.as_str().unwrap().to_string())
+                    .collect::<Vec<String>>();
+                sorted_dependencies.sort_by_key(|a| a.to_lowercase());
+                dependencies[add_to] = sorted_dependencies.into();
+                contents.insert(DEPENDENCIES_KEY.into(), dependencies);
             }
-        });
-        let mut sorted_dependencies = dependencies[add_to]
-            .as_array_mut()
-            .unwrap()
-            .iter()
-            .map(|f| f.as_str().unwrap().to_string())
-            .collect::<Vec<String>>();
-        sorted_dependencies.sort_by_key(|a| a.to_lowercase());
-        dependencies[add_to] = sorted_dependencies.into();
-        contents.insert(DEPENDENCIES_KEY.into(), dependencies);
+            None => {
+                let all_to_add = self.to_add.to_vec();
+                let mut dependencies = IndexMap::new();
+                if self.is_development {
+                    dependencies.insert(DEVELOPMENT_KEY, all_to_add);
+                    dependencies.insert(REQUIRED_KEY, vec![]);
+                } else {
+                    dependencies.insert(REQUIRED_KEY, all_to_add);
+                    dependencies.insert(DEVELOPMENT_KEY, vec![]);
+                }
+                contents.insert(DEPENDENCIES_KEY.into(), json!(dependencies));
+            }
+        }
         info!(
             "Writing new workspace dependencies to {:?}",
             &self.project_path

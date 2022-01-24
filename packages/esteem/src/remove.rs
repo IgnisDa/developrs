@@ -5,7 +5,7 @@ use std::{
     collections::HashMap,
     fs,
     path::PathBuf,
-    process::{Command as ShellCommand, Stdio},
+    process::{self, Command as ShellCommand, Stdio},
 };
 
 #[derive(Debug)]
@@ -37,105 +37,118 @@ impl Command for Remove {
         let mut contents: IndexMap<String, Value> =
             serde_json::from_str(&fs::read_to_string(&self.project_path).unwrap())
                 .unwrap();
-        let mut dependencies = contents.get(DEPENDENCIES_KEY).unwrap().clone();
-        let d = dependencies[DEVELOPMENT_KEY].to_owned();
-        let mut development = d.as_array().unwrap().clone();
-        let r = dependencies[REQUIRED_KEY].to_owned();
-        let mut required = r.as_array().unwrap().clone();
-        self.to_remove
-            .iter()
-            .for_each(|remove| development.retain(|v| !v.as_str().unwrap().eq(remove)));
-        self.to_remove
-            .iter()
-            .for_each(|remove| required.retain(|v| !v.as_str().unwrap().eq(remove)));
-        dependencies[REQUIRED_KEY] = json!(required);
-        dependencies[DEVELOPMENT_KEY] = json!(development);
-        contents.insert(DEPENDENCIES_KEY.into(), dependencies);
-        info!(
-            "Writing new workspace dependencies to {:?}",
-            &self.project_path
-        );
-        let to_write = serde_json::to_string_pretty(&contents).unwrap();
-        fs::write(&self.project_path, to_write).unwrap();
+        let maybe_dependencies = contents.get(DEPENDENCIES_KEY).cloned();
+        match maybe_dependencies {
+            Some(mut dependencies) => {
+                let d = dependencies[DEVELOPMENT_KEY].to_owned();
+                let mut development = d.as_array().unwrap().clone();
+                let r = dependencies[REQUIRED_KEY].to_owned();
+                let mut required = r.as_array().unwrap().clone();
+                self.to_remove.iter().for_each(|remove| {
+                    development.retain(|v| !v.as_str().unwrap().eq(remove))
+                });
+                self.to_remove.iter().for_each(|remove| {
+                    required.retain(|v| !v.as_str().unwrap().eq(remove))
+                });
+                dependencies[REQUIRED_KEY] = json!(required);
+                dependencies[DEVELOPMENT_KEY] = json!(development);
+                contents.insert(DEPENDENCIES_KEY.into(), dependencies);
+                info!(
+                    "Writing new workspace dependencies to {:?}",
+                    &self.project_path
+                );
+                let to_write = serde_json::to_string_pretty(&contents).unwrap();
+                fs::write(&self.project_path, to_write).unwrap();
 
-        let mut will_be_removed_from_package_json = HashMap::new();
-        self.to_remove.iter().for_each(|f| {
-            will_be_removed_from_package_json.insert(f, true);
-        });
-        for package_name in &self.to_remove {
-            for (project_name, project_path) in &self.all_projects {
-                let contents: IndexMap<String, Value> =
-                    serde_json::from_str(&fs::read_to_string(project_path).unwrap())
+                let mut will_be_removed_from_package_json = HashMap::new();
+                self.to_remove.iter().for_each(|f| {
+                    will_be_removed_from_package_json.insert(f, true);
+                });
+
+                for package_name in &self.to_remove {
+                    for (project_name, project_path) in &self.all_projects {
+                        let contents: IndexMap<String, Value> = serde_json::from_str(
+                            &fs::read_to_string(project_path).unwrap(),
+                        )
                         .unwrap();
-                let dependencies = match contents.get(DEPENDENCIES_KEY) {
-                    Some(v) => v.clone(),
-                    None => continue,
-                };
-                let required = dependencies[REQUIRED_KEY]
-                    .as_array()
-                    .cloned()
-                    .unwrap_or_default();
-                let development = dependencies[DEVELOPMENT_KEY]
-                    .as_array()
-                    .cloned()
-                    .unwrap_or_default();
-                if required
-                    .iter()
-                    .any(|p_n| p_n.as_str().unwrap() == package_name)
-                {
-                    warn!(
-                        "Found {:?} in {}'s {:?}, won't be removing it!",
-                        package_name, project_name, REQUIRED_KEY
-                    );
-                    will_be_removed_from_package_json.insert(package_name, false);
-                    break;
-                };
-                if development
-                    .iter()
-                    .any(|p_n| p_n.as_str().unwrap() == package_name)
-                {
-                    warn!(
-                        "Found {:?} in {}'s {:?}, won't be removing it!",
-                        package_name, project_name, DEVELOPMENT_KEY
-                    );
-                    will_be_removed_from_package_json.insert(package_name, false);
-                    break;
-                };
-            }
-        }
-        let are_any_packages_to_be_removed = will_be_removed_from_package_json
-            .values()
-            .cloned()
-            .any(|f| f);
-        if !are_any_packages_to_be_removed {
-            warn!("No packages to be uninstalled, quitting without calling package manager.");
-            return;
-        }
-        let mut command: ShellCommand;
-        match self.npm_package_manager {
-            PackageManager::Npm => {
-                command = ShellCommand::new("npm");
-            }
-            PackageManager::Pnpm => {
-                command = ShellCommand::new("pnpm");
-            }
-            PackageManager::Yarn => {
-                command = ShellCommand::new("yarn");
-            }
-        }
-        command.arg("remove");
-        will_be_removed_from_package_json.iter().for_each(
-            |(&package_name, &will_be_removed)| {
-                if will_be_removed {
-                    command.arg(package_name);
+                        let dependencies = match contents.get(DEPENDENCIES_KEY) {
+                            Some(v) => v.clone(),
+                            None => continue,
+                        };
+                        let required = dependencies[REQUIRED_KEY]
+                            .as_array()
+                            .cloned()
+                            .unwrap_or_default();
+                        let development = dependencies[DEVELOPMENT_KEY]
+                            .as_array()
+                            .cloned()
+                            .unwrap_or_default();
+                        if required
+                            .iter()
+                            .any(|p_n| p_n.as_str().unwrap() == package_name)
+                        {
+                            warn!(
+                                "Found {:?} in {}'s {:?}, won't be removing it!",
+                                package_name, project_name, REQUIRED_KEY
+                            );
+                            will_be_removed_from_package_json.insert(package_name, false);
+                            break;
+                        };
+                        if development
+                            .iter()
+                            .any(|p_n| p_n.as_str().unwrap() == package_name)
+                        {
+                            warn!(
+                                "Found {:?} in {}'s {:?}, won't be removing it!",
+                                package_name, project_name, DEVELOPMENT_KEY
+                            );
+                            will_be_removed_from_package_json.insert(package_name, false);
+                            break;
+                        };
+                    }
                 }
-            },
-        );
-        let mut output = command
-            .stdout(Stdio::inherit())
-            .stderr(Stdio::inherit())
-            .spawn()
-            .expect("Failed to execute command...");
-        output.wait().unwrap();
+                let are_any_packages_to_be_removed = will_be_removed_from_package_json
+                    .values()
+                    .cloned()
+                    .any(|f| f);
+                if !are_any_packages_to_be_removed {
+                    warn!("No packages to be uninstalled, quitting without calling package manager.");
+                    return;
+                }
+                let mut command: ShellCommand;
+                match self.npm_package_manager {
+                    PackageManager::Npm => {
+                        command = ShellCommand::new("npm");
+                    }
+                    PackageManager::Pnpm => {
+                        command = ShellCommand::new("pnpm");
+                    }
+                    PackageManager::Yarn => {
+                        command = ShellCommand::new("yarn");
+                    }
+                }
+                command.arg("remove");
+                will_be_removed_from_package_json.iter().for_each(
+                    |(&package_name, &will_be_removed)| {
+                        if will_be_removed {
+                            command.arg(package_name);
+                        }
+                    },
+                );
+                let mut output = command
+                    .stdout(Stdio::inherit())
+                    .stderr(Stdio::inherit())
+                    .spawn()
+                    .expect("Failed to execute command...");
+                output.wait().unwrap();
+            }
+            None => {
+                error!(
+                    "{:?} does not have a {:?} key",
+                    self.project_path, DEPENDENCIES_KEY
+                );
+                process::exit(1);
+            }
+        }
     }
 }

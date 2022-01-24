@@ -47,19 +47,30 @@ impl Command for InstallIsolated {
         for project_path in &self.project_paths {
             let contents: IndexMap<String, Value> =
                 serde_json::from_str(&fs::read_to_string(project_path).unwrap()).unwrap();
-            let project_dependencies = contents.get(DEPENDENCIES_KEY).unwrap().clone();
-            to_install_required_deps.extend(
-                project_dependencies[REQUIRED_KEY]
-                    .as_array()
-                    .unwrap()
-                    .clone(),
-            );
-            to_install_development_deps.extend(
-                project_dependencies[DEVELOPMENT_KEY]
-                    .as_array()
-                    .unwrap()
-                    .clone(),
-            );
+            let maybe_project_dependencies = contents.get(DEPENDENCIES_KEY).cloned();
+            match maybe_project_dependencies {
+                Some(project_dependencies) => {
+                    to_install_required_deps.extend(
+                        project_dependencies[REQUIRED_KEY]
+                            .as_array()
+                            .unwrap()
+                            .clone(),
+                    );
+                    to_install_development_deps.extend(
+                        project_dependencies[DEVELOPMENT_KEY]
+                            .as_array()
+                            .unwrap()
+                            .clone(),
+                    );
+                }
+                None => {
+                    warn!(
+                        "{:?} does not have a {:?} key, it's dependencies won't be added to {:?}",
+                        project_path, DEPENDENCIES_KEY, PACKAGE_JSON_FILE
+                    );
+                    continue;
+                }
+            }
         }
         let filtered_dev_deps = to_install_development_deps
             .iter()
