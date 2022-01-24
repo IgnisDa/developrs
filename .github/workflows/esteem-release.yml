@@ -38,7 +38,7 @@ jobs:
         run: echo "${{ env.APP_VERSION }}" > artifacts/release-version
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         with:
           name: artifacts
           path: artifacts
