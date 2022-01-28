@@ -15,7 +15,7 @@ To build the image, execute the following command in this directory:
 - To build the image:
 
   ```bash
-  docker build --build-arg BUILD_DATE=(date -u +'%Y-%m-%dT') --build-arg BUILD_VERSION="<VERSION>" -t ignisda/developr-workspace:latest .
+  docker build --build-arg BUILD_DATE=(date -u +'%Y-%m-%dT') -t ignisda/developr-workspace:latest .
   ```
 
 - To push the image:

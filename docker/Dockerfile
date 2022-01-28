@@ -1,9 +1,8 @@
-FROM debian:bookworm
+FROM ubuntu:latest
 
 LABEL maintainer="ignisda2001@gmail.com"
 
 ARG BUILD_DATE
-ARG BUILD_VERSION
 
 # Labels.
 LABEL org.label-schema.schema-version="1.0"
@@ -11,11 +10,10 @@ LABEL org.label-schema.build-date=$BUILD_DATE
 LABEL org.label-schema.name="IgnisDa/developr-workspace"
 LABEL org.label-schema.description="The containerized workspace for smooth code development"
 LABEL org.label-schema.vcs-url="https://github.com/IgnisDa/developr"
-LABEL org.label-schema.version=$BUILD_VERSION
 
 ARG UUID=1000
 ARG GUID=$UUID
-ARG POSTGRES_VERSION=13
+ARG POSTGRES_VERSION=14
 ENV USERNAME=developr
 ENV HOME=/home/${USERNAME}
 ENV WORKSPACE="/workspace"
@@ -24,16 +22,18 @@ ENV PSQL_BASE_PATH="${WORKSPACE}/.postgresql"
 ENV PGDATA="${PSQL_BASE_PATH}/pgsql/data"
 
 RUN set -eux ; \
+    export DEBIAN_FRONTEND=noninteractive ; \
     apt-get update -y && apt-get install -y curl wget gnupg2 lsb-release ; \
     wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - ;\
     sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" >> /etc/apt/sources.list.d/pgdg.list' ;\
-    apt-get update -y ;\
     curl -fsSL https://deb.nodesource.com/setup_16.x | bash - ; \
-    apt-get install -y postgresql-${POSTGRES_VERSION} postgresql-contrib-${POSTGRES_VERSION} sudo fish git \
-    neovim bash exa bat python3 python3-pip nodejs python3-dev procps ; \
+    apt-get update -y ;\
+    apt-get install -y nodejs ; \
+    npm --version && node --version && npm install --global yarn pnpm ; \
+    apt-get install -y postgresql-${POSTGRES_VERSION} postgresql-contrib-${POSTGRES_VERSION} \
+    neovim bash python3 python3-pip python3-dev procps sudo fish git ; \
     groupadd -g ${GUID} ${USERNAME} ; \
     useradd -ms /bin/bash ${USERNAME} -u ${UUID} -g ${USERNAME} -g sudo ; \
-    npm install --global yarn pnpm ; \
     echo "ALL ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} && chmod 0440 /etc/sudoers.d/${USERNAME} ; \
     pip3 install cookiecutter poetry ; \
     # Install just command runner
@@ -43,17 +43,14 @@ RUN set -eux ; \
     # Setup locales
     echo en_US.UTF-8 UTF-8 > /etc/locale.gen ; \
     locale-gen en_US.UTF-8 ; \
-    # Install printr
-    curl https://raw.githubusercontent.com/IgnisDa/printr/main/get-printr.sh | sh -s -- --yes ; \
     # Install tokei to count code count
     wget --quiet -O tokei.tar.gz https://github.com/XAMPPRocky/tokei/releases/latest/download/tokei-x86_64-unknown-linux-gnu.tar.gz ;\
-    tar xf tokei.tar.gz -C /usr/local/bin ;\
-    tokei --version
-
-
+    tar xf tokei.tar.gz -C /usr/local/bin
 USER ${USERNAME}
 
-RUN git config --global pull.rebase true ; \
+RUN set -eux ; \
+    sudo chown -R ${USERNAME}:${USERNAME} ~/ ; \
+    git config --global pull.rebase true ; \
     curl -sSL https://raw.githubusercontent.com/IgnisDa/Gitzer/main/get-gitzer.py | python3 ; \
     npm config set store-dir ~/.pnpm-store
 
