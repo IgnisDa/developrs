@@ -1,6 +1,6 @@
 [package]
 name = "esteem"
-version = "0.3.1"
+version = "0.3.2"
 description = "A small and fast monorepo manager for NX workspaces"
 repository = "https://github.com/IgnisDa/developrs"
 categories = ["package-manager", "monorepo"]
