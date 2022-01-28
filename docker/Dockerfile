@@ -21,7 +21,7 @@ ENV PATH="$PATH:/usr/lib/postgresql/${POSTGRES_VERSION}/bin"
 ENV PSQL_BASE_PATH="${WORKSPACE}/.postgresql"
 ENV PGDATA="${PSQL_BASE_PATH}/pgsql/data"
 
-RUN set -eux ; \
+RUN set -x ; \
     export DEBIAN_FRONTEND=noninteractive ; \
     apt-get update -y && apt-get install -y curl wget gnupg2 lsb-release ; \
     wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - ;\
@@ -43,9 +43,12 @@ RUN set -eux ; \
     # Setup locales
     echo en_US.UTF-8 UTF-8 > /etc/locale.gen ; \
     locale-gen en_US.UTF-8 ; \
+    # Install printr
+    curl https://raw.githubusercontent.com/IgnisDa/printr/main/get-printr.sh | sh -s -- --yes ; \
     # Install tokei to count code count
     wget --quiet -O tokei.tar.gz https://github.com/XAMPPRocky/tokei/releases/latest/download/tokei-x86_64-unknown-linux-gnu.tar.gz ;\
-    tar xf tokei.tar.gz -C /usr/local/bin
+    tar xf tokei.tar.gz -C /usr/local/bin ;
+
 USER ${USERNAME}
 
 RUN set -eux ; \
