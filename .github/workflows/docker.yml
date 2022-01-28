@@ -1,9 +1,7 @@
-name: Publish docker images
+name: Docker
 
 on:
   push:
-    branches:
-      - main
     paths:
       - "docker/*"
 
