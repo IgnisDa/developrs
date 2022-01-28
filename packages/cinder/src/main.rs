@@ -22,7 +22,13 @@ const MODE: &str = "MODE";
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
-    env_logger::Builder::from_env(Env::default().default_filter_or("info"))
+    let is_production =
+        std::env::var(MODE).unwrap_or_else(|_| "development".to_string()) == "production";
+    let log_level = match is_production {
+        true => "error",
+        false => "info",
+    };
+    env_logger::Builder::from_env(Env::default().default_filter_or(log_level))
         .format_timestamp(None)
         .format_target(true)
         .init();
@@ -33,7 +39,7 @@ async fn main() -> std::io::Result<()> {
     let conn = sea_orm::Database::connect(&db_url).await.unwrap();
     let state = AppState { conn };
 
-    if std::env::var(MODE).unwrap_or_else(|_| "development".to_string()) == "production" {
+    if is_production {
         let pool = sqlx_core::postgres::PgPoolOptions::new()
             .connect(&db_url)
             .await
