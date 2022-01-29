@@ -30,19 +30,19 @@ RUN set -x ; \
     apt-get update -y ;\
     apt-get install -y nodejs ; \
     npm --version && node --version && npm install --global yarn pnpm ; \
-    apt-get install -y postgresql-${POSTGRES_VERSION} postgresql-contrib-${POSTGRES_VERSION} \
-    neovim bash python3 python3-pip python3-dev procps sudo fish git ; \
+    apt-get install -y libssl-dev pkg-config postgresql-${POSTGRES_VERSION} postgresql-contrib-${POSTGRES_VERSION} \
+    neovim bash python3 python3-pip python3-dev procps sudo psmisc libpq-dev fish git ; \
     groupadd -g ${GUID} ${USERNAME} ; \
     useradd -ms /bin/bash ${USERNAME} -u ${UUID} -g ${USERNAME} -g sudo ; \
     echo "ALL ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} && chmod 0440 /etc/sudoers.d/${USERNAME} ; \
-    pip3 install cookiecutter poetry ; \
-    # Install just command runner
-    curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/bin ;\
     # Setup user workspace
     mkdir -p ${WORKSPACE} && chown -R ${USERNAME}:${USERNAME} ${WORKSPACE} ; \
     # Setup locales
     echo en_US.UTF-8 UTF-8 > /etc/locale.gen ; \
     locale-gen en_US.UTF-8 ; \
+    pip3 install cookiecutter poetry ; \
+    # Install just command runner
+    curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/bin ;\
     # Install printr
     curl https://raw.githubusercontent.com/IgnisDa/printr/main/get-printr.sh | sh -s -- --yes ; \
     # Install tokei to count code count
