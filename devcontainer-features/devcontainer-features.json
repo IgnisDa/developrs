@@ -1,0 +1,10 @@
+{
+  "features": [
+    {
+      "id": "fish",
+      "name": "Install fish-shell in the container",
+      "options": {},
+      "include": ["ubuntu"]
+    }
+  ]
+}

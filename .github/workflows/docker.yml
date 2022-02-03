@@ -1,8 +1,8 @@
 name: Docker
 on:
   push:
-    paths:
-      - "docker/*"
+    tags:
+      - "docker-v*"
 
 jobs:
   main:
