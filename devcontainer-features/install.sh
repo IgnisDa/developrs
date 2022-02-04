@@ -2,12 +2,12 @@
 set -e
 
 set -a
-. ./features.env
+. ./devcontainer-features.env
 set +a
 
 if [[ -n "${_BUILD_ARG_FISH}" ]]; then
 
-    USERNAME="automatic"
+    USERNAME=${_BUILD_ARG_FISH_USERNAME:-"automatic"}
 
     set -e
 
@@ -59,11 +59,13 @@ if [[ -n "${_BUILD_ARG_FISH}" ]]; then
         apt autoremove -y
     fi
 
-    # Install Fisher
-    echo "Installing Fisher..."
-    fish -c 'curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher'
-    if [ "${USERNAME}" != "root" ]; then
-        sudo -u "$USERNAME" fish -c 'curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher'
+    if [ "${_BUILD_ARG_FISH_FISHER}" = "true" ]; then
+        # Install Fisher
+        echo "Installing Fisher..."
+        fish -c 'curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher'
+        if [ "${USERNAME}" != "root" ]; then
+            sudo -u "$USERNAME" fish -c 'curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher'
+        fi
     fi
 
     echo "Done!"

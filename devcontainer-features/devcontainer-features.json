@@ -3,8 +3,21 @@
     {
       "id": "fish",
       "name": "Install fish-shell in the container",
-      "options": {},
-      "include": ["ubuntu"]
+      "options": {
+        "username": {
+          "type": "string",
+          "default": "automatic",
+          "description": "Specifies a user in the container other than root that will use fish shell."
+        },
+        "fisher": {
+          "type": "boolean",
+          "default": true,
+          "description": "A true/false flag that indicates whether to install Fisher plugin manager."
+        }
+      },
+      "include": [
+        "ubuntu"
+      ]
     }
   ]
 }

@@ -6,15 +6,17 @@
     // words - list of words to be always considered correct
     "words": [
         "actix",
+        "buildx",
         "chrono",
+        "developrs",
         "Dokku",
         "dotenv",
         "httpie",
         "indexmap",
         "Insertable",
+        "ncipollo",
         "pnpm",
-        "sqlx",
-        "buildx"
+        "sqlx"
     ],
     // flagWords - list of words to be always considered incorrect
     // This is useful for offensive words and common spelling errors.

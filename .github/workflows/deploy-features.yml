@@ -5,7 +5,7 @@ on:
       - "features-v*"
 
 jobs:
-  deploy: # make sure the action works on a clean machine without building
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -19,13 +19,10 @@ jobs:
         with:
           path-to-features: "./devcontainer-features"
 
-      - name: Rename release artifacts
-        run: mv ./devcontainer-features.tgz ./features.tgz
-
       - name: Get or Create Release at current tag
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
           artifactErrorsFailBuild: true
-          artifacts: "./features.tgz"
+          artifacts: "./devcontainer-features.tgz"
           token: ${{ secrets.GITHUB_TOKEN }}
