@@ -270,10 +270,10 @@ detect_target() {
 }
 
 detect_version() {
-  # adapted from https://gist.github.com/lukechilds/a83e1d7127b78fef38c2914c4ececc3c
-  curl --silent "https://api.github.com/repos/${APP_AUTHOR}/developrs/releases/latest" |  # Get latest release from GitHub api
-    grep '"tag_name":' |                                                                    # Get tag line
-    sed -E 's/.*"([^"]+)".*/\1/'                                                            # Pluck JSON value
+  # I came up of with *most* of this myself, and I am damn proud of it
+  curl -s https://github.com/${APP_AUTHOR}/developrs/releases |
+  grep -m1 -Eo "archive/refs/tags/${APP_NAME}-[^/]+\.tar\.gz" |
+  sed -e "s/^archive\/refs\/tags\///" -e "s/.tar.gz//"
 }
 
 confirm() {
@@ -460,7 +460,7 @@ if [ "${PLATFORM}" = "pc-windows-msvc" ]; then
   EXT=zip
 fi
 
-URL="${BASE_URL}/latest/download/${TARGET}.${EXT}"
+URL="${BASE_URL}/download/${VERSION}/${TARGET}.${EXT}"
 info "Tarball URL: ${UNDERLINE}${BLUE}${URL}${NO_COLOR}"
 confirm "Install ${APP_NAME} ${GREEN}latest${NO_COLOR} to ${BOLD}${GREEN}${BIN_DIR}${NO_COLOR}?"
 check_bin_dir "${BIN_DIR}"
