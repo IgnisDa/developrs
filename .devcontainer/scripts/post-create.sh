@@ -5,6 +5,7 @@ git config --global user.name "${GIT_AUTHOR_NAME}"
 git config --global user.email "${GIT_AUTHOR_EMAIL}"
 
 # remove the default fish shell prompt
+sudo pip install httpie
 set fish_greeting
 
 # Install the dependencies of each micro-service

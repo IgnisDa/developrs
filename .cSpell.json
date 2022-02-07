@@ -8,6 +8,7 @@
         "actix",
         "buildx",
         "chrono",
+        "devcontainer",
         "developrs",
         "Dokku",
         "dotenv",

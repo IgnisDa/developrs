@@ -1,18 +1,24 @@
 version: "3.9"
 
 services:
-  development-machine:
+  app:
     build:
-      context: ..
-      dockerfile: .devcontainer/Dockerfile
-
-    container_name: developrs
-
+      context: .
+      dockerfile: Dockerfile
     volumes:
-      - ..:/workspace/developrs:cached
-      - postgres_data:/workspace/.postgresql/pgsql/data
-
+      - ..:/workspace:cached
     command: sleep infinity
+    user: vscode
+
+  db:
+    image: postgres:latest
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
 
 volumes:
-  postgres_data:
+  postgres-data:
