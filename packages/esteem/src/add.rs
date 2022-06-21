@@ -91,18 +91,11 @@ impl Command for Add {
         );
         let to_write = serde_json::to_string_pretty(&contents).unwrap();
         fs::write(&self.project_path, to_write).unwrap();
-        let mut command: ShellCommand;
-        match self.npm_package_manager {
-            PackageManager::Npm => {
-                command = ShellCommand::new("npm");
-            }
-            PackageManager::Pnpm => {
-                command = ShellCommand::new("pnpm");
-            }
-            PackageManager::Yarn => {
-                command = ShellCommand::new("yarn");
-            }
-        }
+        let mut command = match self.npm_package_manager {
+            PackageManager::Npm => ShellCommand::new("npm"),
+            PackageManager::Pnpm => ShellCommand::new("pnpm"),
+            PackageManager::Yarn => ShellCommand::new("yarn"),
+        };
         if matches!(
             self.npm_package_manager,
             PackageManager::Npm | PackageManager::Pnpm

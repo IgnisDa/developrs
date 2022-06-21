@@ -115,18 +115,11 @@ impl Command for Remove {
                     warn!("No packages to be uninstalled, quitting without calling package manager.");
                     return;
                 }
-                let mut command: ShellCommand;
-                match self.npm_package_manager {
-                    PackageManager::Npm => {
-                        command = ShellCommand::new("npm");
-                    }
-                    PackageManager::Pnpm => {
-                        command = ShellCommand::new("pnpm");
-                    }
-                    PackageManager::Yarn => {
-                        command = ShellCommand::new("yarn");
-                    }
-                }
+                let mut command = match self.npm_package_manager {
+                    PackageManager::Npm => ShellCommand::new("npm"),
+                    PackageManager::Pnpm => ShellCommand::new("pnpm"),
+                    PackageManager::Yarn => ShellCommand::new("yarn"),
+                };
                 command.arg("remove");
                 will_be_removed_from_package_json.iter().for_each(
                     |(&package_name, &will_be_removed)| {

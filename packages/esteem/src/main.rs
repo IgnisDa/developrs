@@ -22,17 +22,13 @@ fn main() -> Result<(), String> {
 
     let workspace = Workspace::new();
 
-    let all_projects: HashMap<String, PathBuf>;
-
-    match workspace {
-        Ok(data) => {
-            all_projects = get_project_files_for_all_projects(&data.projects);
-        }
+    let all_projects = match workspace {
+        Ok(data) => get_project_files_for_all_projects(&data.projects),
         Err(_) => {
             warn!("This project does not have a {:?} file. The commands will not work as expected. Are you running esteem in the correct directory?", WORKSPACE_FILE);
-            all_projects = HashMap::new();
+            HashMap::new()
         }
-    }
+    };
 
     let project_names: Vec<&str> = all_projects.keys().map(|f| f.as_str()).collect();
 
