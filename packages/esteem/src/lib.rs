@@ -22,6 +22,7 @@ use std::{
 extern crate log;
 
 pub const WORKSPACE_FILE: &str = "workspace.json";
+pub const WORKSPACE_IDENTIFIER: &str = "workspace";
 const PACKAGE_JSON_BACKUP_FILE: &str = "package.backup.json";
 const PACKAGE_JSON_FILE: &str = "package.json";
 const PROJECT_FILE: &str = "project.json";
@@ -97,11 +98,11 @@ pub fn get_project_files_for_all_projects(
 
 pub fn get_dependencies_from_file(
     file_path: &PathBuf,
-) -> Option<(Vec<Value>, Vec<Value>)> {
+) -> Option<(Vec<Value>, Vec<Value>, Value)> {
     let contents: IndexMap<String, Value> =
         serde_json::from_str(&fs::read_to_string(file_path).unwrap()).unwrap();
-    let maybe_project_dependencies = contents.get(DEPENDENCIES_KEY).cloned();
-    if let Some(project_dependencies) = maybe_project_dependencies {
+    let dependencies = contents.get(DEPENDENCIES_KEY).cloned();
+    if let Some(project_dependencies) = dependencies {
         let to_install_required_deps = project_dependencies[REQUIRED_KEY]
             .as_array()
             .unwrap()
@@ -110,7 +111,11 @@ pub fn get_dependencies_from_file(
             .as_array()
             .unwrap()
             .clone();
-        Some((to_install_required_deps, to_install_development_deps))
+        Some((
+            to_install_required_deps,
+            to_install_development_deps,
+            project_dependencies,
+        ))
     } else {
         None
     }
@@ -147,14 +152,21 @@ pub fn perform_install_isolated(project_path: Vec<PathBuf>) {
 }
 
 pub fn perform_remove(
-    project_path: PathBuf,
+    project_path: Option<PathBuf>,
     to_remove: Vec<String>,
     all_projects: HashMap<String, PathBuf>,
+    is_global: bool,
 ) {
     let npm_package_manager = get_npm_package_manager().unwrap_or_else(|| {
         error!("A valid lockfile was not found for this project.");
         process::exit(1);
     });
-    let a = Remove::new(project_path, to_remove, all_projects, npm_package_manager);
+    let a = Remove::new(
+        project_path,
+        to_remove,
+        all_projects,
+        npm_package_manager,
+        is_global,
+    );
     a.execute();
 }

@@ -3,6 +3,7 @@ use env_logger::Env;
 use esteem::{
     get_project_files_for_all_projects, perform_add, perform_init,
     perform_install_isolated, perform_remove, Workspace, WORKSPACE_FILE,
+    WORKSPACE_IDENTIFIER,
 };
 use std::{collections::HashMap, path::PathBuf};
 
@@ -32,7 +33,7 @@ fn main() -> Result<(), String> {
 
     let project_names: Vec<&str> = all_projects.keys().map(|f| f.as_str()).collect();
     let mut project_names_with_workspace = project_names.clone();
-    project_names_with_workspace.extend(["workspace"]);
+    project_names_with_workspace.extend([WORKSPACE_IDENTIFIER]);
     let matches = app_from_crate!()
         .global_setting(AppSettings::PropagateVersion)
         .global_setting(AppSettings::UseLongFormatForHelpSubcommand)
@@ -68,7 +69,7 @@ fn main() -> Result<(), String> {
                     arg!([PROJECT_NAME])
                         .required(true)
                         .help("The name(s) of the project from which the dependency must be removed")
-                        .possible_values(&project_names)
+                        .possible_values(&project_names_with_workspace)
                 )
                 .arg(
                     arg!(<DEPENDENCIES>)
@@ -120,16 +121,21 @@ fn main() -> Result<(), String> {
         }
         Some((REMOVE_COMMAND, sub_matches)) => {
             let project_name = sub_matches.value_of("PROJECT_NAME").unwrap();
+            let mut is_global = false;
+            let mut project_path = None;
+            if project_name == "workspace" {
+                is_global = true;
+                project_path = all_projects.get(project_name).cloned();
+            }
             let to_remove = sub_matches
                 .values_of("DEPENDENCIES")
                 .unwrap()
                 .map(|f| f.to_string())
                 .collect::<Vec<String>>();
-            let project_path = all_projects.get(project_name).unwrap().clone();
             trace!("Project Name: {:?}", project_name);
             trace!("Project path: {:?}", project_path);
             trace!("Dependencies to add: {:?}", to_remove);
-            perform_remove(project_path, to_remove, all_projects);
+            perform_remove(project_path, to_remove, all_projects, is_global);
         }
         Some((INSTALL_ISOLATED_COMMAND, sub_matches)) => {
             let project_names = sub_matches

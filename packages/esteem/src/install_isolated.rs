@@ -45,13 +45,13 @@ impl Command for InstallIsolated {
         let mut to_install_development_deps = Vec::new();
         let mut to_install_required_deps = Vec::new();
         for project_path in &self.project_paths {
-            let (project_required, project_dev) =
+            let (project_required, project_dev, _) =
                 get_dependencies_from_file(project_path).unwrap();
             to_install_required_deps.extend(project_required);
             to_install_development_deps.extend(project_dev);
         }
         // handle global dependencies in the workspace file
-        if let Some((global_required, global_dev)) =
+        if let Some((global_required, global_dev, _)) =
             get_dependencies_from_file(&PathBuf::from(WORKSPACE_FILE))
         {
             to_install_required_deps.extend(global_required);
