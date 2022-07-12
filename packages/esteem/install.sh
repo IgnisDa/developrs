@@ -37,6 +37,7 @@ NO_COLOR="$(tput sgr0 2>/dev/null || printf '')"
 
 APP_NAME="esteem"
 APP_AUTHOR="IgnisDa"
+PROJECT_NAME="developrs"
 
 SUPPORTED_TARGETS="x86_64-unknown-linux-gnu x86_64-unknown-linux-musl \
                   i686-unknown-linux-musl aarch64-unknown-linux-musl \
@@ -271,7 +272,7 @@ detect_target() {
 
 detect_version() {
   # I came up of with *most* of this myself, and I am damn proud of it
-  curl -s https://github.com/${APP_AUTHOR}/developrs/releases |
+  curl -s https://github.com/${APP_AUTHOR}/${PROJECT_NAME}/releases |
   grep -m1 -Eo "archive/refs/tags/${APP_NAME}-[^/]+\.tar\.gz" |
   sed -e "s/^archive\/refs\/tags\///" -e "s/.tar.gz//"
 }
@@ -342,7 +343,7 @@ is_build_available() {
     printf "\n" >&2
     info "If you would like to see a build for your configuration,"
     info "please create an issue requesting a build for ${MAGENTA}${target}${NO_COLOR}:"
-    info "${BOLD}${UNDERLINE}https://github.com/${APP_AUTHOR}/developrs/issues/new/${NO_COLOR}"
+    info "${BOLD}${UNDERLINE}https://github.com/${APP_AUTHOR}/${PROJECT_NAME}/issues/new/${NO_COLOR}"
     printf "\n"
     exit 1
   fi
@@ -369,7 +370,7 @@ if [ -z "${ARCH-}" ]; then
 fi
 
 if [ -z "${BASE_URL-}" ]; then
-  BASE_URL="https://github.com/${APP_AUTHOR}/developrs/releases"
+  BASE_URL="https://github.com/${APP_AUTHOR}/${PROJECT_NAME}/releases"
 fi
 
 # parse argv variables

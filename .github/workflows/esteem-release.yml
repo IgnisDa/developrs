@@ -1,6 +1,6 @@
 # Adapted from: https://github.com/BurntSushi/ripgrep/blob/master/.github/workflows/release.yml
 
-name: Release
+name: Release esteem
 on:
   push:
     tags:
@@ -95,7 +95,6 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ matrix.rust }}
-          profile: minimal
           override: true
           target: ${{ matrix.target }}
 
