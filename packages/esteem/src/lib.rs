@@ -5,9 +5,11 @@ mod remove;
 use crate::init::Init;
 use add::Add;
 use core::fmt;
+use indexmap::IndexMap;
 use install_isolated::InstallIsolated;
 use remove::Remove;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::{
     collections::HashMap,
     env::current_dir,
@@ -91,6 +93,27 @@ pub fn get_project_files_for_all_projects(
         projects_file_paths.insert(project_name.clone(), project_file_path);
     }
     projects_file_paths
+}
+
+pub fn get_dependencies_from_file(
+    file_path: &PathBuf,
+) -> Option<(Vec<Value>, Vec<Value>)> {
+    let contents: IndexMap<String, Value> =
+        serde_json::from_str(&fs::read_to_string(file_path).unwrap()).unwrap();
+    let maybe_project_dependencies = contents.get(DEPENDENCIES_KEY).cloned();
+    if let Some(project_dependencies) = maybe_project_dependencies {
+        let to_install_required_deps = project_dependencies[REQUIRED_KEY]
+            .as_array()
+            .unwrap()
+            .clone();
+        let to_install_development_deps = project_dependencies[DEVELOPMENT_KEY]
+            .as_array()
+            .unwrap()
+            .clone();
+        Some((to_install_required_deps, to_install_development_deps))
+    } else {
+        None
+    }
 }
 
 pub fn perform_add(project_path: PathBuf, is_development: bool, to_add: Vec<String>) {

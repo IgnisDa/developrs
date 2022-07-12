@@ -1,4 +1,7 @@
-use crate::{Command, PackageManager, DEPENDENCIES_KEY, DEVELOPMENT_KEY, REQUIRED_KEY};
+use crate::{
+    get_dependencies_from_file, Command, PackageManager, DEPENDENCIES_KEY,
+    DEVELOPMENT_KEY, REQUIRED_KEY,
+};
 use indexmap::IndexMap;
 use serde_json::{json, Value};
 use std::{
@@ -67,22 +70,8 @@ impl Command for Remove {
 
                 for package_name in &self.to_remove {
                     for (project_name, project_path) in &self.all_projects {
-                        let contents: IndexMap<String, Value> = serde_json::from_str(
-                            &fs::read_to_string(project_path).unwrap(),
-                        )
-                        .unwrap();
-                        let dependencies = match contents.get(DEPENDENCIES_KEY) {
-                            Some(v) => v.clone(),
-                            None => continue,
-                        };
-                        let required = dependencies[REQUIRED_KEY]
-                            .as_array()
-                            .cloned()
-                            .unwrap_or_default();
-                        let development = dependencies[DEVELOPMENT_KEY]
-                            .as_array()
-                            .cloned()
-                            .unwrap_or_default();
+                        let (required, development) =
+                            get_dependencies_from_file(project_path).unwrap();
                         if required
                             .iter()
                             .any(|p_n| p_n.as_str().unwrap() == package_name)

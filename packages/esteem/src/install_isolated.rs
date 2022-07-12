@@ -1,6 +1,6 @@
 use crate::{
-    Command, DEPENDENCIES_KEY, DEVELOPMENT_DEPENDENCIES_KEY, DEVELOPMENT_KEY,
-    PACKAGE_JSON_BACKUP_FILE, PACKAGE_JSON_FILE, REQUIRED_KEY,
+    get_dependencies_from_file, Command, DEPENDENCIES_KEY, DEVELOPMENT_DEPENDENCIES_KEY,
+    PACKAGE_JSON_BACKUP_FILE, PACKAGE_JSON_FILE, WORKSPACE_FILE,
 };
 use indexmap::IndexMap;
 use serde_json::{json, Value};
@@ -25,7 +25,7 @@ impl Command for InstallIsolated {
             }),
         )
         .unwrap();
-        let package_file_deps = package_file
+        let package_file_required_deps = package_file
             .get(DEPENDENCIES_KEY)
             .cloned()
             .unwrap_or_else(|| json!({}))
@@ -40,37 +40,22 @@ impl Command for InstallIsolated {
             .unwrap()
             .clone();
         let mut workspace_dependencies = HashMap::new();
-        workspace_dependencies.extend(package_file_deps);
+        workspace_dependencies.extend(package_file_required_deps);
         workspace_dependencies.extend(package_file_dev_deps);
         let mut to_install_development_deps = Vec::new();
         let mut to_install_required_deps = Vec::new();
         for project_path in &self.project_paths {
-            let contents: IndexMap<String, Value> =
-                serde_json::from_str(&fs::read_to_string(project_path).unwrap()).unwrap();
-            let maybe_project_dependencies = contents.get(DEPENDENCIES_KEY).cloned();
-            match maybe_project_dependencies {
-                Some(project_dependencies) => {
-                    to_install_required_deps.extend(
-                        project_dependencies[REQUIRED_KEY]
-                            .as_array()
-                            .unwrap()
-                            .clone(),
-                    );
-                    to_install_development_deps.extend(
-                        project_dependencies[DEVELOPMENT_KEY]
-                            .as_array()
-                            .unwrap()
-                            .clone(),
-                    );
-                }
-                None => {
-                    warn!(
-                        "{:?} does not have a {:?} key, it's dependencies won't be added to {:?}",
-                        project_path, DEPENDENCIES_KEY, PACKAGE_JSON_FILE
-                    );
-                    continue;
-                }
-            }
+            let (project_required, project_dev) =
+                get_dependencies_from_file(project_path).unwrap();
+            to_install_required_deps.extend(project_required);
+            to_install_development_deps.extend(project_dev);
+        }
+        // handle global dependencies in the workspace file
+        if let Some((global_required, global_dev)) =
+            get_dependencies_from_file(&PathBuf::from(WORKSPACE_FILE))
+        {
+            to_install_required_deps.extend(global_required);
+            to_install_development_deps.extend(global_dev);
         }
         let filtered_dev_deps = to_install_development_deps
             .iter()
