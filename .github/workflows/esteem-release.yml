@@ -1,6 +1,6 @@
 # Adapted from: https://github.com/BurntSushi/ripgrep/blob/master/.github/workflows/release.yml
 
-name: Release
+name: Release esteem
 on:
   push:
     tags:
@@ -54,7 +54,7 @@ jobs:
       RUST_BACKTRACE: 1
     strategy:
       matrix:
-        build: [linux, linux-arm, macos, win-msvc, win-gnu, win32-msvc]
+        build: [linux, linux-arm, macos, win-msvc, win32-msvc]
         include:
           - build: linux
             os: ubuntu-18.04
@@ -72,10 +72,6 @@ jobs:
             os: windows-2019
             rust: nightly
             target: x86_64-pc-windows-msvc
-          - build: win-gnu
-            os: windows-2019
-            rust: nightly-x86_64-gnu
-            target: x86_64-pc-windows-gnu
           - build: win32-msvc
             os: windows-2019
             rust: nightly
@@ -95,7 +91,6 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ matrix.rust }}
-          profile: minimal
           override: true
           target: ${{ matrix.target }}
 
