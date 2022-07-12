@@ -6,6 +6,9 @@ Make your [NX](https://nx.dev/) workspaces go easier on your disk.
   - [Why?](#why)
   - [How does it work?](#how-does-it-work)
   - [Installation](#installation)
+  - [Miscellaneous](#miscellaneous)
+    - [Project scopes](#project-scopes)
+    - [Requirement scopes](#requirement-scopes)
   - [Usage](#usage)
     - [`init`](#init)
     - [`add`](#add)
@@ -61,6 +64,22 @@ call your package manager's install command and viola! you have a smaller `node_
   # This script writes to /usr/local/bin/, you can change this via the `--bin-dir` flag
   RUN curl https://raw.githubusercontent.com/IgnisDa/developrs/main/packages/esteem/install.sh | sudo sh -s -- --yes
   ```
+
+## Miscellaneous
+
+Esteem separates dependencies by project scope (`project` or `workspace`) and requirement scope
+(`required` or `development`).
+
+### Project scopes
+
+The project in which a dependency is to be installed. If it is a project dependency, it is
+well.. exactly that: a project dependency. A workspace dependency can be treated as a
+global dependency. It will always be a part of the final `package.json`.
+
+### Requirement scopes
+
+Think of `required` and `development` scopes as analogous to `dependencies` and
+`devDependencies` in npm projects.
 
 ## Usage
 
@@ -122,6 +141,9 @@ $ esteem add server redis luxon
 ```
 
 Pass the `-D` flag to add it a development dependency.
+
+If you specify the project name as `workspace`, then it will be installed as a global
+dependency.
 
 ### `remove`
 
