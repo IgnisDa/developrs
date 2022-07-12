@@ -1,6 +1,6 @@
 [package]
 name = "esteem"
-version = "0.3.1"
+version = "0.3.2"
 description = "A small and fast monorepo manager for NX workspaces"
 repository = "https://github.com/IgnisDa/developrs"
 categories = ["package-manager", "monorepo"]
@@ -12,7 +12,7 @@ edition = "2021"
 [dependencies]
 clap = { version = "3.0.4", features = ["derive", "cargo"] }
 env_logger = "0.9.0"
-indexmap = {version = "1.7.0", features = ["serde"] }
+indexmap = { version = "1.7.0", features = ["serde"] }
 log = "0.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
