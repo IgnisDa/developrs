@@ -1,4 +1,7 @@
-use crate::{Command, PackageManager, DEPENDENCIES_KEY, DEVELOPMENT_KEY, REQUIRED_KEY};
+use crate::{
+    Command, PackageManager, DEPENDENCIES_KEY, DEVELOPMENT_KEY, REQUIRED_KEY,
+    WORKSPACE_FILE,
+};
 use indexmap::IndexMap;
 use serde_json::{json, Value};
 use std::{
@@ -9,33 +12,41 @@ use std::{
 
 #[derive(Debug)]
 pub(crate) struct Add {
-    project_path: PathBuf,
+    project_path: Option<PathBuf>,
     is_development: bool,
     to_add: Vec<String>,
     npm_package_manager: PackageManager,
+    is_global: bool,
 }
 
 impl Add {
     pub(crate) fn new(
-        project_path: PathBuf,
+        project_path: Option<PathBuf>,
         is_development: bool,
         to_add: Vec<String>,
         npm_package_manager: PackageManager,
+        is_global: bool,
     ) -> Self {
         Self {
             project_path,
             is_development,
             to_add,
             npm_package_manager,
+            is_global,
         }
     }
 }
 
 impl Command for Add {
     fn execute(&self) {
-        let mut contents: IndexMap<String, Value> =
-            serde_json::from_str(&fs::read_to_string(&self.project_path).unwrap())
-                .unwrap();
+        let mut contents: IndexMap<String, Value> = match self.is_global {
+            true => serde_json::from_str(&fs::read_to_string(WORKSPACE_FILE).unwrap())
+                .unwrap(),
+            false => serde_json::from_str(
+                &fs::read_to_string(&self.project_path.clone().unwrap()).unwrap(),
+            )
+            .unwrap(),
+        };
         let add_to = match self.is_development {
             true => DEVELOPMENT_KEY,
             false => REQUIRED_KEY,
@@ -90,7 +101,11 @@ impl Command for Add {
             &self.project_path
         );
         let to_write = serde_json::to_string_pretty(&contents).unwrap();
-        fs::write(&self.project_path, to_write).unwrap();
+        if self.is_global {
+            fs::write(WORKSPACE_FILE, to_write).unwrap();
+        } else {
+            fs::write(&self.project_path.clone().unwrap(), to_write).unwrap();
+        }
         let mut command = match self.npm_package_manager {
             PackageManager::Npm => ShellCommand::new("npm"),
             PackageManager::Pnpm => ShellCommand::new("pnpm"),

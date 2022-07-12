@@ -31,7 +31,8 @@ fn main() -> Result<(), String> {
     };
 
     let project_names: Vec<&str> = all_projects.keys().map(|f| f.as_str()).collect();
-
+    let mut project_names_with_workspace = project_names.clone();
+    project_names_with_workspace.extend(["workspace"]);
     let matches = app_from_crate!()
         .global_setting(AppSettings::PropagateVersion)
         .global_setting(AppSettings::UseLongFormatForHelpSubcommand)
@@ -46,8 +47,8 @@ fn main() -> Result<(), String> {
                 .arg(
                     arg!([PROJECT_NAME])
                         .required(true)
-                        .help("The name of the project to which the dependency must be installed")
-                        .possible_values(&project_names)
+                        .help("The name of the project to which the dependency must be installed. If equal to `workspace`, then this dependency will be added globally.")
+                        .possible_values(&project_names_with_workspace)
                 )
                 .arg(
                     arg!(<DEPENDENCIES>)
@@ -98,18 +99,24 @@ fn main() -> Result<(), String> {
         }
         Some((ADD_COMMAND, sub_matches)) => {
             let project_name = sub_matches.value_of("PROJECT_NAME").unwrap();
+            let mut is_global = false;
+            let mut project_path = None;
+            if project_name == "workspace" {
+                is_global = true;
+                project_path = all_projects.get(project_name).cloned();
+            }
             let to_add = sub_matches
                 .values_of("DEPENDENCIES")
                 .unwrap()
                 .map(|f| f.to_string())
                 .collect::<Vec<String>>();
             let is_development = sub_matches.is_present("development");
-            let project_path = all_projects.get(project_name).unwrap().clone();
             trace!("Project Name: {:?}", project_name);
             trace!("Project path: {:?}", project_path);
             trace!("Dependencies to add: {:?}", to_add);
             trace!("Development: {:?}", is_development);
-            perform_add(project_path, is_development, to_add);
+            trace!("Global: {:?}", is_global);
+            perform_add(project_path, is_development, to_add, is_global);
         }
         Some((REMOVE_COMMAND, sub_matches)) => {
             let project_name = sub_matches.value_of("PROJECT_NAME").unwrap();
