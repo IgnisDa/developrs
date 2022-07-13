@@ -1,7 +1,3 @@
-use crate::{
-    get_dependencies_from_file, Command, PackageManager, DEPENDENCIES_KEY,
-    DEVELOPMENT_KEY, REQUIRED_KEY, WORKSPACE_FILE,
-};
 use indexmap::IndexMap;
 use serde_json::{json, Value};
 use std::{
@@ -9,6 +5,12 @@ use std::{
     fs,
     path::PathBuf,
     process::{self, Command as ShellCommand, Stdio},
+};
+
+use crate::commons::{
+    constants::{DEPENDENCIES_KEY, DEVELOPMENT_KEY, REQUIRED_KEY, WORKSPACE_FILE},
+    lib::{Command, PackageManager},
+    utils::get_dependencies_from_file,
 };
 
 #[derive(Debug)]

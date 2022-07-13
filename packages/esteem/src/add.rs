@@ -1,6 +1,6 @@
-use crate::{
-    Command, PackageManager, DEPENDENCIES_KEY, DEVELOPMENT_KEY, REQUIRED_KEY,
-    WORKSPACE_FILE,
+use crate::commons::{
+    constants::{DEPENDENCIES_KEY, DEVELOPMENT_KEY, REQUIRED_KEY, WORKSPACE_FILE},
+    lib::{Command, PackageManager},
 };
 use indexmap::IndexMap;
 use serde_json::{json, Value};

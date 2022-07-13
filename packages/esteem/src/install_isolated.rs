@@ -1,6 +1,10 @@
-use crate::{
-    get_dependencies_from_file, Command, DEPENDENCIES_KEY, DEVELOPMENT_DEPENDENCIES_KEY,
-    PACKAGE_JSON_BACKUP_FILE, PACKAGE_JSON_FILE, WORKSPACE_FILE,
+use crate::commons::{
+    constants::{
+        DEPENDENCIES_KEY, DEVELOPMENT_DEPENDENCIES_KEY, PACKAGE_JSON_BACKUP_FILE,
+        PACKAGE_JSON_FILE, WORKSPACE_FILE,
+    },
+    lib::Command,
+    utils::get_dependencies_from_file,
 };
 use indexmap::IndexMap;
 use serde_json::{json, Value};
