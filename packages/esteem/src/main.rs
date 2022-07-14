@@ -13,6 +13,7 @@ const ADD_COMMAND: &str = "add";
 const REMOVE_COMMAND: &str = "remove";
 const INSTALL_ISOLATED_COMMAND: &str = "install-isolated";
 const INIT_COMMAND: &str = "init";
+const WORKSPACE_SUBCOMMAND: &str = "workspace";
 
 fn main() -> Result<(), String> {
     env_logger::Builder::from_env(Env::default().default_filter_or("info"))
@@ -34,7 +35,6 @@ fn main() -> Result<(), String> {
     project_names.sort();
 
     let add_subcommand = App::new(ADD_COMMAND)
-        .about("Installs dependencies to a project")
         .arg(
             arg!(<DEPENDENCIES>)
                 .required(true)
@@ -43,19 +43,16 @@ fn main() -> Result<(), String> {
         )
         .arg(arg!(-D - -development).help("Add as development dependencies"));
 
-    let remove_subcommand = App::new(REMOVE_COMMAND)
-        .about("Removes dependencies from a project (alias: rm)")
-        .alias("rm")
-        .arg(
-            arg!(<DEPENDENCIES>)
-                .required(true)
-                .min_values(1)
-                .help("The name of the npm packages to remove"),
-        );
+    let remove_subcommand = App::new(REMOVE_COMMAND).alias("rm").arg(
+        arg!(<DEPENDENCIES>)
+            .required(true)
+            .min_values(1)
+            .help("The name of the npm packages to remove"),
+    );
 
     let project_name_arg = arg!([PROJECT_NAME])
         .required(true)
-        .help("The name(s) of the project from which the dependency must be removed")
+        .help("The name of the project to make the changes in")
         .possible_values(&project_names);
 
     let init_subcommand =
@@ -73,14 +70,39 @@ fn main() -> Result<(), String> {
                 .help("The names of the projects whose dependencies should be installed")
                 .possible_values(&project_names),
         );
+
+    let workspace_subcommand = App::new(WORKSPACE_SUBCOMMAND)
+        .about("Interact with workspace scoped dependencies")
+        .subcommand(
+            add_subcommand
+                .clone()
+                .about("Install dependencies to a workspace"),
+        )
+        .subcommand(
+            remove_subcommand
+                .clone()
+                .about("Removes dependencies from a workspace (alias: rm)"),
+        );
+
     let matches = app_from_crate!()
         .global_setting(AppSettings::PropagateVersion)
         .global_setting(AppSettings::UseLongFormatForHelpSubcommand)
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .subcommand(init_subcommand)
-        .subcommand(add_subcommand.arg(&project_name_arg))
-        .subcommand(remove_subcommand.arg(&project_name_arg))
+        .subcommand(
+            add_subcommand
+                .clone()
+                .arg(&project_name_arg)
+                .about("Installs dependencies to a project"),
+        )
+        .subcommand(
+            remove_subcommand
+                .clone()
+                .arg(&project_name_arg)
+                .about("Removes dependencies from a project (alias: rm)"),
+        )
         .subcommand(install_isolated_subcommand)
+        .subcommand(workspace_subcommand)
         .get_matches();
 
     match matches.subcommand() {
