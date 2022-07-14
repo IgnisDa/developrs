@@ -39,22 +39,16 @@ pub fn perform_install_isolated(project_path: Vec<PathBuf>) {
 }
 
 pub fn perform_remove(
-    project_path: Option<PathBuf>,
+    project_path: PathBuf,
     to_remove: Vec<String>,
     all_projects: BTreeMap<String, PathBuf>,
-    is_global: bool,
 ) {
     let npm_package_manager = get_npm_package_manager().unwrap_or_else(|| {
         error!("A valid lockfile was not found for this project.");
         process::exit(1);
     });
-    let a = remove::Remove::new(
-        project_path,
-        to_remove,
-        all_projects,
-        npm_package_manager,
-        is_global,
-    );
+    let a =
+        remove::Remove::new(project_path, to_remove, all_projects, npm_package_manager);
     a.execute();
 }
 

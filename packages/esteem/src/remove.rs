@@ -8,53 +8,42 @@ use std::{
 };
 
 use crate::commons::{
-    constants::{DEPENDENCIES_KEY, DEVELOPMENT_KEY, REQUIRED_KEY, WORKSPACE_FILE},
+    constants::{DEPENDENCIES_KEY, DEVELOPMENT_KEY, REQUIRED_KEY},
     lib::{Command, PackageManager},
     utils::get_dependencies_from_file,
 };
 
 #[derive(Debug)]
 pub(crate) struct Remove {
-    project_path: Option<PathBuf>,
+    project_path: PathBuf,
     to_remove: Vec<String>,
     all_projects: BTreeMap<String, PathBuf>,
     npm_package_manager: PackageManager,
-    is_global: bool,
 }
 
 impl Remove {
     pub(crate) fn new(
-        project_path: Option<PathBuf>,
+        project_path: PathBuf,
         to_remove: Vec<String>,
         all_projects: BTreeMap<String, PathBuf>,
         npm_package_manager: PackageManager,
-        is_global: bool,
     ) -> Self {
         Self {
             project_path,
             all_projects,
             to_remove,
             npm_package_manager,
-            is_global,
         }
     }
 }
 
 impl Command for Remove {
     fn execute(&self) {
-        let mut contents: IndexMap<String, Value> = match self.is_global {
-            true => serde_json::from_str(&fs::read_to_string(WORKSPACE_FILE).unwrap())
-                .unwrap(),
-            false => serde_json::from_str(
-                &fs::read_to_string(&self.project_path.clone().unwrap()).unwrap(),
-            )
-            .unwrap(),
-        };
-        let write_target = if self.is_global {
-            PathBuf::from(WORKSPACE_FILE)
-        } else {
-            self.project_path.clone().unwrap()
-        };
+        let mut contents: IndexMap<String, Value> = serde_json::from_str(
+            &fs::read_to_string(&self.project_path.clone()).unwrap(),
+        )
+        .unwrap();
+        let write_target = self.project_path.clone();
         if let Some((mut required, mut development, mut dependencies)) =
             get_dependencies_from_file(&PathBuf::from(&write_target))
         {
