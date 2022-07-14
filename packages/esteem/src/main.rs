@@ -4,7 +4,7 @@ use esteem::{
     perform_add, perform_init, perform_install_isolated, perform_remove,
     perform_workspace_add, EsteemWorkspace, WORKSPACE_FILE,
 };
-use std::{collections::HashMap, path::PathBuf};
+use std::{collections::BTreeMap, path::PathBuf};
 
 #[macro_use]
 extern crate log;
@@ -30,7 +30,7 @@ fn main() -> Result<(), String> {
         Ok(data) => data.projects,
         Err(_) => {
             warn!("This project does not have a {:?} file. The commands will not work as expected. Are you running esteem in the correct directory?", WORKSPACE_FILE);
-            HashMap::new()
+            BTreeMap::new()
         }
     };
 

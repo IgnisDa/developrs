@@ -1,6 +1,6 @@
 use indexmap::IndexMap;
 use serde_json::{json, to_string_pretty, Value};
-use std::{collections::HashMap, fs, path::PathBuf, process};
+use std::{collections::BTreeMap, fs, path::PathBuf, process};
 
 use crate::commons::{
     constants::{DEPENDENCIES_KEY, DEVELOPMENT_KEY, REQUIRED_KEY},
@@ -9,11 +9,11 @@ use crate::commons::{
 
 #[derive(Debug)]
 pub(crate) struct Init {
-    projects_file_paths: HashMap<String, PathBuf>,
+    projects_file_paths: BTreeMap<String, PathBuf>,
 }
 
 impl Init {
-    pub(crate) fn new(projects_file_paths: HashMap<String, PathBuf>) -> Init {
+    pub(crate) fn new(projects_file_paths: BTreeMap<String, PathBuf>) -> Init {
         Init {
             projects_file_paths,
         }

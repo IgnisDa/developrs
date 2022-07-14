@@ -1,7 +1,7 @@
 use indexmap::IndexMap;
 use serde_json::{json, Value};
 use std::{
-    collections::HashMap,
+    collections::{BTreeMap, HashMap},
     fs,
     path::PathBuf,
     process::{self, Command as ShellCommand, Stdio},
@@ -17,7 +17,7 @@ use crate::commons::{
 pub(crate) struct Remove {
     project_path: Option<PathBuf>,
     to_remove: Vec<String>,
-    all_projects: HashMap<String, PathBuf>,
+    all_projects: BTreeMap<String, PathBuf>,
     npm_package_manager: PackageManager,
     is_global: bool,
 }
@@ -26,7 +26,7 @@ impl Remove {
     pub(crate) fn new(
         project_path: Option<PathBuf>,
         to_remove: Vec<String>,
-        all_projects: HashMap<String, PathBuf>,
+        all_projects: BTreeMap<String, PathBuf>,
         npm_package_manager: PackageManager,
         is_global: bool,
     ) -> Self {

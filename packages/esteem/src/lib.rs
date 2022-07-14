@@ -3,11 +3,13 @@ mod commons;
 mod init;
 mod install_isolated;
 mod remove;
-use std::{collections::HashMap, path::PathBuf, process};
+use std::{collections::BTreeMap, path::PathBuf, process};
 
 pub use commons::{
     constants::{WORKSPACE_FILE, WORKSPACE_IDENTIFIER},
-    lib::{AddEsteemRequiredDependency, EsteemWorkspace, WriteDependencies},
+    dependencies::EsteemDependencies,
+    lib::{AddEsteemRequiredDependency, WriteDependencies},
+    workspace::EsteemWorkspace,
 };
 use commons::{
     lib::{AddEsteemDevelopmentDependency, Command},
@@ -37,7 +39,7 @@ pub fn perform_add(
     a.execute();
 }
 
-pub fn perform_init(projects_file_paths: HashMap<String, PathBuf>) {
+pub fn perform_init(projects_file_paths: BTreeMap<String, PathBuf>) {
     let a = init::Init::new(projects_file_paths);
     a.execute();
 }
@@ -50,7 +52,7 @@ pub fn perform_install_isolated(project_path: Vec<PathBuf>) {
 pub fn perform_remove(
     project_path: Option<PathBuf>,
     to_remove: Vec<String>,
-    all_projects: HashMap<String, PathBuf>,
+    all_projects: BTreeMap<String, PathBuf>,
     is_global: bool,
 ) {
     let npm_package_manager = get_npm_package_manager().unwrap_or_else(|| {
