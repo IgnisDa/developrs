@@ -1,15 +1,21 @@
 use std::{
-    collections::HashMap,
     env::current_dir,
     fs::{self, read_dir},
-    path::{Path, PathBuf},
+    path::PathBuf,
 };
 
 use indexmap::IndexMap;
 use serde_json::Value;
 
-use super::constants::{DEPENDENCIES_KEY, DEVELOPMENT_KEY, PROJECT_FILE, REQUIRED_KEY};
-use super::lib::PackageManager;
+use crate::commons::{
+    lib::PackageManager,
+    managers::{NpmManager, PnpmManager, YarnManager},
+};
+
+use super::{
+    constants::{DEPENDENCIES_KEY, DEVELOPMENT_KEY, REQUIRED_KEY},
+    managers::AddNpmDependenciesAndExecuteNpmPackageManager,
+};
 
 pub fn get_npm_package_manager() -> Option<PackageManager> {
     let dir = read_dir(current_dir().unwrap()).unwrap();
@@ -25,17 +31,20 @@ pub fn get_npm_package_manager() -> Option<PackageManager> {
     None
 }
 
-pub fn get_project_files_for_all_projects(
-    projects: &HashMap<String, String>,
-) -> HashMap<String, PathBuf> {
-    let mut projects_file_paths = HashMap::new();
-    for (project_name, project_path) in projects {
-        let project_file_path = Path::new(project_path).join(PROJECT_FILE);
-        projects_file_paths.insert(project_name.clone(), project_file_path);
+pub fn get_npm_package_manager_new(
+) -> Option<Box<dyn AddNpmDependenciesAndExecuteNpmPackageManager>> {
+    let dir = read_dir(current_dir().unwrap()).unwrap();
+    for file in dir {
+        match file.unwrap().file_name().to_os_string().to_str().unwrap() {
+            "yarn.lock" => return Some(Box::new(YarnManager::new())),
+            "pnpm-lock.yaml" => return Some(Box::new(PnpmManager::new())),
+            "package-lock.json" => return Some(Box::new(NpmManager::new())),
+            _ => continue,
+        }
     }
-    projects_file_paths
+    warn!("No package manager lockfile found, early termination imminent.");
+    None
 }
-
 pub fn get_dependencies_from_file(
     file_path: &PathBuf,
 ) -> Option<(Vec<Value>, Vec<Value>, Value)> {

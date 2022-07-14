@@ -7,10 +7,12 @@ use std::{collections::HashMap, path::PathBuf, process};
 
 pub use commons::{
     constants::{WORKSPACE_FILE, WORKSPACE_IDENTIFIER},
-    lib::Workspace,
-    utils::get_project_files_for_all_projects,
+    lib::{AddEsteemRequiredDependency, EsteemWorkspace, WriteDependencies},
 };
-use commons::{lib::Command, utils::get_npm_package_manager};
+use commons::{
+    lib::{AddEsteemDevelopmentDependency, Command},
+    utils::{get_npm_package_manager, get_npm_package_manager_new},
+};
 
 #[macro_use]
 extern crate log;
@@ -63,4 +65,19 @@ pub fn perform_remove(
         is_global,
     );
     a.execute();
+}
+
+pub fn perform_workspace_add(is_development: bool, to_add: Vec<String>) {
+    let mut workspace = EsteemWorkspace::from_current_directory().unwrap();
+    to_add.iter().for_each(|dependency| {
+        if is_development {
+            workspace.add_development_dependency(dependency.to_string())
+        } else {
+            workspace.add_required_dependency(dependency.to_string())
+        }
+    });
+    workspace.write_dependencies();
+    let mut manager = get_npm_package_manager_new().unwrap();
+    manager.add_dependencies(to_add);
+    manager.execute();
 }
