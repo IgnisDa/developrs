@@ -24,6 +24,7 @@ pub trait AddNpmDependencies: GetCommand {
 
 pub trait ExecuteNpmPackageManager: GetCommand {
     fn execute(&mut self) {
+        info!("Calling dependency installation command");
         let child = self.get_command();
         let reader = child.stderr_to_stdout().reader().unwrap();
         let lines = BufReader::new(reader).lines();

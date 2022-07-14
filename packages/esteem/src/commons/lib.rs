@@ -43,6 +43,7 @@ where
     fn get_path(&self) -> PathBuf;
 
     fn write_dependencies(&self) {
+        info!("Writing new dependencies to {:?}", self.get_path());
         let to_write = serde_json::to_string_pretty(self).unwrap();
         write(self.get_path(), to_write).unwrap();
     }

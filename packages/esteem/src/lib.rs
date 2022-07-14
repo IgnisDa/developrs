@@ -1,4 +1,3 @@
-mod add;
 mod commons;
 mod init;
 mod install_isolated;
@@ -19,7 +18,12 @@ use commons::{
 #[macro_use]
 extern crate log;
 
-pub fn perform_add(project_name: String, is_development: bool, to_add: Vec<String>) {
+pub fn perform_add(
+    project_name: String,
+    to_add: Vec<String>,
+    is_development: bool,
+    skip_package_manager: bool,
+) {
     let mut workspace = EsteemWorkspace::from_current_directory().unwrap();
     let project = workspace.get_project(project_name).unwrap();
     to_add.iter().for_each(|dependency| {
@@ -30,9 +34,11 @@ pub fn perform_add(project_name: String, is_development: bool, to_add: Vec<Strin
         }
     });
     project.write_dependencies();
-    let mut manager = get_npm_package_manager_new().unwrap();
-    manager.add_dependencies(to_add);
-    manager.execute();
+    if !skip_package_manager {
+        let mut manager = get_npm_package_manager_new().unwrap();
+        manager.add_dependencies(to_add);
+        manager.execute();
+    }
 }
 
 pub fn perform_init(projects_file_paths: BTreeMap<String, PathBuf>) {
@@ -59,7 +65,11 @@ pub fn perform_remove(
     a.execute();
 }
 
-pub fn perform_workspace_add(is_development: bool, to_add: Vec<String>) {
+pub fn perform_workspace_add(
+    to_add: Vec<String>,
+    is_development: bool,
+    skip_package_manager: bool,
+) {
     let mut workspace = EsteemWorkspace::from_current_directory().unwrap();
     to_add.iter().for_each(|dependency| {
         if is_development {
@@ -69,7 +79,9 @@ pub fn perform_workspace_add(is_development: bool, to_add: Vec<String>) {
         }
     });
     workspace.write_dependencies();
-    let mut manager = get_npm_package_manager_new().unwrap();
-    manager.add_dependencies(to_add);
-    manager.execute();
+    if !skip_package_manager {
+        let mut manager = get_npm_package_manager_new().unwrap();
+        manager.add_dependencies(to_add);
+        manager.execute();
+    }
 }

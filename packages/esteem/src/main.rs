@@ -17,6 +17,7 @@ const WORKSPACE_SUBCOMMAND: &str = "workspace";
 const PROJECT_NAME: &str = "PROJECT_NAME";
 const DEPENDENCIES: &str = "DEPENDENCIES";
 const DEVELOPMENT: &str = "development";
+const SKIP: &str = "skip";
 
 fn main() -> Result<(), String> {
     env_logger::Builder::from_env(Env::default().default_filter_or("info"))
@@ -38,6 +39,7 @@ fn main() -> Result<(), String> {
     project_names.sort();
 
     let add_subcommand = App::new(ADD_COMMAND)
+        .arg(arg!(-s - -skip).help("Skip calling the NPM package manager"))
         .arg(arg!(-D - -development).help("Add as development dependencies"));
 
     let deps_arg = arg!(<DEPENDENCIES>)
@@ -117,10 +119,17 @@ fn main() -> Result<(), String> {
                 .map(|f| f.to_string())
                 .collect::<Vec<String>>();
             let is_development = sub_matches.is_present(DEVELOPMENT);
+            let skip_package_manager = sub_matches.is_present(SKIP);
             trace!("Project Name: {:?}", project_name);
             trace!("Dependencies to add: {:?}", to_add);
             trace!("Development: {:?}", is_development);
-            perform_add(project_name.into(), is_development, to_add);
+            trace!("Calling package manager: {:?}", !skip_package_manager);
+            perform_add(
+                project_name.into(),
+                to_add,
+                is_development,
+                skip_package_manager,
+            );
         }
         Some((REMOVE_COMMAND, sub_matches)) => {
             let project_name = sub_matches.value_of(PROJECT_NAME).unwrap();
@@ -155,7 +164,8 @@ fn main() -> Result<(), String> {
                     .map(|f| f.to_string())
                     .collect::<Vec<String>>();
                 let is_development = sub_matches.is_present(DEVELOPMENT);
-                perform_workspace_add(is_development, to_add);
+                let skip_package_manager = sub_matches.is_present(SKIP);
+                perform_workspace_add(to_add, is_development, skip_package_manager);
             }
             Some((REMOVE_COMMAND, _sub_matches)) => {
                 todo!()
