@@ -1,10 +1,6 @@
-use std::collections::BTreeSet;
-
+use super::{AddEsteemDevelopmentDependency, AddEsteemRequiredDependency};
 use serde::{Deserialize, Serialize};
-
-use crate::AddEsteemRequiredDependency;
-
-use super::lib::AddEsteemDevelopmentDependency;
+use std::collections::BTreeSet;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct EsteemDependencies {

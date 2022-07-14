@@ -1,15 +1,14 @@
+use super::{
+    constants::{DEPENDENCIES_KEY, DEVELOPMENT_KEY, REQUIRED_KEY},
+    utils::get_dependencies_from_file,
+    {Command, PackageManager},
+};
 use serde_json::{json, Value};
 use std::{
     collections::{BTreeMap, HashMap},
     fs,
     path::PathBuf,
-    process::{self, Command as ShellCommand, Stdio},
-};
-
-use crate::commons::{
-    constants::{DEPENDENCIES_KEY, DEVELOPMENT_KEY, REQUIRED_KEY},
-    lib::{Command, PackageManager},
-    utils::get_dependencies_from_file,
+    process::{exit, Command as ShellCommand, Stdio},
 };
 
 #[derive(Debug)]
@@ -125,7 +124,7 @@ impl Command for Remove {
                 "{:?} does not have a {:?} key",
                 self.project_path, DEPENDENCIES_KEY
             );
-            process::exit(1);
+            exit(1);
         };
     }
 }

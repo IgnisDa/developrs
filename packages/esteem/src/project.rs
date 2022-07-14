@@ -1,19 +1,14 @@
+use super::{
+    constants::PROJECT_FILE, dependencies::EsteemDependencies,
+    AddEsteemDevelopmentDependency, AddEsteemRequiredDependency, LibraryError,
+    WriteDependencies,
+};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{
     collections::BTreeMap,
     fs::{canonicalize, read_to_string},
     path::{Path, PathBuf},
-};
-
-use crate::commons::constants::PROJECT_FILE;
-
-use super::{
-    dependencies::EsteemDependencies,
-    lib::{
-        AddEsteemDevelopmentDependency, AddEsteemRequiredDependency, LibraryError,
-        WriteDependencies,
-    },
 };
 
 #[derive(Debug, Serialize, Deserialize)]

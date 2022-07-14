@@ -1,21 +1,17 @@
+use super::{
+    constants::{workspace_file, WORKSPACE_FILE},
+    dependencies::EsteemDependencies,
+    project::EsteemProject,
+    AddEsteemDevelopmentDependency, AddEsteemRequiredDependency, LibraryError,
+    WriteDependencies,
+};
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::{
     collections::BTreeMap,
     env::current_dir,
     fs::read_to_string,
     path::{Path, PathBuf},
-};
-
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
-
-use super::{
-    constants::{workspace_file, WORKSPACE_FILE},
-    dependencies::EsteemDependencies,
-    lib::{
-        AddEsteemDevelopmentDependency, AddEsteemRequiredDependency, LibraryError,
-        WriteDependencies,
-    },
-    project::EsteemProject,
 };
 
 #[derive(Debug, Serialize, Deserialize)]

@@ -1,10 +1,10 @@
-use crate::commons::{
+use super::{
     constants::{
         DEPENDENCIES_KEY, DEVELOPMENT_DEPENDENCIES_KEY, PACKAGE_JSON_BACKUP_FILE,
         PACKAGE_JSON_FILE, WORKSPACE_FILE,
     },
-    lib::Command,
     utils::get_dependencies_from_file,
+    Command,
 };
 use serde_json::{json, Value};
 use std::{

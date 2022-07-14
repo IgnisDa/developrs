@@ -1,19 +1,20 @@
-mod commons;
+use core::fmt;
+use std::{error::Error, fs::write, path::PathBuf};
+mod constants;
+mod dependencies;
+mod managers;
+mod project;
+mod utils;
+mod workspace;
+use serde::Serialize;
 mod init;
 mod install_isolated;
 mod remove;
-use std::{collections::BTreeMap, path::PathBuf, process};
-
-pub use commons::{
-    constants::{WORKSPACE_FILE, WORKSPACE_IDENTIFIER},
-    dependencies::EsteemDependencies,
-    lib::{AddEsteemRequiredDependency, WriteDependencies},
-    workspace::EsteemWorkspace,
-};
-use commons::{
-    lib::{AddEsteemDevelopmentDependency, Command},
-    utils::{get_npm_package_manager, get_npm_package_manager_new},
-};
+pub use constants::{WORKSPACE_FILE, WORKSPACE_IDENTIFIER};
+pub use dependencies::EsteemDependencies;
+use std::{collections::BTreeMap, process};
+use utils::{get_npm_package_manager, get_npm_package_manager_new};
+pub use workspace::EsteemWorkspace;
 
 #[macro_use]
 extern crate log;
@@ -83,5 +84,51 @@ pub fn perform_workspace_add(
         let mut manager = get_npm_package_manager_new().unwrap();
         manager.add_dependencies(to_add);
         manager.execute();
+    }
+}
+
+#[derive(Debug)]
+pub struct LibraryError;
+
+impl fmt::Display for LibraryError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Library error")
+    }
+}
+
+impl Error for LibraryError {}
+
+pub trait Command {
+    fn execute(&self);
+}
+
+#[derive(Debug)]
+pub enum PackageManager {
+    Yarn,
+    Pnpm,
+    Npm,
+}
+
+/// Used to add a required dependency to a project or workspace
+pub trait AddEsteemRequiredDependency {
+    fn add_required_dependency(&mut self, dependency: String);
+}
+
+/// Used to add a development dependency to a project or workspace
+pub trait AddEsteemDevelopmentDependency {
+    fn add_development_dependency(&mut self, dependency: String);
+}
+
+/// Used to write dependencies to a file
+pub trait WriteDependencies
+where
+    Self: Serialize,
+{
+    fn get_path(&self) -> PathBuf;
+
+    fn write_dependencies(&self) {
+        info!("Writing new dependencies to {:?}", self.get_path());
+        let to_write = serde_json::to_string_pretty(self).unwrap();
+        write(self.get_path(), to_write).unwrap();
     }
 }

@@ -1,10 +1,9 @@
+use super::{
+    constants::{DEPENDENCIES_KEY, DEVELOPMENT_KEY, REQUIRED_KEY},
+    Command,
+};
 use serde_json::{json, to_string_pretty, Value};
 use std::{collections::BTreeMap, fs, path::PathBuf, process};
-
-use crate::commons::{
-    constants::{DEPENDENCIES_KEY, DEVELOPMENT_KEY, REQUIRED_KEY},
-    lib::Command,
-};
 
 #[derive(Debug)]
 pub(crate) struct Init {
