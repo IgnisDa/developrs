@@ -3,7 +3,6 @@ use env_logger::Env;
 use esteem::{
     get_project_files_for_all_projects, perform_add, perform_init,
     perform_install_isolated, perform_remove, Workspace, WORKSPACE_FILE,
-    WORKSPACE_IDENTIFIER,
 };
 use std::{collections::HashMap, path::PathBuf};
 
@@ -31,72 +30,62 @@ fn main() -> Result<(), String> {
         }
     };
 
-    let project_names: Vec<&str> = all_projects.keys().map(|f| f.as_str()).collect();
-    let mut project_names_with_workspace = project_names.clone();
-    project_names_with_workspace.extend([WORKSPACE_IDENTIFIER]);
+    let mut project_names: Vec<&str> = all_projects.keys().map(|f| f.as_str()).collect();
+    project_names.sort();
+
+    let add_subcommand = App::new(ADD_COMMAND)
+        .about("Installs dependencies to a project")
+        .arg(
+            arg!(<DEPENDENCIES>)
+                .required(true)
+                .min_values(1)
+                .help("The name(s) of the npm packages to install"),
+        )
+        .arg(arg!(-D - -development).help("Add as development dependencies"));
+
+    let remove_subcommand = App::new(REMOVE_COMMAND)
+        .about("Removes dependencies from a project (alias: rm)")
+        .alias("rm")
+        .arg(
+            arg!(<DEPENDENCIES>)
+                .required(true)
+                .min_values(1)
+                .help("The name of the npm packages to remove"),
+        );
+
+    let project_name_arg = arg!([PROJECT_NAME])
+        .required(true)
+        .help("The name(s) of the project from which the dependency must be removed")
+        .possible_values(&project_names);
+
+    let init_subcommand =
+        App::new(INIT_COMMAND).about("Initializes the project to be used with esteem");
+
+    let install_isolated_subcommand = App::new(INSTALL_ISOLATED_COMMAND)
+        .about("Isolate only dependencies of a few projects")
+        .after_help(
+            "NOTE: This mutates `package.json` in place and should be used with care.",
+        )
+        .arg(
+            arg!([PROJECTS])
+                .required(true)
+                .min_values(1)
+                .help("The names of the projects whose dependencies should be installed")
+                .possible_values(&project_names),
+        );
     let matches = app_from_crate!()
         .global_setting(AppSettings::PropagateVersion)
         .global_setting(AppSettings::UseLongFormatForHelpSubcommand)
         .setting(AppSettings::SubcommandRequiredElseHelp)
-        .subcommand(
-            App::new(INIT_COMMAND)
-                .about("Initializes the project to be used with esteem")
-        )
-        .subcommand(
-            App::new(ADD_COMMAND)
-                .about("Installs dependencies to a project")
-                .arg(
-                    arg!([PROJECT_NAME])
-                        .required(true)
-                        .help("The name of the project to which the dependency must be installed. If equal to `workspace`, then this dependency will be added globally.")
-                        .possible_values(&project_names_with_workspace)
-                )
-                .arg(
-                    arg!(<DEPENDENCIES>)
-                        .required(true)
-                        .min_values(1)
-                        .help("The name(s) of the npm packages to install"),
-                )
-                .arg(
-                    arg!(-D - -development).help("Add as development dependencies")
-                )
-        )
-        .subcommand(
-            App::new(REMOVE_COMMAND)
-                .about("Removes dependencies from a project (alias: rm)")
-                .alias("rm")
-                .arg(
-                    arg!([PROJECT_NAME])
-                        .required(true)
-                        .help("The name(s) of the project from which the dependency must be removed")
-                        .possible_values(&project_names_with_workspace)
-                )
-                .arg(
-                    arg!(<DEPENDENCIES>)
-                        .required(true)
-                        .min_values(1)
-                        .help("The name of the npm packages to remove"),
-                )
-        )
-        .subcommand(
-            App::new(INSTALL_ISOLATED_COMMAND)
-                .about(
-                    "Isolate only dependencies of a few projects",
-                )
-                .after_help("NOTE: This mutates `package.json` in place and should be used with care.")
-                .arg(
-                    arg!([PROJECTS])
-                        .required(true)
-                        .min_values(1)
-                        .help("The names of the projects whose dependencies should be installed")
-                        .possible_values(&project_names)
-                )
-        )
+        .subcommand(init_subcommand)
+        .subcommand(add_subcommand.arg(&project_name_arg))
+        .subcommand(remove_subcommand.arg(&project_name_arg))
+        .subcommand(install_isolated_subcommand)
         .get_matches();
 
     match matches.subcommand() {
         Some((INIT_COMMAND, _)) => {
-            perform_init(all_projects);
+            perform_init(all_projects.clone());
         }
         Some((ADD_COMMAND, sub_matches)) => {
             let project_name = sub_matches.value_of("PROJECT_NAME").unwrap();
@@ -135,7 +124,7 @@ fn main() -> Result<(), String> {
             trace!("Project Name: {:?}", project_name);
             trace!("Project path: {:?}", project_path);
             trace!("Dependencies to add: {:?}", to_remove);
-            perform_remove(project_path, to_remove, all_projects, is_global);
+            perform_remove(project_path, to_remove, all_projects.clone(), is_global);
         }
         Some((INSTALL_ISOLATED_COMMAND, sub_matches)) => {
             let project_names = sub_matches
