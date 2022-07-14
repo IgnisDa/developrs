@@ -1,5 +1,7 @@
 use core::fmt;
-use std::error::Error;
+use std::{error::Error, fs::write, path::PathBuf};
+
+use serde::Serialize;
 
 #[derive(Debug)]
 pub struct LibraryError;
@@ -34,6 +36,14 @@ pub trait AddEsteemDevelopmentDependency {
 }
 
 /// Used to write dependencies to a file
-pub trait WriteDependencies {
-    fn write_dependencies(&self);
+pub trait WriteDependencies
+where
+    Self: Serialize,
+{
+    fn get_path(&self) -> PathBuf;
+
+    fn write_dependencies(&self) {
+        let to_write = serde_json::to_string_pretty(self).unwrap();
+        write(self.get_path(), to_write).unwrap();
+    }
 }

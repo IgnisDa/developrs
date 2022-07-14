@@ -1,7 +1,7 @@
 use std::{
     collections::BTreeMap,
     env::current_dir,
-    fs::{read_to_string, write},
+    fs::read_to_string,
     path::{Path, PathBuf},
 };
 
@@ -82,8 +82,7 @@ impl AddEsteemDevelopmentDependency for EsteemWorkspace {
 }
 
 impl WriteDependencies for EsteemWorkspace {
-    fn write_dependencies(&self) {
-        let to_write = serde_json::to_string_pretty(self).unwrap();
-        write(&self.path, to_write).unwrap();
+    fn get_path(&self) -> PathBuf {
+        self.path.clone()
     }
 }
