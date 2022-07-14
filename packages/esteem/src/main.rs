@@ -38,20 +38,14 @@ fn main() -> Result<(), String> {
     project_names.sort();
 
     let add_subcommand = App::new(ADD_COMMAND)
-        .arg(
-            arg!(<DEPENDENCIES>)
-                .required(true)
-                .min_values(1)
-                .help("The name(s) of the npm packages to install"),
-        )
         .arg(arg!(-D - -development).help("Add as development dependencies"));
 
-    let remove_subcommand = App::new(REMOVE_COMMAND).alias("rm").arg(
-        arg!(<DEPENDENCIES>)
-            .required(true)
-            .min_values(1)
-            .help("The name of the npm packages to remove"),
-    );
+    let deps_arg = arg!(<DEPENDENCIES>)
+        .required(true)
+        .min_values(1)
+        .help("The name(s) of the npm packages");
+
+    let remove_subcommand = App::new(REMOVE_COMMAND).alias("rm");
 
     let project_name_arg = arg!([PROJECT_NAME])
         .required(true)
@@ -79,6 +73,7 @@ fn main() -> Result<(), String> {
         .subcommand(
             add_subcommand
                 .clone()
+                .arg(deps_arg.clone())
                 .about("Install dependencies to a workspace"),
         )
         .subcommand(
@@ -96,12 +91,14 @@ fn main() -> Result<(), String> {
             add_subcommand
                 .clone()
                 .arg(&project_name_arg)
+                .arg(&deps_arg)
                 .about("Installs dependencies to a project"),
         )
         .subcommand(
             remove_subcommand
                 .clone()
                 .arg(&project_name_arg)
+                .arg(&deps_arg)
                 .about("Removes dependencies from a project (alias: rm)"),
         )
         .subcommand(install_isolated_subcommand)
@@ -114,7 +111,6 @@ fn main() -> Result<(), String> {
         }
         Some((ADD_COMMAND, sub_matches)) => {
             let project_name = sub_matches.value_of(PROJECT_NAME).unwrap();
-            let project_path = all_projects.get(project_name).cloned().unwrap();
             let to_add = sub_matches
                 .values_of(DEPENDENCIES)
                 .unwrap()
@@ -122,10 +118,9 @@ fn main() -> Result<(), String> {
                 .collect::<Vec<String>>();
             let is_development = sub_matches.is_present(DEVELOPMENT);
             trace!("Project Name: {:?}", project_name);
-            trace!("Project path: {:?}", project_path);
             trace!("Dependencies to add: {:?}", to_add);
             trace!("Development: {:?}", is_development);
-            perform_add(project_path, is_development, to_add);
+            perform_add(project_name.into(), is_development, to_add);
         }
         Some((REMOVE_COMMAND, sub_matches)) => {
             let project_name = sub_matches.value_of(PROJECT_NAME).unwrap();

@@ -9,15 +9,17 @@ use super::lib::AddEsteemDevelopmentDependency;
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct EsteemDependencies {
     /// dependencies of the project/workspace
-    required: Option<BTreeSet<String>>,
+    #[serde(default)]
+    required: BTreeSet<String>,
     /// devDependencies of the project/workspace
-    development: Option<BTreeSet<String>>,
+    #[serde(default)]
+    development: BTreeSet<String>,
 }
 
 impl Default for EsteemDependencies {
     fn default() -> Self {
-        let required = Some(BTreeSet::new());
-        let development = Some(BTreeSet::new());
+        let required = BTreeSet::new();
+        let development = BTreeSet::new();
         Self {
             required,
             development,
@@ -27,12 +29,12 @@ impl Default for EsteemDependencies {
 
 impl AddEsteemDevelopmentDependency for EsteemDependencies {
     fn add_development_dependency(&mut self, dependency: String) {
-        self.development.as_mut().unwrap().insert(dependency);
+        self.development.insert(dependency);
     }
 }
 
 impl AddEsteemRequiredDependency for EsteemDependencies {
     fn add_required_dependency(&mut self, dependency: String) {
-        self.required.as_mut().unwrap().insert(dependency);
+        self.required.insert(dependency);
     }
 }

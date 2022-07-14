@@ -1,12 +1,10 @@
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{
     collections::BTreeMap,
-    env::current_dir,
-    fs::read_to_string,
+    fs::{canonicalize, read_to_string},
     path::{Path, PathBuf},
 };
-use uuid::Uuid;
 
 use crate::commons::constants::PROJECT_FILE;
 
@@ -18,35 +16,16 @@ use super::{
     },
 };
 
-fn deserialize_project_path<'de, D>(deserializer: D) -> Result<PathBuf, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let buf = String::deserialize(deserializer)?;
-    Ok(PathBuf::from(&buf).join(PROJECT_FILE))
-}
-
-fn serialize_project_path<S>(x: &PathBuf, s: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    let parent = Path::new(x).parent().unwrap().to_str().unwrap();
-    s.serialize_str(parent)
-}
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EsteemProject {
-    // a unique ID associated with this project
-    #[serde(default = "Uuid::new_v4", skip_serializing)]
-    id: Uuid,
+    /// The name of project, this is unique and should be used as the identifier
+    #[serde(skip_serializing, skip_deserializing)]
+    pub name: String,
 
-    /// The complete path to this project description file
-    #[serde(
-        deserialize_with = "deserialize_project_path",
-        serialize_with = "serialize_project_path"
-    )]
-    source_root: PathBuf,
+    /// The absolute path of this project's description file
+    #[serde(skip_serializing, skip_deserializing)]
+    description_file_path: PathBuf,
 
     /// the dependencies of a project
     dependencies: Option<EsteemDependencies>,
@@ -57,16 +36,18 @@ pub struct EsteemProject {
 }
 
 impl EsteemProject {
-    pub fn from_project_path(path: &PathBuf) -> Result<Self, LibraryError> {
-        let project_file = read_to_string(
-            Path::new(&current_dir().unwrap())
-                .join(path)
-                .join(PROJECT_FILE),
-        );
+    pub fn from_project_path(name: String, path: &Path) -> Result<Self, LibraryError> {
+        let description_file_path = canonicalize(path.join(PROJECT_FILE)).unwrap();
+        let project_file = read_to_string(&description_file_path);
         match project_file {
-            Ok(data) => Ok(serde_json::from_str(&data).unwrap()),
+            Ok(data) => {
+                let mut partial_project: Self = serde_json::from_str(&data).unwrap();
+                partial_project.description_file_path = description_file_path;
+                partial_project.name = name;
+                Ok(partial_project)
+            }
             Err(_) => {
-                trace!("Unable to find file: {:?}", path);
+                trace!("Unable to find file: {:?}", description_file_path);
                 Err(LibraryError)
             }
         }
@@ -93,6 +74,6 @@ impl AddEsteemDevelopmentDependency for EsteemProject {
 
 impl WriteDependencies for EsteemProject {
     fn get_path(&self) -> PathBuf {
-        self.source_root.clone()
+        self.description_file_path.clone()
     }
 }

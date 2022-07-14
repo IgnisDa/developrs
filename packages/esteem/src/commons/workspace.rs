@@ -15,6 +15,7 @@ use super::{
         AddEsteemDevelopmentDependency, AddEsteemRequiredDependency, LibraryError,
         WriteDependencies,
     },
+    project::EsteemProject,
 };
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -24,10 +25,15 @@ pub struct EsteemWorkspace {
     path: PathBuf,
 
     /// a mapping of projects to their paths
+    // TODO: Remove the pub part
     pub projects: BTreeMap<String, PathBuf>,
 
+    #[serde(skip_serializing, skip_deserializing)]
+    pub all_projects_rep: Vec<EsteemProject>,
+
     /// the dependencies of a project
-    dependencies: Option<EsteemDependencies>,
+    #[serde(default)]
+    dependencies: EsteemDependencies,
 
     /// the other miscellaneous keys that we do not care about
     #[serde(flatten)]
@@ -39,45 +45,46 @@ impl EsteemWorkspace {
         let workspace_file =
             read_to_string(Path::new(&current_dir().unwrap()).join(WORKSPACE_FILE));
         match workspace_file {
-            Ok(data) => Ok(serde_json::from_str(&data).unwrap()),
+            Ok(data) => {
+                let mut work: Self = serde_json::from_str(&data).unwrap();
+                let projects_internal = work
+                    .projects
+                    .iter()
+                    .map(|(name, path)| {
+                        EsteemProject::from_project_path(name.clone(), path).unwrap()
+                    })
+                    .collect();
+                work.all_projects_rep = projects_internal;
+                Ok(work)
+            }
             Err(_) => {
                 trace!("Unable to find file: {:?}", WORKSPACE_FILE);
                 Err(LibraryError)
             }
         }
     }
-}
 
-impl Default for EsteemWorkspace {
-    fn default() -> Self {
-        let projects = BTreeMap::new();
-        let dependencies = Some(EsteemDependencies::default());
-        let path = PathBuf::default();
-        let other = BTreeMap::default();
-        Self {
-            path,
-            projects,
-            dependencies,
-            other,
-        }
+    pub fn get_project(
+        &mut self,
+        project_name: String,
+    ) -> Result<&mut EsteemProject, LibraryError> {
+        let project = self
+            .all_projects_rep
+            .iter_mut()
+            .find(|p| p.name == project_name);
+        project.ok_or(LibraryError)
     }
 }
 
 impl AddEsteemRequiredDependency for EsteemWorkspace {
     fn add_required_dependency(&mut self, dependency: String) {
-        self.dependencies
-            .as_mut()
-            .unwrap()
-            .add_required_dependency(dependency);
+        self.dependencies.add_required_dependency(dependency);
     }
 }
 
 impl AddEsteemDevelopmentDependency for EsteemWorkspace {
     fn add_development_dependency(&mut self, dependency: String) {
-        self.dependencies
-            .as_mut()
-            .unwrap()
-            .add_development_dependency(dependency);
+        self.dependencies.add_development_dependency(dependency);
     }
 }
 

@@ -3,3 +3,4 @@ node_modules
 !packages/cinder/action/node_modules
 target
 .env
+.pnpm-store

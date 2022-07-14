@@ -19,13 +19,20 @@ use commons::{
 #[macro_use]
 extern crate log;
 
-pub fn perform_add(project_path: PathBuf, is_development: bool, to_add: Vec<String>) {
-    let npm_package_manager = get_npm_package_manager().unwrap_or_else(|| {
-        error!("A valid lockfile was not found for this project.");
-        process::exit(1);
+pub fn perform_add(project_name: String, is_development: bool, to_add: Vec<String>) {
+    let mut workspace = EsteemWorkspace::from_current_directory().unwrap();
+    let project = workspace.get_project(project_name).unwrap();
+    to_add.iter().for_each(|dependency| {
+        if is_development {
+            project.add_development_dependency(dependency.to_string())
+        } else {
+            project.add_required_dependency(dependency.to_string())
+        }
     });
-    let a = add::Add::new(project_path, is_development, to_add, npm_package_manager);
-    a.execute();
+    project.write_dependencies();
+    let mut manager = get_npm_package_manager_new().unwrap();
+    manager.add_dependencies(to_add);
+    manager.execute();
 }
 
 pub fn perform_init(projects_file_paths: BTreeMap<String, PathBuf>) {
