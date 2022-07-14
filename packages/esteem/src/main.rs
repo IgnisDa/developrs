@@ -114,12 +114,7 @@ fn main() -> Result<(), String> {
         }
         Some((ADD_COMMAND, sub_matches)) => {
             let project_name = sub_matches.value_of(PROJECT_NAME).unwrap();
-            let mut is_global = false;
-            let mut project_path = None;
-            if project_name == "workspace" {
-                is_global = true;
-                project_path = all_projects.get(project_name).cloned();
-            }
+            let project_path = all_projects.get(project_name).cloned().unwrap();
             let to_add = sub_matches
                 .values_of(DEPENDENCIES)
                 .unwrap()
@@ -130,8 +125,7 @@ fn main() -> Result<(), String> {
             trace!("Project path: {:?}", project_path);
             trace!("Dependencies to add: {:?}", to_add);
             trace!("Development: {:?}", is_development);
-            trace!("Global: {:?}", is_global);
-            perform_add(project_path, is_development, to_add, is_global);
+            perform_add(project_path, is_development, to_add);
         }
         Some((REMOVE_COMMAND, sub_matches)) => {
             let project_name = sub_matches.value_of(PROJECT_NAME).unwrap();

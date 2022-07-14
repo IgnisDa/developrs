@@ -19,23 +19,12 @@ use commons::{
 #[macro_use]
 extern crate log;
 
-pub fn perform_add(
-    project_path: Option<PathBuf>,
-    is_development: bool,
-    to_add: Vec<String>,
-    is_global: bool,
-) {
+pub fn perform_add(project_path: PathBuf, is_development: bool, to_add: Vec<String>) {
     let npm_package_manager = get_npm_package_manager().unwrap_or_else(|| {
         error!("A valid lockfile was not found for this project.");
         process::exit(1);
     });
-    let a = add::Add::new(
-        project_path,
-        is_development,
-        to_add,
-        npm_package_manager,
-        is_global,
-    );
+    let a = add::Add::new(project_path, is_development, to_add, npm_package_manager);
     a.execute();
 }
 
