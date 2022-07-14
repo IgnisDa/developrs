@@ -1,10 +1,10 @@
 use std::{
+    collections::BTreeMap,
     env::current_dir,
     fs::{self, read_dir},
     path::PathBuf,
 };
 
-use indexmap::IndexMap;
 use serde_json::Value;
 
 use crate::commons::{
@@ -48,7 +48,7 @@ pub fn get_npm_package_manager_new(
 pub fn get_dependencies_from_file(
     file_path: &PathBuf,
 ) -> Option<(Vec<Value>, Vec<Value>, Value)> {
-    let contents: IndexMap<String, Value> =
+    let contents: BTreeMap<String, Value> =
         serde_json::from_str(&fs::read_to_string(file_path).unwrap()).unwrap();
     let dependencies = contents.get(DEPENDENCIES_KEY).cloned();
     if let Some(project_dependencies) = dependencies {

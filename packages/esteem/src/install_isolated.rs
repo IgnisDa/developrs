@@ -6,9 +6,13 @@ use crate::commons::{
     lib::Command,
     utils::get_dependencies_from_file,
 };
-use indexmap::IndexMap;
 use serde_json::{json, Value};
-use std::{collections::HashMap, fs, path::PathBuf, process};
+use std::{
+    collections::{BTreeMap, HashMap},
+    fs,
+    path::PathBuf,
+    process,
+};
 
 pub(crate) struct InstallIsolated {
     project_paths: Vec<PathBuf>,
@@ -22,7 +26,7 @@ impl InstallIsolated {
 
 impl Command for InstallIsolated {
     fn execute(&self) {
-        let mut package_file: IndexMap<String, Value> = serde_json::from_str(
+        let mut package_file: BTreeMap<String, Value> = serde_json::from_str(
             &fs::read_to_string(PACKAGE_JSON_FILE).unwrap_or_else(|_| {
                 error!("Unable to read file: {:?}", PACKAGE_JSON_FILE);
                 process::exit(1);

@@ -1,4 +1,3 @@
-use indexmap::IndexMap;
 use serde_json::{json, to_string_pretty, Value};
 use std::{collections::BTreeMap, fs, path::PathBuf, process};
 
@@ -24,7 +23,7 @@ impl Command for Init {
     fn execute(&self) {
         for (project_name, project_file_path) in &self.projects_file_paths {
             let s = fs::read_to_string(project_file_path).unwrap();
-            let mut project_file_json: IndexMap<String, Value> =
+            let mut project_file_json: BTreeMap<String, Value> =
                 serde_json::from_str(&s).unwrap();
             if !project_file_json.contains_key(DEPENDENCIES_KEY) {
                 project_file_json.insert(

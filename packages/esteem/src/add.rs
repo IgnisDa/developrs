@@ -2,9 +2,9 @@ use crate::commons::{
     constants::{DEPENDENCIES_KEY, DEVELOPMENT_KEY, REQUIRED_KEY},
     lib::{Command, PackageManager},
 };
-use indexmap::IndexMap;
 use serde_json::{json, Value};
 use std::{
+    collections::BTreeMap,
     fs,
     path::PathBuf,
     process::{Command as ShellCommand, Stdio},
@@ -36,7 +36,7 @@ impl Add {
 
 impl Command for Add {
     fn execute(&self) {
-        let mut contents: IndexMap<String, Value> = serde_json::from_str(
+        let mut contents: BTreeMap<String, Value> = serde_json::from_str(
             &fs::read_to_string(&self.project_path.clone()).unwrap(),
         )
         .unwrap();
@@ -78,7 +78,7 @@ impl Command for Add {
             }
             None => {
                 let all_to_add = self.to_add.to_vec();
-                let mut dependencies = IndexMap::new();
+                let mut dependencies = BTreeMap::new();
                 if self.is_development {
                     dependencies.insert(DEVELOPMENT_KEY, all_to_add);
                     dependencies.insert(REQUIRED_KEY, vec![]);

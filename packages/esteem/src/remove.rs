@@ -1,4 +1,3 @@
-use indexmap::IndexMap;
 use serde_json::{json, Value};
 use std::{
     collections::{BTreeMap, HashMap},
@@ -39,7 +38,7 @@ impl Remove {
 
 impl Command for Remove {
     fn execute(&self) {
-        let mut contents: IndexMap<String, Value> = serde_json::from_str(
+        let mut contents: BTreeMap<String, Value> = serde_json::from_str(
             &fs::read_to_string(&self.project_path.clone()).unwrap(),
         )
         .unwrap();
