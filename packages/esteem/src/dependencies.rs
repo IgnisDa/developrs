@@ -6,17 +6,17 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct EsteemDependencies {
+pub(crate) struct EsteemDependencies {
     /// dependencies of the project/workspace
     #[serde(default)]
-    required: BTreeSet<String>,
+    pub required: BTreeSet<String>,
     /// devDependencies of the project/workspace
     #[serde(default)]
-    development: BTreeSet<String>,
+    pub development: BTreeSet<String>,
 }
 
 impl EsteemDependencies {
-    pub fn get_all_dependencies(&self) -> Vec<String> {
+    pub(crate) fn get_all_dependencies(&self) -> Vec<String> {
         Vec::from_iter(
             self.development
                 .iter()

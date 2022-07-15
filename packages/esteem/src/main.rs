@@ -1,10 +1,9 @@
 use clap::{app_from_crate, arg, App, AppSettings};
 use env_logger::Env;
 use esteem::{
-    perform_add, perform_init, perform_install_isolated, perform_remove,
-    perform_workspace_add, perform_workspace_remove, EsteemWorkspace, WORKSPACE_FILE,
+    get_all_project_names, perform_add, perform_init, perform_install_isolated,
+    perform_remove, perform_workspace_add, perform_workspace_remove,
 };
-use std::{collections::BTreeMap, path::PathBuf};
 
 #[macro_use]
 extern crate log;
@@ -18,6 +17,7 @@ const PROJECT_NAME: &str = "PROJECT_NAME";
 const DEPENDENCIES: &str = "DEPENDENCIES";
 const DEVELOPMENT: &str = "development";
 const SKIP: &str = "skip";
+const PROJECTS: &str = "PROJECTS";
 
 fn main() -> Result<(), String> {
     env_logger::Builder::from_env(Env::default().default_filter_or("info"))
@@ -25,18 +25,11 @@ fn main() -> Result<(), String> {
         .format_target(true)
         .init();
 
-    let workspace = EsteemWorkspace::from_current_directory();
-
-    let all_projects = match workspace {
-        Ok(data) => data.projects,
-        Err(_) => {
-            warn!("This project does not have a {:?} file. The commands will not work as expected. Are you running esteem in the correct directory?", WORKSPACE_FILE);
-            BTreeMap::new()
-        }
-    };
-
-    let mut project_names: Vec<&str> = all_projects.keys().map(|f| f.as_str()).collect();
-    project_names.sort();
+    let project_names = get_all_project_names();
+    let project_names = &project_names
+        .iter()
+        .map(String::as_str)
+        .collect::<Vec<&str>>();
 
     let add_subcommand = App::new(ADD_COMMAND)
         .arg(arg!(-s - -skip).help("Skip calling the NPM package manager"))
@@ -52,7 +45,7 @@ fn main() -> Result<(), String> {
     let project_name_arg = arg!([PROJECT_NAME])
         .required(true)
         .help("The name of the project to make the changes in")
-        .possible_values(&project_names);
+        .possible_values(project_names);
 
     let init_subcommand =
         App::new(INIT_COMMAND).about("Initializes the project to be used with esteem");
@@ -67,7 +60,7 @@ fn main() -> Result<(), String> {
                 .required(true)
                 .min_values(1)
                 .help("The names of the projects whose dependencies should be installed")
-                .possible_values(&project_names),
+                .possible_values(project_names),
         );
 
     let workspace_subcommand = App::new(WORKSPACE_SUBCOMMAND)
@@ -110,7 +103,7 @@ fn main() -> Result<(), String> {
 
     match matches.subcommand() {
         Some((INIT_COMMAND, _)) => {
-            perform_init(all_projects.clone());
+            perform_init();
         }
         Some((ADD_COMMAND, sub_matches)) => {
             let project_name = sub_matches.value_of(PROJECT_NAME).unwrap();
@@ -145,15 +138,12 @@ fn main() -> Result<(), String> {
         }
         Some((INSTALL_ISOLATED_COMMAND, sub_matches)) => {
             let project_names = sub_matches
-                .values_of("PROJECTS")
+                .values_of(PROJECTS)
                 .unwrap()
-                .map(|f| f.to_string())
+                .map(String::from)
                 .collect::<Vec<String>>();
-            let project_paths = project_names
-                .iter()
-                .map(|f| all_projects.get(f).cloned().unwrap())
-                .collect::<Vec<PathBuf>>();
-            perform_install_isolated(project_paths)
+            trace!("Target projects: {:?}", project_names);
+            perform_install_isolated(project_names)
         }
         Some((WORKSPACE_SUBCOMMAND, matches)) => match matches.subcommand() {
             Some((ADD_COMMAND, sub_matches)) => {

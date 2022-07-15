@@ -13,7 +13,7 @@ use std::{
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct EsteemProject {
+pub(crate) struct EsteemProject {
     /// The name of project, this is unique and should be used as the identifier
     #[serde(skip_serializing, skip_deserializing)]
     pub name: String,

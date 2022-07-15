@@ -21,15 +21,14 @@ pub struct EsteemWorkspace {
     path: PathBuf,
 
     /// a mapping of projects to their paths
-    // TODO: Remove the pub part
-    pub projects: BTreeMap<String, PathBuf>,
+    pub(crate) projects: BTreeMap<String, PathBuf>,
 
     #[serde(skip_serializing, skip_deserializing)]
-    pub all_projects_rep: Vec<EsteemProject>,
+    pub(crate) all_projects_rep: Vec<EsteemProject>,
 
     /// the dependencies of a project
     #[serde(default)]
-    dependencies: EsteemDependencies,
+    pub(crate) dependencies: EsteemDependencies,
 
     /// the other miscellaneous keys that we do not care about
     #[serde(flatten)]
@@ -37,7 +36,7 @@ pub struct EsteemWorkspace {
 }
 
 impl EsteemWorkspace {
-    pub fn from_current_directory() -> Result<Self, LibraryError> {
+    pub(crate) fn from_current_directory() -> Result<Self, LibraryError> {
         let workspace_file =
             read_to_string(Path::new(&current_dir().unwrap()).join(WORKSPACE_FILE));
         match workspace_file {
@@ -60,13 +59,24 @@ impl EsteemWorkspace {
         }
     }
 
-    pub fn get_project(
+    pub(crate) fn get_project_mut(
         &mut self,
         project_name: String,
     ) -> Result<&mut EsteemProject, LibraryError> {
         let project = self
             .all_projects_rep
             .iter_mut()
+            .find(|p| p.name == project_name);
+        project.ok_or(LibraryError)
+    }
+
+    pub(crate) fn get_project(
+        &self,
+        project_name: String,
+    ) -> Result<&EsteemProject, LibraryError> {
+        let project = self
+            .all_projects_rep
+            .iter()
             .find(|p| p.name == project_name);
         project.ok_or(LibraryError)
     }

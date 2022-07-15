@@ -1,13 +1,27 @@
 use super::{
-    constants::{DEVELOPMENT_KEY, REQUIRED_KEY},
-    init, install_isolated,
+    constants::{
+        DEVELOPMENT_KEY, PACKAGE_JSON_BACKUP_FILE, PACKAGE_JSON_FILE, REQUIRED_KEY,
+    },
     managers::PackageManager,
     utils::display_warning,
-    AddEsteemDevelopmentDependency, AddEsteemRequiredDependency, Command,
-    EsteemWorkspace, RemoveEsteemDevelopmentDependency, RemoveEsteemRequiredDependency,
-    WriteDependencies,
+    workspace::EsteemWorkspace,
+    AddEsteemDevelopmentDependency, AddEsteemRequiredDependency,
+    RemoveEsteemDevelopmentDependency, RemoveEsteemRequiredDependency, WriteDependencies,
 };
-use std::{collections::BTreeMap, path::PathBuf, process::exit};
+use npm_package_json::Package;
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    env::current_dir,
+    fs::rename,
+    path::PathBuf,
+    process::exit,
+};
+
+impl WriteDependencies for Package {
+    fn get_path(&self) -> PathBuf {
+        current_dir().unwrap().join(PACKAGE_JSON_FILE)
+    }
+}
 
 pub fn perform_add(
     project_name: String,
@@ -16,7 +30,7 @@ pub fn perform_add(
     skip_package_manager: bool,
 ) {
     let mut workspace = EsteemWorkspace::from_current_directory().unwrap();
-    let project = workspace.get_project(project_name).unwrap();
+    let project = workspace.get_project_mut(project_name).unwrap();
     to_add.iter().for_each(|dependency| {
         if is_development {
             project.add_development_dependency(dependency.into())
@@ -32,19 +46,69 @@ pub fn perform_add(
     }
 }
 
-pub fn perform_init(projects_file_paths: BTreeMap<String, PathBuf>) {
-    let a = init::Init::new(projects_file_paths);
-    a.execute();
+pub fn perform_init() {
+    let workspace = EsteemWorkspace::from_current_directory().unwrap();
+    workspace.write_dependencies();
+    for project in workspace.all_projects_rep {
+        project.write_dependencies();
+    }
 }
 
-pub fn perform_install_isolated(project_path: Vec<PathBuf>) {
-    let a = install_isolated::InstallIsolated::new(project_path);
-    a.execute();
+pub fn perform_install_isolated(project_names: Vec<String>) {
+    let workspace = EsteemWorkspace::from_current_directory().unwrap();
+    let mut package_json_file =
+        Package::from_path(current_dir().unwrap().join(PACKAGE_JSON_FILE)).unwrap();
+    let mut to_install_dev_deps = BTreeSet::new();
+    let mut to_install_required_deps = BTreeSet::new();
+    for name in project_names {
+        let deps = workspace.get_project(name).unwrap().dependencies.clone();
+        to_install_dev_deps.extend(deps.development);
+        to_install_required_deps.extend(deps.required);
+    }
+    to_install_dev_deps.extend(workspace.dependencies.development);
+    to_install_required_deps.extend(workspace.dependencies.required);
+    let workspace_dependencies = package_json_file
+        .dependencies
+        .into_iter()
+        .chain(package_json_file.dev_dependencies.into_iter())
+        .collect::<BTreeMap<String, String>>();
+    let [filtered_dev_deps, filtered_required_deps] =
+        [&to_install_dev_deps, &to_install_required_deps].map(|dep_set| {
+            dep_set
+                .iter()
+                .map(|possible_package| {
+                    (
+                        possible_package.clone(),
+                        workspace_dependencies
+                            .get(&possible_package.clone())
+                            .unwrap_or_else(|| {
+                                error!(
+                                    "{:?} does not exist in {:?}",
+                                    possible_package, PACKAGE_JSON_FILE
+                                );
+                                exit(1);
+                            })
+                            .clone(),
+                    )
+                })
+                .collect::<BTreeMap<String, String>>()
+        });
+    package_json_file.dependencies = filtered_required_deps;
+    package_json_file.dev_dependencies = filtered_dev_deps;
+    info!(
+        "Renaming file {:?} to {:?}",
+        PACKAGE_JSON_FILE, PACKAGE_JSON_BACKUP_FILE
+    );
+    rename(PACKAGE_JSON_FILE, PACKAGE_JSON_BACKUP_FILE).unwrap_or_else(|_| {
+        error!("Unable to rename file");
+    });
+    package_json_file.write_dependencies();
+    warn!("Please run your package manager's install command to install the isolated dependencies.");
 }
 
 pub fn perform_remove(project_name: String, to_remove: Vec<String>) {
     let mut workspace = EsteemWorkspace::from_current_directory().unwrap();
-    let project = workspace.get_project(project_name).unwrap();
+    let project = workspace.get_project_mut(project_name).unwrap();
     for dependency in to_remove.iter() {
         let mut should_proceed = false;
         match project.remove_development_dependency(dependency.into()) {

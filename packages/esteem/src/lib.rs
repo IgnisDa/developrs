@@ -7,16 +7,12 @@ mod project;
 mod utils;
 mod workspace;
 use serde::Serialize;
-mod init;
-mod install_isolated;
 pub use {
     cli::{
         perform_add, perform_init, perform_install_isolated, perform_remove,
         perform_workspace_add, perform_workspace_remove,
     },
-    constants::{WORKSPACE_FILE, WORKSPACE_IDENTIFIER},
-    dependencies::EsteemDependencies,
-    workspace::EsteemWorkspace,
+    utils::get_all_project_names,
 };
 mod cli;
 
