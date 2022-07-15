@@ -3,12 +3,12 @@ use super::{
     dependencies::EsteemDependencies,
     project::EsteemProject,
     AddEsteemDevelopmentDependency, AddEsteemRequiredDependency, LibraryError,
-    WriteDependencies,
+    RemoveEsteemDevelopmentDependency, RemoveEsteemRequiredDependency, WriteDependencies,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, HashSet},
     env::current_dir,
     fs::read_to_string,
     path::{Path, PathBuf},
@@ -70,6 +70,40 @@ impl EsteemWorkspace {
             .find(|p| p.name == project_name);
         project.ok_or(LibraryError)
     }
+
+    /// returns all dependencies of this project (project and workspace scoped)
+    fn get_all_dependencies(&self) -> HashSet<String> {
+        let workspace_deps = self.dependencies.get_all_dependencies();
+        let projects_deps = self
+            .all_projects_rep
+            .iter()
+            .flat_map(|p| p.dependencies.get_all_dependencies());
+        let all_deps_vec = workspace_deps.into_iter().chain(projects_deps.into_iter());
+        HashSet::from_iter(all_deps_vec)
+    }
+
+    /// returns whether a dependency is a part of this workspace by scanning workspace and
+    /// all project files
+    pub fn is_dependency_present(&self, dependency: &str) -> bool {
+        let all_deps = self.get_all_dependencies();
+        all_deps.contains(dependency)
+    }
+
+    /// given a list of dependencies to remove, this returns all of the dependencies that
+    /// should be actually removed (and not the ones that are present in other projects)
+    pub fn get_dependencies_to_remove(&self, to_remove: Vec<String>) -> Vec<String> {
+        to_remove
+            .into_iter()
+            .map(|dependency| {
+                (
+                    dependency.to_string(),
+                    self.is_dependency_present(&dependency),
+                )
+            })
+            .filter(|(_, t)| !*t)
+            .map(|(dep, _)| dep)
+            .collect::<Vec<String>>()
+    }
 }
 
 impl AddEsteemRequiredDependency for EsteemWorkspace {
@@ -87,5 +121,23 @@ impl AddEsteemDevelopmentDependency for EsteemWorkspace {
 impl WriteDependencies for EsteemWorkspace {
     fn get_path(&self) -> PathBuf {
         self.path.clone()
+    }
+}
+
+impl RemoveEsteemRequiredDependency for EsteemWorkspace {
+    fn remove_required_dependency(
+        &mut self,
+        dependency: String,
+    ) -> Result<(), LibraryError> {
+        self.dependencies.remove_required_dependency(dependency)
+    }
+}
+
+impl RemoveEsteemDevelopmentDependency for EsteemWorkspace {
+    fn remove_development_dependency(
+        &mut self,
+        dependency: String,
+    ) -> Result<(), LibraryError> {
+        self.dependencies.remove_development_dependency(dependency)
     }
 }

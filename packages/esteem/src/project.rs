@@ -1,7 +1,7 @@
 use super::{
     constants::PROJECT_FILE, dependencies::EsteemDependencies,
     AddEsteemDevelopmentDependency, AddEsteemRequiredDependency, LibraryError,
-    WriteDependencies,
+    RemoveEsteemDevelopmentDependency, RemoveEsteemRequiredDependency, WriteDependencies,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -23,7 +23,8 @@ pub struct EsteemProject {
     description_file_path: PathBuf,
 
     /// the dependencies of a project
-    dependencies: Option<EsteemDependencies>,
+    #[serde(default)]
+    pub dependencies: EsteemDependencies,
 
     /// the other miscellaneous keys that we do not care about
     #[serde(flatten)]
@@ -51,24 +52,36 @@ impl EsteemProject {
 
 impl AddEsteemRequiredDependency for EsteemProject {
     fn add_required_dependency(&mut self, dependency: String) {
-        self.dependencies
-            .as_mut()
-            .unwrap()
-            .add_required_dependency(dependency);
+        self.dependencies.add_required_dependency(dependency);
     }
 }
 
 impl AddEsteemDevelopmentDependency for EsteemProject {
     fn add_development_dependency(&mut self, dependency: String) {
-        self.dependencies
-            .as_mut()
-            .unwrap()
-            .add_development_dependency(dependency);
+        self.dependencies.add_development_dependency(dependency);
     }
 }
 
 impl WriteDependencies for EsteemProject {
     fn get_path(&self) -> PathBuf {
         self.description_file_path.clone()
+    }
+}
+
+impl RemoveEsteemRequiredDependency for EsteemProject {
+    fn remove_required_dependency(
+        &mut self,
+        dependency: String,
+    ) -> Result<(), LibraryError> {
+        self.dependencies.remove_required_dependency(dependency)
+    }
+}
+
+impl RemoveEsteemDevelopmentDependency for EsteemProject {
+    fn remove_development_dependency(
+        &mut self,
+        dependency: String,
+    ) -> Result<(), LibraryError> {
+        self.dependencies.remove_development_dependency(dependency)
     }
 }

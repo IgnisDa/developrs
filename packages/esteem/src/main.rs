@@ -2,7 +2,7 @@ use clap::{app_from_crate, arg, App, AppSettings};
 use env_logger::Env;
 use esteem::{
     perform_add, perform_init, perform_install_isolated, perform_remove,
-    perform_workspace_add, EsteemWorkspace, WORKSPACE_FILE,
+    perform_workspace_add, perform_workspace_remove, EsteemWorkspace, WORKSPACE_FILE,
 };
 use std::{collections::BTreeMap, path::PathBuf};
 
@@ -81,6 +81,7 @@ fn main() -> Result<(), String> {
         .subcommand(
             remove_subcommand
                 .clone()
+                .arg(deps_arg.clone())
                 .about("Removes dependencies from a workspace (alias: rm)"),
         );
 
@@ -133,16 +134,14 @@ fn main() -> Result<(), String> {
         }
         Some((REMOVE_COMMAND, sub_matches)) => {
             let project_name = sub_matches.value_of(PROJECT_NAME).unwrap();
-            let project_path = all_projects.get(project_name).cloned().unwrap();
             let to_remove = sub_matches
                 .values_of(DEPENDENCIES)
                 .unwrap()
                 .map(|f| f.to_string())
                 .collect::<Vec<String>>();
             trace!("Project Name: {:?}", project_name);
-            trace!("Project path: {:?}", project_path);
             trace!("Dependencies to add: {:?}", to_remove);
-            perform_remove(project_path, to_remove, all_projects.clone());
+            perform_remove(project_name.into(), to_remove);
         }
         Some((INSTALL_ISOLATED_COMMAND, sub_matches)) => {
             let project_names = sub_matches
@@ -165,10 +164,19 @@ fn main() -> Result<(), String> {
                     .collect::<Vec<String>>();
                 let is_development = sub_matches.is_present(DEVELOPMENT);
                 let skip_package_manager = sub_matches.is_present(SKIP);
+                trace!("Dependencies to add: {:?}", to_add);
+                trace!("Development: {:?}", is_development);
+                trace!("Calling package manager: {:?}", !skip_package_manager);
                 perform_workspace_add(to_add, is_development, skip_package_manager);
             }
-            Some((REMOVE_COMMAND, _sub_matches)) => {
-                todo!()
+            Some((REMOVE_COMMAND, sub_matches)) => {
+                let to_remove = sub_matches
+                    .values_of(DEPENDENCIES)
+                    .unwrap()
+                    .map(|f| f.to_string())
+                    .collect::<Vec<String>>();
+                trace!("Dependencies to remove: {:?}", to_remove);
+                perform_workspace_remove(to_remove);
             }
             _ => unreachable!(),
         },

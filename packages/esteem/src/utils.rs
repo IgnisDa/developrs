@@ -1,47 +1,7 @@
-use super::{
-    constants::{DEPENDENCIES_KEY, DEVELOPMENT_KEY, REQUIRED_KEY},
-    managers::AddNpmDependenciesAndExecuteNpmPackageManager,
-};
-use super::{
-    managers::{NpmManager, PnpmManager, YarnManager},
-    PackageManager,
-};
+use super::constants::{DEPENDENCIES_KEY, DEVELOPMENT_KEY, REQUIRED_KEY};
 use serde_json::Value;
-use std::{
-    collections::BTreeMap,
-    env::current_dir,
-    fs::{read_dir, read_to_string},
-    path::PathBuf,
-};
+use std::{collections::BTreeMap, fs::read_to_string, path::PathBuf};
 
-pub fn get_npm_package_manager() -> Option<PackageManager> {
-    let dir = read_dir(current_dir().unwrap()).unwrap();
-    for file in dir {
-        match file.unwrap().file_name().to_os_string().to_str().unwrap() {
-            "yarn.lock" => return Some(PackageManager::Yarn),
-            "pnpm-lock.yaml" => return Some(PackageManager::Pnpm),
-            "package-lock.json" => return Some(PackageManager::Npm),
-            _ => continue,
-        }
-    }
-    warn!("No package manager lockfile found, early termination imminent.");
-    None
-}
-
-pub fn get_npm_package_manager_new(
-) -> Option<Box<dyn AddNpmDependenciesAndExecuteNpmPackageManager>> {
-    let dir = read_dir(current_dir().unwrap()).unwrap();
-    for file in dir {
-        match file.unwrap().file_name().to_os_string().to_str().unwrap() {
-            "yarn.lock" => return Some(Box::new(YarnManager::new())),
-            "pnpm-lock.yaml" => return Some(Box::new(PnpmManager::new())),
-            "package-lock.json" => return Some(Box::new(NpmManager::new())),
-            _ => continue,
-        }
-    }
-    warn!("No package manager lockfile found, early termination imminent.");
-    None
-}
 pub fn get_dependencies_from_file(
     file_path: &PathBuf,
 ) -> Option<(Vec<Value>, Vec<Value>, Value)> {
@@ -65,4 +25,8 @@ pub fn get_dependencies_from_file(
     } else {
         None
     }
+}
+
+pub fn display_warning(key: &str, dependency: &str, path: &PathBuf) {
+    warn!("{:?} not found in {:?} of {:?}", dependency, key, path);
 }
