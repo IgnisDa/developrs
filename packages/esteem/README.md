@@ -12,7 +12,9 @@ Make your [NX](https://nx.dev/) workspaces go easier on your disk.
   - [Usage](#usage)
     - [`init`](#init)
     - [`add`](#add)
+      - [`workspace add`](#workspace-add)
     - [`remove`](#remove)
+      - [`workspace remove`](#workspace-remove)
     - [`install-isolated`](#install-isolated)
       - [Some caveats](#some-caveats)
   - [Example](#example)
@@ -73,8 +75,11 @@ Esteem separates dependencies by project scope (`project` or `workspace`) and re
 ### Project scopes
 
 The project in which a dependency is to be installed. If it is a project dependency, it is
-well.. exactly that: a project dependency. A workspace dependency can be treated as a
-global dependency. It will always be a part of the final `package.json`.
+well... exactly that: a project dependency. Project dependencies are written to their
+corresponding `project.json`.
+
+A workspace dependency can be treated as a global dependency. They are written to the root
+`workspace.json`. These dependencies will always be a part of the final `package.json`.
 
 ### Requirement scopes
 
@@ -95,7 +100,7 @@ root level `workspace.json` and project level configurations in
 ### `init`
 
 Prepares new repositories to be used with `esteem`. This will add an object of this
-structure to all `project.json` files.
+structure to all `project.json` files and `workspace.json`.
 
 **_Note_:** You don't need to run this command if you don't want to, `esteem` can handle
 projects without `dependencies` key.
@@ -142,8 +147,9 @@ $ esteem add server redis luxon
 
 Pass the `-D` flag to add it a development dependency.
 
-If you specify the project name as `workspace`, then it will be installed as a global
-dependency.
+#### `workspace add`
+
+Same functionality as above but for workspace scoped dependencies.
 
 ### `remove`
 
@@ -157,6 +163,10 @@ $ esteem remove server luxon typescript bull
 [WARN ] Found "typescript" in site's "development", won't be removing it!
 # your package manager called automatically here
 ```
+
+#### `workspace remove`
+
+Same functionality as above but for workspace scoped dependencies.
 
 ### `install-isolated`
 

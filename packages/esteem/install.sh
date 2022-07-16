@@ -19,6 +19,9 @@
 #   -a, --arch
 #     Override the architecture identified by the installer
 #
+#   -v, --version
+#     Override the version to be installed, default is latest
+#
 #   -B, --base-url
 #     Override the base URL used for downloading releases
 
@@ -392,7 +395,10 @@ while [ "$#" -gt 0 ]; do
     BASE_URL="$2"
     shift 2
     ;;
-
+  -v | --version)
+    VERSION="esteem-v$2"
+    shift 1
+    ;;
   -V | --verbose)
     VERBOSE=1
     shift 1
@@ -420,6 +426,10 @@ while [ "$#" -gt 0 ]; do
     ;;
   -V=* | --verbose=*)
     VERBOSE="${1#*=}"
+    shift 1
+    ;;
+  -v=* | --version=*)
+    VERSION="esteem-v${1#*=}"
     shift 1
     ;;
   -f=* | -y=* | --force=* | --yes=*)
