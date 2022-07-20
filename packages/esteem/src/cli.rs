@@ -34,14 +34,14 @@ pub fn perform_add(
     let project = workspace.get_project_mut(project_name).unwrap();
     to_add.iter().for_each(|dependency| {
         if is_development {
-            project.add_development_dependency(dependency.to_owned())
+            project.add_development_dependency(dependency.into())
         } else {
-            project.add_required_dependency(dependency.to_owned())
+            project.add_required_dependency(dependency.into())
         }
     });
     project.write_dependencies();
     if !skip_package_manager {
-        let mut manager = PackageManager::from_current_directory().unwrap();
+        let mut manager = PackageManager::get_command_executor().unwrap();
         manager.add_dependencies(to_add);
         manager.execute();
     }
@@ -112,11 +112,11 @@ pub fn perform_remove(project_name: String, to_remove: Vec<String>) {
     let project = workspace.get_project_mut(project_name).unwrap();
     for dependency in to_remove.iter() {
         let mut should_proceed = false;
-        match project.remove_development_dependency(dependency.to_owned()) {
+        match project.remove_development_dependency(dependency.into()) {
             Ok(_) => should_proceed = true,
             Err(_) => display_warning(DEVELOPMENT_KEY, dependency, &project.get_path()),
         }
-        match project.remove_required_dependency(dependency.to_owned()) {
+        match project.remove_required_dependency(dependency.into()) {
             Ok(_) => should_proceed = true,
             Err(_) => display_warning(REQUIRED_KEY, dependency, &project.get_path()),
         }
@@ -132,7 +132,7 @@ pub fn perform_remove(project_name: String, to_remove: Vec<String>) {
     project.write_dependencies();
     let packages_to_remove = workspace.get_dependencies_to_remove(to_remove);
     if !packages_to_remove.is_empty() {
-        let mut manager = PackageManager::from_current_directory().unwrap();
+        let mut manager = PackageManager::get_command_executor().unwrap();
         manager.remove_dependencies(packages_to_remove);
         manager.execute();
     }
@@ -153,7 +153,7 @@ pub fn perform_workspace_add(
     });
     workspace.write_dependencies();
     if !skip_package_manager {
-        let mut manager = PackageManager::from_current_directory().unwrap();
+        let mut manager = PackageManager::get_command_executor().unwrap();
         manager.add_dependencies(to_add);
         manager.execute();
     }
@@ -163,11 +163,11 @@ pub fn perform_workspace_remove(to_remove: Vec<String>) {
     let mut workspace = EsteemWorkspace::from_current_directory().unwrap();
     for dependency in to_remove.iter() {
         let mut should_proceed = false;
-        match workspace.remove_development_dependency(dependency.to_owned()) {
+        match workspace.remove_development_dependency(dependency.into()) {
             Ok(_) => should_proceed = true,
             Err(_) => display_warning(DEVELOPMENT_KEY, dependency, &workspace.get_path()),
         }
-        match workspace.remove_required_dependency(dependency.to_owned()) {
+        match workspace.remove_required_dependency(dependency.into()) {
             Ok(_) => should_proceed = true,
             Err(_) => display_warning(REQUIRED_KEY, dependency, &workspace.get_path()),
         }
@@ -183,7 +183,7 @@ pub fn perform_workspace_remove(to_remove: Vec<String>) {
     workspace.write_dependencies();
     let packages_to_remove = workspace.get_dependencies_to_remove(to_remove);
     if !packages_to_remove.is_empty() {
-        let mut manager = PackageManager::from_current_directory().unwrap();
+        let mut manager = PackageManager::get_command_executor().unwrap();
         manager.remove_dependencies(packages_to_remove);
         manager.execute();
     }

@@ -126,7 +126,7 @@ fn main() -> Result<(), String> {
                 .values_of(DEPENDENCIES)
                 .unwrap()
                 .map(|f| f.to_string())
-                .collect::<Vec<String>>();
+                .collect();
             let is_development = sub_matches.is_present(DEVELOPMENT);
             let skip_package_manager = sub_matches.is_present(SKIP);
             trace!("Project Name: {:?}", project_name);
@@ -148,7 +148,7 @@ fn main() -> Result<(), String> {
                 .values_of(PROJECTS)
                 .unwrap()
                 .map(String::from)
-                .collect::<Vec<String>>();
+                .collect();
             trace!("Target projects: {:?}", project_names);
             perform_install_isolated(project_names)
         }
@@ -158,7 +158,7 @@ fn main() -> Result<(), String> {
                 .values_of(DEPENDENCIES)
                 .unwrap()
                 .map(|f| f.to_string())
-                .collect::<Vec<String>>();
+                .collect();
             trace!("Project Name: {:?}", project_name);
             trace!("Dependencies to add: {:?}", to_remove);
             perform_remove(project_name.to_owned(), to_remove);
@@ -177,7 +177,7 @@ fn main() -> Result<(), String> {
                     .values_of(DEPENDENCIES)
                     .unwrap()
                     .map(|f| f.to_string())
-                    .collect::<Vec<String>>();
+                    .collect();
                 let is_development = sub_matches.is_present(DEVELOPMENT);
                 let skip_package_manager = sub_matches.is_present(SKIP);
                 trace!("Dependencies to add: {:?}", to_add);
@@ -190,7 +190,7 @@ fn main() -> Result<(), String> {
                     .values_of(DEPENDENCIES)
                     .unwrap()
                     .map(|f| f.to_string())
-                    .collect::<Vec<String>>();
+                    .collect();
                 trace!("Dependencies to remove: {:?}", to_remove);
                 perform_workspace_remove(to_remove);
             }
