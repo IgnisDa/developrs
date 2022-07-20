@@ -1,5 +1,6 @@
 use core::fmt;
 use std::{error::Error, fs::write, path::PathBuf};
+mod config;
 mod constants;
 mod dependencies;
 mod managers;
@@ -10,7 +11,7 @@ use serde::Serialize;
 pub use {
     cli::{
         perform_add, perform_init, perform_install_isolated, perform_remove,
-        perform_workspace_add, perform_workspace_remove,
+        perform_workspace_add, perform_workspace_remove, utils_get_dependencies,
     },
     utils::get_all_project_names,
 };

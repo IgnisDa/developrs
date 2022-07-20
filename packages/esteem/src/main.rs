@@ -3,16 +3,20 @@ use env_logger::Env;
 use esteem::{
     get_all_project_names, perform_add, perform_init, perform_install_isolated,
     perform_remove, perform_workspace_add, perform_workspace_remove,
+    utils_get_dependencies,
 };
 
 #[macro_use]
 extern crate log;
 
 const ADD_COMMAND: &str = "add";
-const REMOVE_COMMAND: &str = "remove";
-const INSTALL_ISOLATED_COMMAND: &str = "install-isolated";
 const INIT_COMMAND: &str = "init";
+const INSTALL_ISOLATED_COMMAND: &str = "install-isolated";
+const GET_DEPENDENCIES_COMMAND: &str = "get-dependencies";
+const REMOVE_COMMAND: &str = "remove";
+const UTILS_SUBCOMMAND: &str = "utils";
 const WORKSPACE_SUBCOMMAND: &str = "workspace";
+
 const PROJECT_NAME: &str = "PROJECT_NAME";
 const DEPENDENCIES: &str = "DEPENDENCIES";
 const DEVELOPMENT: &str = "development";
@@ -63,6 +67,19 @@ fn main() -> Result<(), String> {
                 .possible_values(project_names),
         );
 
+    let utils_subcommand = App::new(UTILS_SUBCOMMAND)
+        .about("Helpful utilities to manage projects more efficiently")
+        .subcommand(
+            App::new(GET_DEPENDENCIES_COMMAND)
+            .about("Get all projects that are connected to this project in the NX graphql")
+            .arg(
+                arg!([PROJECT_NAME])
+                    .required(true)
+                    .help("The name of the project whose dependencies you want to get")
+                    .possible_values(project_names),
+            ),
+        );
+
     let workspace_subcommand = App::new(WORKSPACE_SUBCOMMAND)
         .about("Interact with workspace scoped dependencies")
         .subcommand(
@@ -99,12 +116,10 @@ fn main() -> Result<(), String> {
         )
         .subcommand(install_isolated_subcommand)
         .subcommand(workspace_subcommand)
+        .subcommand(utils_subcommand)
         .get_matches();
 
     match matches.subcommand() {
-        Some((INIT_COMMAND, _)) => {
-            perform_init();
-        }
         Some((ADD_COMMAND, sub_matches)) => {
             let project_name = sub_matches.value_of(PROJECT_NAME).unwrap();
             let to_add = sub_matches
@@ -119,22 +134,14 @@ fn main() -> Result<(), String> {
             trace!("Development: {:?}", is_development);
             trace!("Calling package manager: {:?}", !skip_package_manager);
             perform_add(
-                project_name.into(),
+                project_name.to_owned(),
                 to_add,
                 is_development,
                 skip_package_manager,
             );
         }
-        Some((REMOVE_COMMAND, sub_matches)) => {
-            let project_name = sub_matches.value_of(PROJECT_NAME).unwrap();
-            let to_remove = sub_matches
-                .values_of(DEPENDENCIES)
-                .unwrap()
-                .map(|f| f.to_string())
-                .collect::<Vec<String>>();
-            trace!("Project Name: {:?}", project_name);
-            trace!("Dependencies to add: {:?}", to_remove);
-            perform_remove(project_name.into(), to_remove);
+        Some((INIT_COMMAND, _)) => {
+            perform_init();
         }
         Some((INSTALL_ISOLATED_COMMAND, sub_matches)) => {
             let project_names = sub_matches
@@ -145,6 +152,25 @@ fn main() -> Result<(), String> {
             trace!("Target projects: {:?}", project_names);
             perform_install_isolated(project_names)
         }
+        Some((REMOVE_COMMAND, sub_matches)) => {
+            let project_name = sub_matches.value_of(PROJECT_NAME).unwrap();
+            let to_remove = sub_matches
+                .values_of(DEPENDENCIES)
+                .unwrap()
+                .map(|f| f.to_string())
+                .collect::<Vec<String>>();
+            trace!("Project Name: {:?}", project_name);
+            trace!("Dependencies to add: {:?}", to_remove);
+            perform_remove(project_name.to_owned(), to_remove);
+        }
+        Some((UTILS_SUBCOMMAND, matches)) => match matches.subcommand() {
+            Some((GET_DEPENDENCIES_COMMAND, sub_matches)) => {
+                let project_name = sub_matches.value_of(PROJECT_NAME).unwrap();
+                trace!("Project Name: {:?}", project_name);
+                utils_get_dependencies(project_name.to_owned());
+            }
+            _ => unreachable!(),
+        },
         Some((WORKSPACE_SUBCOMMAND, matches)) => match matches.subcommand() {
             Some((ADD_COMMAND, sub_matches)) => {
                 let to_add = sub_matches

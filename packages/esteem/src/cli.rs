@@ -1,4 +1,5 @@
 use super::{
+    config::Config,
     constants::{
         DEVELOPMENT_KEY, PACKAGE_JSON_BACKUP_FILE, PACKAGE_JSON_FILE, REQUIRED_KEY,
     },
@@ -33,9 +34,9 @@ pub fn perform_add(
     let project = workspace.get_project_mut(project_name).unwrap();
     to_add.iter().for_each(|dependency| {
         if is_development {
-            project.add_development_dependency(dependency.into())
+            project.add_development_dependency(dependency.to_owned())
         } else {
-            project.add_required_dependency(dependency.into())
+            project.add_required_dependency(dependency.to_owned())
         }
     });
     project.write_dependencies();
@@ -111,11 +112,11 @@ pub fn perform_remove(project_name: String, to_remove: Vec<String>) {
     let project = workspace.get_project_mut(project_name).unwrap();
     for dependency in to_remove.iter() {
         let mut should_proceed = false;
-        match project.remove_development_dependency(dependency.into()) {
+        match project.remove_development_dependency(dependency.to_owned()) {
             Ok(_) => should_proceed = true,
             Err(_) => display_warning(DEVELOPMENT_KEY, dependency, &project.get_path()),
         }
-        match project.remove_required_dependency(dependency.into()) {
+        match project.remove_required_dependency(dependency.to_owned()) {
             Ok(_) => should_proceed = true,
             Err(_) => display_warning(REQUIRED_KEY, dependency, &project.get_path()),
         }
@@ -162,11 +163,11 @@ pub fn perform_workspace_remove(to_remove: Vec<String>) {
     let mut workspace = EsteemWorkspace::from_current_directory().unwrap();
     for dependency in to_remove.iter() {
         let mut should_proceed = false;
-        match workspace.remove_development_dependency(dependency.into()) {
+        match workspace.remove_development_dependency(dependency.to_owned()) {
             Ok(_) => should_proceed = true,
             Err(_) => display_warning(DEVELOPMENT_KEY, dependency, &workspace.get_path()),
         }
-        match workspace.remove_required_dependency(dependency.into()) {
+        match workspace.remove_required_dependency(dependency.to_owned()) {
             Ok(_) => should_proceed = true,
             Err(_) => display_warning(REQUIRED_KEY, dependency, &workspace.get_path()),
         }
@@ -186,4 +187,9 @@ pub fn perform_workspace_remove(to_remove: Vec<String>) {
         manager.remove_dependencies(packages_to_remove);
         manager.execute();
     }
+}
+
+pub fn utils_get_dependencies(project_name: String) {
+    let config = Config::from_current_directory();
+    dbg!(config);
 }
