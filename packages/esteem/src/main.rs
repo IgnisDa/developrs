@@ -24,7 +24,7 @@ const SKIP: &str = "skip";
 const PROJECTS: &str = "PROJECTS";
 
 fn main() -> Result<(), String> {
-    env_logger::Builder::from_env(Env::default().default_filter_or("info"))
+    env_logger::Builder::from_env(Env::default().default_filter_or("error"))
         .format_timestamp(None)
         .format_target(true)
         .init();
@@ -125,7 +125,7 @@ fn main() -> Result<(), String> {
             let to_add = sub_matches
                 .values_of(DEPENDENCIES)
                 .unwrap()
-                .map(|f| f.to_string())
+                .map(String::from)
                 .collect();
             let is_development = sub_matches.is_present(DEVELOPMENT);
             let skip_package_manager = sub_matches.is_present(SKIP);
@@ -157,7 +157,7 @@ fn main() -> Result<(), String> {
             let to_remove = sub_matches
                 .values_of(DEPENDENCIES)
                 .unwrap()
-                .map(|f| f.to_string())
+                .map(String::from)
                 .collect();
             trace!("Project Name: {:?}", project_name);
             trace!("Dependencies to add: {:?}", to_remove);
@@ -176,7 +176,7 @@ fn main() -> Result<(), String> {
                 let to_add = sub_matches
                     .values_of(DEPENDENCIES)
                     .unwrap()
-                    .map(|f| f.to_string())
+                    .map(String::from)
                     .collect();
                 let is_development = sub_matches.is_present(DEVELOPMENT);
                 let skip_package_manager = sub_matches.is_present(SKIP);
@@ -189,7 +189,7 @@ fn main() -> Result<(), String> {
                 let to_remove = sub_matches
                     .values_of(DEPENDENCIES)
                     .unwrap()
-                    .map(|f| f.to_string())
+                    .map(String::from)
                     .collect();
                 trace!("Dependencies to remove: {:?}", to_remove);
                 perform_workspace_remove(to_remove);

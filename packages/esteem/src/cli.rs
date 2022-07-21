@@ -1,10 +1,9 @@
 use super::{
-    config::Config,
     constants::{
         DEVELOPMENT_KEY, PACKAGE_JSON_BACKUP_FILE, PACKAGE_JSON_FILE, REQUIRED_KEY,
     },
     managers::PackageManager,
-    utils::display_warning,
+    utils::{display_warning, get_project_dependencies},
     workspace::EsteemWorkspace,
     AddEsteemDevelopmentDependency, AddEsteemRequiredDependency,
     RemoveEsteemDevelopmentDependency, RemoveEsteemRequiredDependency, WriteDependencies,
@@ -43,7 +42,7 @@ pub fn perform_add(
     if !skip_package_manager {
         let mut manager = PackageManager::get_command_executor().unwrap();
         manager.add_dependencies(to_add);
-        manager.execute();
+        manager.execute_command();
     }
 }
 
@@ -134,7 +133,7 @@ pub fn perform_remove(project_name: String, to_remove: Vec<String>) {
     if !packages_to_remove.is_empty() {
         let mut manager = PackageManager::get_command_executor().unwrap();
         manager.remove_dependencies(packages_to_remove);
-        manager.execute();
+        manager.execute_command();
     }
 }
 
@@ -155,7 +154,7 @@ pub fn perform_workspace_add(
     if !skip_package_manager {
         let mut manager = PackageManager::get_command_executor().unwrap();
         manager.add_dependencies(to_add);
-        manager.execute();
+        manager.execute_command();
     }
 }
 
@@ -185,11 +184,15 @@ pub fn perform_workspace_remove(to_remove: Vec<String>) {
     if !packages_to_remove.is_empty() {
         let mut manager = PackageManager::get_command_executor().unwrap();
         manager.remove_dependencies(packages_to_remove);
-        manager.execute();
+        manager.execute_command();
     }
 }
 
 pub fn utils_get_dependencies(project_name: String) {
-    let config = Config::from_current_directory();
-    dbg!(config);
+    let project_names = get_project_dependencies(project_name)
+        .into_iter()
+        .map(|p| p.name)
+        .collect::<Vec<_>>()
+        .join(" ");
+    println!("{project_names}");
 }

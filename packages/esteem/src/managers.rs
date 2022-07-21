@@ -1,12 +1,15 @@
 use super::LibraryError;
-use duct::cmd;
+use duct::{cmd, Expression};
 use once_cell::sync::Lazy;
 use std::{
     env::current_dir,
     fs::read_dir,
     io::{BufRead, BufReader},
+    path::PathBuf,
 };
+use tempfile::NamedTempFile;
 
+#[derive(Debug)]
 pub struct CommandExecutor {
     /// the installation subcommand of the package manager
     install: String,
@@ -50,20 +53,43 @@ impl CommandExecutor {
         });
     }
 
-    pub fn execute(self) {
-        let command = cmd(self.command_executor, self.command_to_execute);
-        info!("Calling dependency installation command");
+    pub fn graph_dependencies(&mut self, project_name: String) -> PathBuf {
+        let file = NamedTempFile::new().unwrap();
+        let path = format!("{}.json", file.path().as_os_str().to_str().unwrap());
+        self.command_to_execute.extend([
+            "nx".into(),
+            "graph".into(),
+            "--file".into(),
+            path.clone(),
+            "--focus".into(),
+            project_name,
+        ]);
+        PathBuf::from(&path)
+    }
+
+    pub fn execute_command(self) {
+        let command = cmd(&self.command_executor, &self.command_to_execute);
+        self.execute(command);
+    }
+
+    pub fn execute_script(self) {
+        let command = cmd(&self.script_executor, &self.command_to_execute);
+        self.execute(command);
+    }
+
+    fn execute(self, command: Expression) {
+        info!(
+            "{}",
+            format!("Calling command: {:?}", self.command_to_execute.join(" "))
+        );
         let reader = command.stderr_to_stdout().reader().unwrap();
         let lines = BufReader::new(reader).lines();
-        for line in lines {
-            println!("{}", line.unwrap());
-        }
+        for _line in lines {}
     }
 }
 
 #[derive(Clone)]
 pub struct PackageManager {
-    /// the name of the manager
     /// the installation subcommand of the package manager
     install: String,
     /// the remove subcommand of the package manager
@@ -80,24 +106,33 @@ impl PackageManager {
         for file in dir {
             let executor =
                 match file.unwrap().file_name().to_os_string().to_str().unwrap() {
-                    "yarn.lock" => CommandExecutor::new(
-                        YARN_PACKAGE_MANAGER.clone().install,
-                        YARN_PACKAGE_MANAGER.clone().remove,
-                        YARN_PACKAGE_MANAGER.clone().script_executor,
-                        YARN_PACKAGE_MANAGER.clone().command_executor,
-                    ),
-                    "pnpm-lock.yaml" => CommandExecutor::new(
-                        PNPM_PACKAGE_MANAGER.clone().install,
-                        PNPM_PACKAGE_MANAGER.clone().remove,
-                        PNPM_PACKAGE_MANAGER.clone().script_executor,
-                        PNPM_PACKAGE_MANAGER.clone().command_executor,
-                    ),
-                    "package-lock.json" => CommandExecutor::new(
-                        NPM_PACKAGE_MANAGER.clone().install,
-                        NPM_PACKAGE_MANAGER.clone().remove,
-                        NPM_PACKAGE_MANAGER.clone().script_executor,
-                        NPM_PACKAGE_MANAGER.clone().command_executor,
-                    ),
+                    "yarn.lock" => {
+                        let pm = YARN_PACKAGE_MANAGER.clone();
+                        CommandExecutor::new(
+                            pm.install,
+                            pm.remove,
+                            pm.script_executor,
+                            pm.command_executor,
+                        )
+                    }
+                    "pnpm-lock.yaml" => {
+                        let pm = PNPM_PACKAGE_MANAGER.clone();
+                        CommandExecutor::new(
+                            pm.install,
+                            pm.remove,
+                            pm.script_executor,
+                            pm.command_executor,
+                        )
+                    }
+                    "package-lock.json" => {
+                        let pm = NPM_PACKAGE_MANAGER.clone();
+                        CommandExecutor::new(
+                            pm.install,
+                            pm.remove,
+                            pm.script_executor,
+                            pm.command_executor,
+                        )
+                    }
                     _ => continue,
                 };
             return Ok(executor);

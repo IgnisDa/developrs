@@ -11,9 +11,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct EsteemProject {
+pub struct EsteemProject {
     /// The name of project, this is unique and should be used as the identifier
     #[serde(skip_serializing, skip_deserializing)]
     pub name: String,

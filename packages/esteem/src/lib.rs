@@ -1,8 +1,8 @@
 use core::fmt;
 use std::{error::Error, fs::write, path::PathBuf};
-mod config;
 mod constants;
 mod dependencies;
+mod graph;
 mod managers;
 mod project;
 mod utils;

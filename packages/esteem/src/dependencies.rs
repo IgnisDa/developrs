@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub(crate) struct EsteemDependencies {
+pub struct EsteemDependencies {
     /// dependencies of the project/workspace
     #[serde(default)]
     pub required: BTreeSet<String>,
