@@ -60,11 +60,14 @@ pub fn perform_install_isolated(project_names: Vec<String>) {
         Package::from_path(current_dir().unwrap().join(PACKAGE_JSON_FILE)).unwrap();
     let mut to_install_dev_deps = BTreeSet::new();
     let mut to_install_required_deps = BTreeSet::new();
-    for name in project_names {
-        let deps = workspace.get_project(name).unwrap().dependencies.clone();
-        to_install_dev_deps.extend(deps.development);
-        to_install_required_deps.extend(deps.required);
-    }
+    project_names.into_iter().for_each(|name| {
+        let dependent_project = get_project_dependencies(name);
+        dependent_project.iter().for_each(|p| {
+            let deps = p.dependencies.clone();
+            to_install_dev_deps.extend(deps.development);
+            to_install_required_deps.extend(deps.required);
+        });
+    });
     to_install_dev_deps.extend(workspace.dependencies.development);
     to_install_required_deps.extend(workspace.dependencies.required);
     let workspace_dependencies = package_json_file
