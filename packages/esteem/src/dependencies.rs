@@ -1,4 +1,5 @@
 use super::{
+    constants::{DEVELOPMENT_KEY, REQUIRED_KEY},
     AddEsteemDevelopmentDependency, AddEsteemRequiredDependency, LibraryError,
     RemoveEsteemDevelopmentDependency, RemoveEsteemRequiredDependency,
 };
@@ -39,12 +40,14 @@ impl Default for EsteemDependencies {
 
 impl AddEsteemRequiredDependency for EsteemDependencies {
     fn add_required_dependency(&mut self, dependency: String) {
+        info!("Adding {REQUIRED_KEY} dependency {dependency:?}");
         self.required.insert(dependency);
     }
 }
 
 impl AddEsteemDevelopmentDependency for EsteemDependencies {
     fn add_development_dependency(&mut self, dependency: String) {
+        info!("Adding {DEVELOPMENT_KEY} dependency {dependency:?}");
         self.development.insert(dependency);
     }
 }
@@ -54,10 +57,17 @@ impl RemoveEsteemRequiredDependency for EsteemDependencies {
         &mut self,
         dependency: String,
     ) -> Result<(), LibraryError> {
+        info!("Trying to remove {REQUIRED_KEY} dependency {dependency:?}");
         self.required
             .take(&dependency)
-            .map(|_| ())
-            .ok_or(LibraryError)
+            .map(|_| {
+                info!("Found and removed {REQUIRED_KEY} dependency {dependency:?} successfully");
+            })
+            .ok_or_else(|| {
+                LibraryError(format!(
+                    "Could not find {REQUIRED_KEY} dependency to remove: {dependency:?}"
+                ))
+            })
     }
 }
 
@@ -66,9 +76,16 @@ impl RemoveEsteemDevelopmentDependency for EsteemDependencies {
         &mut self,
         dependency: String,
     ) -> Result<(), LibraryError> {
+        info!("Trying to remove {DEVELOPMENT_KEY} dependency {dependency:?}");
         self.development
             .take(&dependency)
-            .map(|_| ())
-            .ok_or(LibraryError)
+            .map(|_| {
+                info!("Found and removed {DEVELOPMENT_KEY} dependency {dependency:?} successfully");
+            })
+            .ok_or_else(|| {
+                LibraryError(format!(
+                    "Could not find {DEVELOPMENT_KEY} dependency to remove: {dependency:?}"
+                ))
+            })
     }
 }

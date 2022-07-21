@@ -20,7 +20,7 @@ pub fn get_all_project_names() -> Vec<String> {
     }
 }
 
-pub fn get_project_dependencies(project_name: String) -> Vec<EsteemProject> {
+pub fn get_project_dependencies(project_name: &String) -> Vec<EsteemProject> {
     let mut manager = PackageManager::get_command_executor().unwrap();
     let path = manager.graph_dependencies(project_name);
     manager.execute_script();

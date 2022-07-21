@@ -24,7 +24,7 @@ const SKIP: &str = "skip";
 const PROJECTS: &str = "PROJECTS";
 
 fn main() -> Result<(), String> {
-    env_logger::Builder::from_env(Env::default().default_filter_or("error"))
+    env_logger::Builder::from_env(Env::default().default_filter_or("info"))
         .format_timestamp(None)
         .format_target(true)
         .init();

@@ -53,7 +53,7 @@ impl CommandExecutor {
         });
     }
 
-    pub fn graph_dependencies(&mut self, project_name: String) -> PathBuf {
+    pub fn graph_dependencies(&mut self, project_name: &String) -> PathBuf {
         let file = NamedTempFile::new().unwrap();
         let path = format!("{}.json", file.path().as_os_str().to_str().unwrap());
         self.command_to_execute.extend([
@@ -62,7 +62,7 @@ impl CommandExecutor {
             "--file".into(),
             path.clone(),
             "--focus".into(),
-            project_name,
+            project_name.to_owned(),
         ]);
         PathBuf::from(&path)
     }
@@ -78,10 +78,7 @@ impl CommandExecutor {
     }
 
     fn execute(self, command: Expression) {
-        info!(
-            "{}",
-            format!("Calling command: {:?}", self.command_to_execute.join(" "))
-        );
+        info!("Calling command: {command:?}");
         let reader = command.stderr_to_stdout().reader().unwrap();
         let lines = BufReader::new(reader).lines();
         for _line in lines {}
@@ -137,7 +134,7 @@ impl PackageManager {
                 };
             return Ok(executor);
         }
-        Err(LibraryError)
+        Err(LibraryError("Could not guess an appropriate NPM package manager. Only `NPM`, `YARN` and `PNPM` are supported. Please open an issue in the repository if you would like to see any other manager supported.".to_owned()))
     }
 }
 

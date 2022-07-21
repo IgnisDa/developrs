@@ -21,7 +21,7 @@ mod cli;
 extern crate log;
 
 #[derive(Debug)]
-pub struct LibraryError;
+pub struct LibraryError(String);
 
 impl fmt::Display for LibraryError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

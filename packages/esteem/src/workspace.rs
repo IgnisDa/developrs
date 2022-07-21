@@ -53,8 +53,10 @@ impl EsteemWorkspace {
                 Ok(work)
             }
             Err(_) => {
-                trace!("Unable to find file: {:?}", WORKSPACE_FILE);
-                Err(LibraryError)
+                error!("Unable to find file: {:?}", WORKSPACE_FILE);
+                Err(LibraryError(format!(
+                    "Could not find file: {WORKSPACE_FILE:?}"
+                )))
             }
         }
     }
@@ -67,7 +69,11 @@ impl EsteemWorkspace {
             .all_projects_rep
             .iter_mut()
             .find(|p| p.name == project_name);
-        project.ok_or(LibraryError)
+        project.ok_or_else(|| {
+            LibraryError(format!(
+                "Could not find a project associated with name: {project_name:?}"
+            ))
+        })
     }
 
     pub(crate) fn get_project(
@@ -78,7 +84,11 @@ impl EsteemWorkspace {
             .all_projects_rep
             .iter()
             .find(|p| p.name == project_name);
-        project.ok_or(LibraryError)
+        project.ok_or_else(|| {
+            LibraryError(format!(
+                "Could not find a project associated with name: {project_name:?}"
+            ))
+        })
     }
 
     /// returns all dependencies of this project (project and workspace scoped)

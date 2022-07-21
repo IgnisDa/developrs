@@ -60,16 +60,30 @@ pub fn perform_install_isolated(project_names: Vec<String>) {
         Package::from_path(current_dir().unwrap().join(PACKAGE_JSON_FILE)).unwrap();
     let mut to_install_dev_deps = BTreeSet::new();
     let mut to_install_required_deps = BTreeSet::new();
+    info!("Calculating all dependent projects of {project_names:?}");
     project_names.into_iter().for_each(|name| {
-        let dependent_project = get_project_dependencies(name);
-        dependent_project.iter().for_each(|p| {
+        let dependent_projects = get_project_dependencies(&name);
+        info!(
+            "{:?} depends on/is depended on by {:?} projects",
+            &name,
+            &dependent_projects.len()
+        );
+        dependent_projects.iter().for_each(|p| {
             let deps = p.dependencies.clone();
             to_install_dev_deps.extend(deps.development);
             to_install_required_deps.extend(deps.required);
         });
     });
     to_install_dev_deps.extend(workspace.dependencies.development);
+    info!(
+        "Number of {DEVELOPMENT_KEY} packages calculated: {:?}",
+        to_install_dev_deps.len()
+    );
     to_install_required_deps.extend(workspace.dependencies.required);
+    info!(
+        "Number of {REQUIRED_KEY} packages calculated: {:?}",
+        to_install_required_deps.len()
+    );
     let workspace_dependencies = package_json_file
         .dependencies
         .into_iter()
@@ -98,12 +112,10 @@ pub fn perform_install_isolated(project_names: Vec<String>) {
         });
     package_json_file.dependencies = filtered_required_deps;
     package_json_file.dev_dependencies = filtered_dev_deps;
-    info!(
-        "Renaming file {:?} to {:?}",
-        PACKAGE_JSON_FILE, PACKAGE_JSON_BACKUP_FILE
-    );
+    info!("Renaming {PACKAGE_JSON_FILE:?} to {PACKAGE_JSON_BACKUP_FILE:?}",);
     rename(PACKAGE_JSON_FILE, PACKAGE_JSON_BACKUP_FILE).unwrap_or_else(|_| {
-        error!("Unable to rename file");
+        error!("Unable to create backup file, exiting early...");
+        exit(1);
     });
     package_json_file.write_dependencies();
     warn!("Please run your package manager's install command to install the isolated dependencies.");
@@ -133,7 +145,11 @@ pub fn perform_remove(project_name: String, to_remove: Vec<String>) {
     }
     project.write_dependencies();
     let packages_to_remove = workspace.get_dependencies_to_remove(to_remove);
-    if !packages_to_remove.is_empty() {
+    if packages_to_remove.is_empty() {
+        info!(
+            "No packages qualifies as removable, will not be calling the package manager"
+        );
+    } else {
         let mut manager = PackageManager::get_command_executor().unwrap();
         manager.remove_dependencies(packages_to_remove);
         manager.execute_command();
@@ -192,7 +208,7 @@ pub fn perform_workspace_remove(to_remove: Vec<String>) {
 }
 
 pub fn utils_get_dependencies(project_name: String) {
-    let project_names = get_project_dependencies(project_name)
+    let project_names = get_project_dependencies(&project_name)
         .into_iter()
         .map(|p| p.name)
         .collect::<Vec<_>>()

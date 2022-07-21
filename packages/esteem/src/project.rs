@@ -43,8 +43,10 @@ impl EsteemProject {
                 Ok(partial_project)
             }
             Err(_) => {
-                trace!("Unable to find file: {:?}", description_file_path);
-                Err(LibraryError)
+                error!("Unable to find file: {:?}", description_file_path);
+                Err(LibraryError(format!(
+                    "Could not find file: {description_file_path:?}"
+                )))
             }
         }
     }
