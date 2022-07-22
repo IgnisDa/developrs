@@ -5,7 +5,7 @@ use super::{
     managers::PackageManager,
     utils::{display_warning, get_project_dependencies},
     workspace::EsteemWorkspace,
-    AddEsteemDevelopmentDependency, AddEsteemRequiredDependency,
+    AddEsteemDevelopmentDependency, AddEsteemRequiredDependency, LibraryError,
     RemoveEsteemDevelopmentDependency, RemoveEsteemRequiredDependency, WriteDependencies,
 };
 use npm_package_json::Package;
@@ -14,7 +14,6 @@ use std::{
     env::current_dir,
     fs::rename,
     path::PathBuf,
-    process::exit,
 };
 
 impl WriteDependencies for Package {
@@ -28,7 +27,7 @@ pub fn perform_add(
     to_add: Vec<String>,
     is_development: bool,
     skip_package_manager: bool,
-) {
+) -> Result<(), LibraryError> {
     let mut workspace = EsteemWorkspace::from_current_directory().unwrap();
     let project = workspace.get_project_mut(project_name).unwrap();
     to_add.iter().for_each(|dependency| {
@@ -44,17 +43,19 @@ pub fn perform_add(
         manager.add_dependencies(to_add);
         manager.execute_command();
     }
+    Ok(())
 }
 
-pub fn perform_init() {
+pub fn perform_init() -> Result<(), LibraryError> {
     let workspace = EsteemWorkspace::from_current_directory().unwrap();
     workspace.write_dependencies();
     for project in workspace.all_projects_rep {
         project.write_dependencies();
     }
+    Ok(())
 }
 
-pub fn perform_install_isolated(project_names: Vec<String>) {
+pub fn perform_install_isolated(project_names: Vec<String>) -> Result<(), LibraryError> {
     let workspace = EsteemWorkspace::from_current_directory().unwrap();
     let mut package_json_file =
         Package::from_path(current_dir().unwrap().join(PACKAGE_JSON_FILE)).unwrap();
@@ -98,14 +99,14 @@ pub fn perform_install_isolated(project_names: Vec<String>) {
                         possible_package.clone(),
                         workspace_dependencies
                             .get(&possible_package.clone())
+                            .cloned()
                             .unwrap_or_else(|| {
                                 error!(
                                     "{:?} does not exist in {:?}",
                                     possible_package, PACKAGE_JSON_FILE
                                 );
-                                exit(1);
-                            })
-                            .clone(),
+                                panic!("unrecoverable error");
+                            }),
                     )
                 })
                 .collect::<BTreeMap<String, String>>()
@@ -115,13 +116,17 @@ pub fn perform_install_isolated(project_names: Vec<String>) {
     info!("Renaming {PACKAGE_JSON_FILE:?} to {PACKAGE_JSON_BACKUP_FILE:?}",);
     rename(PACKAGE_JSON_FILE, PACKAGE_JSON_BACKUP_FILE).unwrap_or_else(|_| {
         error!("Unable to create backup file, exiting early...");
-        exit(1);
+        panic!("unrecoverable error");
     });
     package_json_file.write_dependencies();
     warn!("Please run your package manager's install command to install the isolated dependencies.");
+    Ok(())
 }
 
-pub fn perform_remove(project_name: String, to_remove: Vec<String>) {
+pub fn perform_remove(
+    project_name: String,
+    to_remove: Vec<String>,
+) -> Result<(), LibraryError> {
     let mut workspace = EsteemWorkspace::from_current_directory().unwrap();
     let project = workspace.get_project_mut(project_name).unwrap();
     for dependency in to_remove.iter() {
@@ -140,7 +145,7 @@ pub fn perform_remove(project_name: String, to_remove: Vec<String>) {
                 dependency,
                 &project.get_path()
             );
-            exit(1);
+            return Err(LibraryError("will not continue".into()));
         }
     }
     project.write_dependencies();
@@ -154,13 +159,14 @@ pub fn perform_remove(project_name: String, to_remove: Vec<String>) {
         manager.remove_dependencies(packages_to_remove);
         manager.execute_command();
     }
+    Ok(())
 }
 
 pub fn perform_workspace_add(
     to_add: Vec<String>,
     is_development: bool,
     skip_package_manager: bool,
-) {
+) -> Result<(), LibraryError> {
     let mut workspace = EsteemWorkspace::from_current_directory().unwrap();
     to_add.iter().for_each(|dependency| {
         if is_development {
@@ -175,9 +181,10 @@ pub fn perform_workspace_add(
         manager.add_dependencies(to_add);
         manager.execute_command();
     }
+    Ok(())
 }
 
-pub fn perform_workspace_remove(to_remove: Vec<String>) {
+pub fn perform_workspace_remove(to_remove: Vec<String>) -> Result<(), LibraryError> {
     let mut workspace = EsteemWorkspace::from_current_directory().unwrap();
     for dependency in to_remove.iter() {
         let mut should_proceed = false;
@@ -195,7 +202,7 @@ pub fn perform_workspace_remove(to_remove: Vec<String>) {
                 dependency,
                 &workspace.get_path()
             );
-            exit(1);
+            return Err(LibraryError("will not continue".into()));
         }
     }
     workspace.write_dependencies();
@@ -205,13 +212,12 @@ pub fn perform_workspace_remove(to_remove: Vec<String>) {
         manager.remove_dependencies(packages_to_remove);
         manager.execute_command();
     }
+    Ok(())
 }
 
-pub fn utils_get_dependencies(project_name: String) {
-    let project_names = get_project_dependencies(&project_name)
+pub fn utils_get_dependencies(project_name: String) -> Result<Vec<String>, LibraryError> {
+    Ok(get_project_dependencies(&project_name)
         .into_iter()
         .map(|p| p.name)
-        .collect::<Vec<_>>()
-        .join(" ");
-    println!("{project_names}");
+        .collect::<Vec<_>>())
 }

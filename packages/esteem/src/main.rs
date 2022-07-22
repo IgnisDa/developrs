@@ -138,11 +138,9 @@ fn main() -> Result<(), String> {
                 to_add,
                 is_development,
                 skip_package_manager,
-            );
+            )?
         }
-        Some((INIT_COMMAND, _)) => {
-            perform_init();
-        }
+        Some((INIT_COMMAND, _)) => perform_init()?,
         Some((INSTALL_ISOLATED_COMMAND, sub_matches)) => {
             let project_names = sub_matches
                 .values_of(PROJECTS)
@@ -150,7 +148,7 @@ fn main() -> Result<(), String> {
                 .map(String::from)
                 .collect();
             trace!("Target projects: {:?}", project_names);
-            perform_install_isolated(project_names)
+            perform_install_isolated(project_names)?
         }
         Some((REMOVE_COMMAND, sub_matches)) => {
             let project_name = sub_matches.value_of(PROJECT_NAME).unwrap();
@@ -161,13 +159,16 @@ fn main() -> Result<(), String> {
                 .collect();
             trace!("Project Name: {:?}", project_name);
             trace!("Dependencies to add: {:?}", to_remove);
-            perform_remove(project_name.to_owned(), to_remove);
+            perform_remove(project_name.to_owned(), to_remove)?
         }
         Some((UTILS_SUBCOMMAND, matches)) => match matches.subcommand() {
             Some((GET_DEPENDENCIES_COMMAND, sub_matches)) => {
                 let project_name = sub_matches.value_of(PROJECT_NAME).unwrap();
                 trace!("Project Name: {:?}", project_name);
-                utils_get_dependencies(project_name.to_owned());
+                match utils_get_dependencies(project_name.to_owned()) {
+                    Ok(project_names) => print!("{}", project_names.join(" ")),
+                    Err(err) => error!("Encountered an error: {err:?}"),
+                }
             }
             _ => unreachable!(),
         },
@@ -183,7 +184,7 @@ fn main() -> Result<(), String> {
                 trace!("Dependencies to add: {:?}", to_add);
                 trace!("Development: {:?}", is_development);
                 trace!("Calling package manager: {:?}", !skip_package_manager);
-                perform_workspace_add(to_add, is_development, skip_package_manager);
+                perform_workspace_add(to_add, is_development, skip_package_manager)?
             }
             Some((REMOVE_COMMAND, sub_matches)) => {
                 let to_remove = sub_matches
@@ -192,7 +193,7 @@ fn main() -> Result<(), String> {
                     .map(String::from)
                     .collect();
                 trace!("Dependencies to remove: {:?}", to_remove);
-                perform_workspace_remove(to_remove);
+                perform_workspace_remove(to_remove)?
             }
             _ => unreachable!(),
         },

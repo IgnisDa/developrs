@@ -25,7 +25,13 @@ pub struct LibraryError(String);
 
 impl fmt::Display for LibraryError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Library error")
+        write!(f, "Library error {:?}", self.0)
+    }
+}
+
+impl From<LibraryError> for String {
+    fn from(err: LibraryError) -> Self {
+        format!("Encountered an unrecoverable error: {}", err.0)
     }
 }
 
