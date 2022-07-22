@@ -18,6 +18,10 @@
     "node": {
       "version": "16"
     },
+    "rust": {
+      "version": "latest",
+      "profile": "default"
+    },
     "python": {
       "version": "os-provided"
     }
