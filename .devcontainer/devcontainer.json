@@ -2,10 +2,7 @@
   "name": "developrs",
   "dockerComposeFile": "docker-compose.yml",
   "service": "app",
-  "forwardPorts": [
-    8533,
-    8534
-  ],
+  "forwardPorts": [],
   "workspaceFolder": "/workspace",
   "postCreateCommand": ". ${containerWorkspaceFolder}/.devcontainer/scripts/post-create.sh",
   "remoteEnv": {
@@ -17,10 +14,12 @@
     "VISUAL": "code --wait"
   },
   "features": {
-    "rust": {
-      "version": "latest",
-      "profile": "default"
+    "fish": "latest",
+    "node": {
+      "version": "16"
     },
-    "IgnisDa/developrs/fish@features-v0.0.1": {}
+    "python": {
+      "version": "os-provided"
+    }
   }
 }

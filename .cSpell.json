@@ -7,6 +7,7 @@
     "words": [
         "canonicalize",
         "deps",
+        "devcontainer",
         "developrs",
         "indexmap",
         "luxon",
