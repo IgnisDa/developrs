@@ -5,8 +5,8 @@ bootstrap new projects.
 
 ## Packages
 
-- [Esteem](./packages/esteem): Make your NX workspaces go easier on your disk
-- [Cinder](./packages/cinder): A project to make deployment for dokku projects easier
+- [Esteem](./apps/esteem): Make your NX workspaces go easier on your disk
+- [Cinder](./apps/cinder): A project to make deployment for dokku projects easier
 
 ## Docker development environments
 

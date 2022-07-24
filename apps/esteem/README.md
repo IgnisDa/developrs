@@ -49,7 +49,7 @@ call your package manager's install command and viola! you have a smaller `node_
 - Guided installation:
 
   ```bash
-  curl https://raw.githubusercontent.com/IgnisDa/developrs/main/packages/esteem/install.sh -o install.sh
+  curl https://raw.githubusercontent.com/IgnisDa/developrs/main/apps/esteem/install.sh -o install.sh
   # Warning: always examine scripts downloaded from the internet before running them locally.
   bash install.sh
   ```
@@ -64,7 +64,7 @@ call your package manager's install command and viola! you have a smaller `node_
 
   ```Dockerfile
   # This script writes to /usr/local/bin/, you can change this via the `--bin-dir` flag
-  RUN curl https://raw.githubusercontent.com/IgnisDa/developrs/main/packages/esteem/install.sh | sudo sh -s -- --yes
+  RUN curl https://raw.githubusercontent.com/IgnisDa/developrs/main/apps/esteem/install.sh | sudo sh -s -- --yes
   ```
 
 ## Miscellaneous
