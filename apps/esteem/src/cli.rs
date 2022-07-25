@@ -55,7 +55,10 @@ pub fn perform_init() -> Result<(), LibraryError> {
     Ok(())
 }
 
-pub fn perform_install_isolated(project_names: Vec<String>) -> Result<(), LibraryError> {
+pub fn perform_install_isolated(
+    project_names: Vec<String>,
+    call_script_executor: bool,
+) -> Result<(), LibraryError> {
     let workspace = EsteemWorkspace::from_current_directory().unwrap();
     let mut package_json_file =
         Package::from_path(current_dir().unwrap().join(PACKAGE_JSON_FILE)).unwrap();
@@ -63,7 +66,7 @@ pub fn perform_install_isolated(project_names: Vec<String>) -> Result<(), Librar
     let mut to_install_required_deps = BTreeSet::new();
     info!("Calculating all dependent projects of {project_names:?}");
     project_names.into_iter().for_each(|name| {
-        let dependent_projects = get_project_dependencies(&name, true);
+        let dependent_projects = get_project_dependencies(&name, call_script_executor);
         info!(
             "{:?} depends on/is depended on by {:?} projects",
             &name,

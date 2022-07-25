@@ -55,6 +55,9 @@ fn main() -> Result<(), String> {
     let init_subcommand =
         App::new(INIT_COMMAND).about("Initializes the project to be used with esteem");
 
+    let skip_call_arg =
+        arg!(-C - -call).help("Prefix the NX command with `npx`, `pnpm`, `yarn` etc");
+
     let install_isolated_subcommand = App::new(INSTALL_ISOLATED_COMMAND)
         .about("Isolate only dependencies of a few projects")
         .after_help(
@@ -66,7 +69,8 @@ fn main() -> Result<(), String> {
                 .min_values(1)
                 .help("The names of the projects whose dependencies should be installed")
                 .possible_values(project_names),
-        );
+        )
+        .arg(skip_call_arg.clone());
 
     let utils_subcommand = App::new(UTILS_SUBCOMMAND)
         .about("Helpful utilities to manage projects more efficiently")
@@ -79,7 +83,7 @@ fn main() -> Result<(), String> {
                     .help("The name of the project whose dependencies you want to get")
                     .possible_values(project_names),
             )
-            .arg(arg!(-C - -call).help("Prefix the NX command with `npx`, `pnpm`, `yarn` etc")),
+            .arg(skip_call_arg.clone()),
         );
 
     let workspace_subcommand = App::new(WORKSPACE_SUBCOMMAND)
@@ -149,8 +153,10 @@ fn main() -> Result<(), String> {
                 .unwrap()
                 .map(String::from)
                 .collect();
+            let call_script_executor = sub_matches.is_present(CALL_SCRIPT_EXECUTOR);
+            trace!("Call script executor: {:?}", call_script_executor);
             trace!("Target projects: {:?}", project_names);
-            perform_install_isolated(project_names)?
+            perform_install_isolated(project_names, call_script_executor)?
         }
         Some((REMOVE_COMMAND, sub_matches)) => {
             let project_name = sub_matches.value_of(PROJECT_NAME).unwrap();
