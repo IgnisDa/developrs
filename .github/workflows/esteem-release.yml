@@ -115,7 +115,7 @@ jobs:
           echo "target flag is: ${{ env.TARGET_FLAGS }}"
           echo "target dir is: ${{ env.TARGET_DIR }}"
       - name: Get release download URL
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: artifacts
           path: artifacts
