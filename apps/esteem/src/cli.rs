@@ -39,7 +39,7 @@ pub fn perform_add(
     });
     project.write_dependencies();
     if !skip_package_manager {
-        let mut manager = PackageManager::get_command_executor().unwrap();
+        let mut manager = PackageManager::get_command_executor(true).unwrap();
         manager.add_dependencies(to_add);
         manager.execute_command();
     }
@@ -63,7 +63,7 @@ pub fn perform_install_isolated(project_names: Vec<String>) -> Result<(), Librar
     let mut to_install_required_deps = BTreeSet::new();
     info!("Calculating all dependent projects of {project_names:?}");
     project_names.into_iter().for_each(|name| {
-        let dependent_projects = get_project_dependencies(&name);
+        let dependent_projects = get_project_dependencies(&name, true);
         info!(
             "{:?} depends on/is depended on by {:?} projects",
             &name,
@@ -155,7 +155,7 @@ pub fn perform_remove(
             "No packages qualifies as removable, will not be calling the package manager"
         );
     } else {
-        let mut manager = PackageManager::get_command_executor().unwrap();
+        let mut manager = PackageManager::get_command_executor(true).unwrap();
         manager.remove_dependencies(packages_to_remove);
         manager.execute_command();
     }
@@ -177,7 +177,7 @@ pub fn perform_workspace_add(
     });
     workspace.write_dependencies();
     if !skip_package_manager {
-        let mut manager = PackageManager::get_command_executor().unwrap();
+        let mut manager = PackageManager::get_command_executor(true).unwrap();
         manager.add_dependencies(to_add);
         manager.execute_command();
     }
@@ -208,16 +208,21 @@ pub fn perform_workspace_remove(to_remove: Vec<String>) -> Result<(), LibraryErr
     workspace.write_dependencies();
     let packages_to_remove = workspace.get_dependencies_to_remove(to_remove);
     if !packages_to_remove.is_empty() {
-        let mut manager = PackageManager::get_command_executor().unwrap();
+        let mut manager = PackageManager::get_command_executor(true).unwrap();
         manager.remove_dependencies(packages_to_remove);
         manager.execute_command();
     }
     Ok(())
 }
 
-pub fn utils_get_dependencies(project_name: String) -> Result<Vec<String>, LibraryError> {
-    Ok(get_project_dependencies(&project_name)
-        .into_iter()
-        .map(|p| p.name)
-        .collect::<Vec<_>>())
+pub fn utils_get_dependencies(
+    project_name: String,
+    call_script_executor: bool,
+) -> Result<Vec<String>, LibraryError> {
+    Ok(
+        get_project_dependencies(&project_name, call_script_executor)
+            .into_iter()
+            .map(|p| p.name)
+            .collect::<Vec<_>>(),
+    )
 }

@@ -19,8 +19,11 @@ pub fn get_all_project_names() -> Vec<String> {
     }
 }
 
-pub fn get_project_dependencies(project_name: &String) -> Vec<EsteemProject> {
-    let mut manager = PackageManager::get_command_executor().unwrap();
+pub fn get_project_dependencies(
+    project_name: &String,
+    call_script_executor: bool,
+) -> Vec<EsteemProject> {
+    let mut manager = PackageManager::get_command_executor(call_script_executor).unwrap();
     let path = manager.graph_dependencies(project_name);
     manager.execute_script();
     let project = NxProject::from_path(path).unwrap();
@@ -34,7 +37,7 @@ pub fn get_project_dependencies(project_name: &String) -> Vec<EsteemProject> {
 }
 
 pub fn get_projects_with_config_path(project_name: &String) -> HashMap<String, PathBuf> {
-    let mut manager = PackageManager::get_command_executor().unwrap();
+    let mut manager = PackageManager::get_command_executor(true).unwrap();
     let path = manager.graph_dependencies(project_name);
     manager.execute_script();
     let project = NxProject::from_path(path).unwrap();

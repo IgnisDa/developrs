@@ -21,6 +21,8 @@ pub struct CommandExecutor {
     command_executor: String,
     /// the command that has to be executed
     command_to_execute: Vec<String>,
+    /// whether to directly call the command executor without using `script_executor`
+    call_script_executor: bool,
 }
 
 impl CommandExecutor {
@@ -29,6 +31,7 @@ impl CommandExecutor {
         remove: String,
         script_executor: String,
         command_executor: String,
+        call_script_executor: bool,
     ) -> Self {
         Self {
             install,
@@ -36,6 +39,7 @@ impl CommandExecutor {
             script_executor,
             command_executor,
             command_to_execute: vec![],
+            call_script_executor,
         }
     }
 
@@ -73,7 +77,14 @@ impl CommandExecutor {
     }
 
     pub fn execute_script(self) {
-        let command = cmd(&self.script_executor, &self.command_to_execute);
+        let command = match self.call_script_executor {
+            true => cmd(&self.script_executor, &self.command_to_execute),
+            false => {
+                let program = self.command_to_execute[..1].get(0).unwrap();
+                let args = &self.command_to_execute[1..];
+                cmd(program, args)
+            }
+        };
         self.execute(command);
     }
 
@@ -98,7 +109,9 @@ pub struct PackageManager {
 }
 
 impl PackageManager {
-    pub fn get_command_executor() -> Result<CommandExecutor, LibraryError> {
+    pub fn get_command_executor(
+        call_script_executor: bool,
+    ) -> Result<CommandExecutor, LibraryError> {
         let dir = read_dir(current_dir().unwrap()).unwrap();
         for file in dir {
             let executor =
@@ -110,6 +123,7 @@ impl PackageManager {
                             pm.remove,
                             pm.script_executor,
                             pm.command_executor,
+                            call_script_executor,
                         )
                     }
                     "pnpm-lock.yaml" => {
@@ -119,6 +133,7 @@ impl PackageManager {
                             pm.remove,
                             pm.script_executor,
                             pm.command_executor,
+                            call_script_executor,
                         )
                     }
                     "package-lock.json" => {
@@ -128,6 +143,7 @@ impl PackageManager {
                             pm.remove,
                             pm.script_executor,
                             pm.command_executor,
+                            call_script_executor,
                         )
                     }
                     _ => continue,

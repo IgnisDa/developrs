@@ -16,6 +16,7 @@ const GET_DEPENDENCIES_COMMAND: &str = "get-dependencies";
 const REMOVE_COMMAND: &str = "remove";
 const UTILS_SUBCOMMAND: &str = "utils";
 const WORKSPACE_SUBCOMMAND: &str = "workspace";
+const CALL_SCRIPT_EXECUTOR: &str = "call";
 
 const PROJECT_NAME: &str = "PROJECT_NAME";
 const DEPENDENCIES: &str = "DEPENDENCIES";
@@ -77,7 +78,8 @@ fn main() -> Result<(), String> {
                     .required(true)
                     .help("The name of the project whose dependencies you want to get")
                     .possible_values(project_names),
-            ),
+            )
+            .arg(arg!(-C - -call).help("Prefix the NX command with `npx`, `pnpm`, `yarn` etc")),
         );
 
     let workspace_subcommand = App::new(WORKSPACE_SUBCOMMAND)
@@ -164,8 +166,13 @@ fn main() -> Result<(), String> {
         Some((UTILS_SUBCOMMAND, matches)) => match matches.subcommand() {
             Some((GET_DEPENDENCIES_COMMAND, sub_matches)) => {
                 let project_name = sub_matches.value_of(PROJECT_NAME).unwrap();
+                let call_script_executor = sub_matches.is_present(CALL_SCRIPT_EXECUTOR);
                 trace!("Project Name: {:?}", project_name);
-                match utils_get_dependencies(project_name.to_owned()) {
+                trace!("Call script executor: {:?}", call_script_executor);
+                match utils_get_dependencies(
+                    project_name.to_owned(),
+                    call_script_executor,
+                ) {
                     Ok(project_names) => print!("{}", project_names.join(" ")),
                     Err(err) => error!("Encountered an error: {err:?}"),
                 }
