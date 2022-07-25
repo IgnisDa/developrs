@@ -45,9 +45,9 @@ impl EsteemWorkspace {
                 work.all_projects_rep = work
                     .projects
                     .iter()
-                    .map(|(name, path)| {
+                    .flat_map(|(name, path)| {
                         trace!("Processing project: {name:?}");
-                        EsteemProject::from_project_path(name.clone(), path).unwrap()
+                        EsteemProject::from_project_path(name.clone(), path)
                     })
                     .collect();
                 Ok(work)
