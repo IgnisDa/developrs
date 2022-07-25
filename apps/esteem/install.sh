@@ -397,7 +397,7 @@ while [ "$#" -gt 0 ]; do
     ;;
   -v | --version)
     VERSION="esteem-v$2"
-    shift 1
+    shift 2
     ;;
   -V | --verbose)
     VERBOSE=1
