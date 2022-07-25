@@ -13,7 +13,7 @@ pub use {
         perform_add, perform_init, perform_install_isolated, perform_remove,
         perform_workspace_add, perform_workspace_remove, utils_get_dependencies,
     },
-    utils::{get_all_project_names, get_projects_with_config_path},
+    utils::{get_all_project_names, get_all_projects, get_projects_with_config_path},
 };
 mod cli;
 
