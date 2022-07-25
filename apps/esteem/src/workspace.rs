@@ -42,14 +42,14 @@ impl EsteemWorkspace {
         match workspace_file {
             Ok(data) => {
                 let mut work: Self = serde_json::from_str(&data).unwrap();
-                let projects_internal = work
+                work.all_projects_rep = work
                     .projects
                     .iter()
                     .map(|(name, path)| {
+                        trace!("Processing project: {name:?}");
                         EsteemProject::from_project_path(name.clone(), path).unwrap()
                     })
                     .collect();
-                work.all_projects_rep = projects_internal;
                 Ok(work)
             }
             Err(_) => {

@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{
     collections::BTreeMap,
-    fs::{canonicalize, read_to_string},
+    fs::read_to_string,
     path::{Path, PathBuf},
 };
 
@@ -33,7 +33,8 @@ pub struct EsteemProject {
 
 impl EsteemProject {
     pub fn from_project_path(name: String, path: &Path) -> Result<Self, LibraryError> {
-        let description_file_path = canonicalize(path.join(PROJECT_FILE)).unwrap();
+        trace!("Reading from file: {:?}", &path.display());
+        let description_file_path = path.join(PROJECT_FILE);
         let project_file = read_to_string(&description_file_path);
         match project_file {
             Ok(data) => {

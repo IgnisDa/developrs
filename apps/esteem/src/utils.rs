@@ -10,7 +10,6 @@ pub fn display_warning(key: &str, dependency: &str, path: &PathBuf) {
 
 pub fn get_all_project_names() -> Vec<String> {
     let workspace = EsteemWorkspace::from_current_directory();
-
     match workspace {
         Ok(data) => data.projects.keys().cloned().collect(),
         Err(_) => {
