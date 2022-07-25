@@ -2,7 +2,7 @@ use super::{
     constants::WORKSPACE_FILE, graph::NxProject, managers::PackageManager,
     project::EsteemProject, workspace::EsteemWorkspace,
 };
-use std::path::PathBuf;
+use std::{collections::HashMap, path::PathBuf};
 
 pub fn display_warning(key: &str, dependency: &str, path: &PathBuf) {
     warn!("{:?} not found in {:?} of {:?}", dependency, key, path);
@@ -32,4 +32,12 @@ pub fn get_project_dependencies(project_name: &String) -> Vec<EsteemProject> {
         .map(|p| workspace.get_project(p.to_string()).cloned().unwrap())
         .collect();
     projects
+}
+
+pub fn get_projects_with_config_path(project_name: &String) -> HashMap<String, PathBuf> {
+    let mut manager = PackageManager::get_command_executor().unwrap();
+    let path = manager.graph_dependencies(project_name);
+    manager.execute_script();
+    let project = NxProject::from_path(path).unwrap();
+    project.get_projects_with_config_path()
 }
