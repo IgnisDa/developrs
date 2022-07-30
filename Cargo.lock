@@ -965,6 +965,7 @@ dependencies = [
  "clap",
  "duct",
  "env_logger",
+ "esteem_core",
  "log",
  "npm-package-json",
  "once_cell",
@@ -972,6 +973,10 @@ dependencies = [
  "serde_json",
  "tempfile",
 ]
+
+[[package]]
+name = "esteem_core"
+version = "0.0.1"
 
 [[package]]
 name = "event-listener"
