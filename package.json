@@ -1,14 +1,30 @@
 {
-  "name": "developrs",
+  "name": "developrs-root",
   "version": "0.0.0",
   "license": "MIT",
   "private": true,
   "devDependencies": {
-    "@nrwl/cli": "14.5.1",
-    "@nrwl/workspace": "14.5.1",
+    "@commitlint/cli": "17.0.3",
+    "@commitlint/config-conventional": "17.0.3",
+    "@commitlint/config-nx-scopes": "17.0.0",
+    "@commitlint/cz-commitlint": "17.0.3",
+    "@commitlint/types": "17.0.0",
+    "@nrwl/cli": "14.3.0",
+    "@nrwl/workspace": "14.3.0",
     "@nxrs/cargo": "0.3.3",
-    "nx": "14.5.1",
-    "prettier": "^2.6.2",
-    "typescript": "~4.7.2"
+    "commitizen": "4.2.5",
+    "husky": "8.0.1",
+    "nx": "14.3.0",
+    "prettier": "2.7.1",
+    "typescript": "4.7.4"
+  },
+  "scripts": {
+    "prepare": "husky install",
+    "commit": "git-cz"
+  },
+  "config": {
+    "commitizen": {
+      "path": "@commitlint/cz-commitlint"
+    }
   }
 }
