@@ -23,6 +23,8 @@ pub struct CommandExecutor {
     command_to_execute: Vec<String>,
     /// whether to directly call the command executor without using `script_executor`
     call_script_executor: bool,
+    /// the flag to use while adding development dependency
+    development_flag: String,
 }
 
 impl CommandExecutor {
@@ -31,6 +33,7 @@ impl CommandExecutor {
         remove: String,
         script_executor: String,
         command_executor: String,
+        development_flag: String,
         call_script_executor: bool,
     ) -> Self {
         Self {
@@ -40,11 +43,26 @@ impl CommandExecutor {
             command_executor,
             command_to_execute: vec![],
             call_script_executor,
+            development_flag,
         }
     }
 
-    pub fn add_dependencies(&mut self, to_add: Vec<String>) {
+    pub fn add_required_dependencies(&mut self, to_add: Vec<String>) {
+        self.start_install_command();
+        self.push_dependencies_args(to_add);
+    }
+
+    pub fn add_development_dependencies(&mut self, to_add: Vec<String>) {
+        self.start_install_command();
+        self.command_to_execute.push(self.development_flag.clone());
+        self.push_dependencies_args(to_add);
+    }
+
+    fn start_install_command(&mut self) {
         self.command_to_execute.push(self.install.clone());
+    }
+
+    fn push_dependencies_args(&mut self, to_add: Vec<String>) {
         to_add.into_iter().for_each(|f| {
             self.command_to_execute.push(f);
         });
@@ -92,7 +110,9 @@ impl CommandExecutor {
         info!("Calling command: {command:?}");
         let reader = command.stderr_to_stdout().reader().unwrap();
         let lines = BufReader::new(reader).lines();
-        for _line in lines {}
+        for line in lines {
+            println!("{}", line.unwrap());
+        }
     }
 }
 
@@ -106,6 +126,8 @@ pub struct PackageManager {
     script_executor: String,
     /// the command that executes normal scripts
     command_executor: String,
+    /// the flag to use while adding development dependency
+    development_flag: String,
 }
 
 impl PackageManager {
@@ -123,6 +145,7 @@ impl PackageManager {
                             pm.remove,
                             pm.script_executor,
                             pm.command_executor,
+                            pm.development_flag,
                             call_script_executor,
                         )
                     }
@@ -133,6 +156,7 @@ impl PackageManager {
                             pm.remove,
                             pm.script_executor,
                             pm.command_executor,
+                            pm.development_flag,
                             call_script_executor,
                         )
                     }
@@ -143,6 +167,7 @@ impl PackageManager {
                             pm.remove,
                             pm.script_executor,
                             pm.command_executor,
+                            pm.development_flag,
                             call_script_executor,
                         )
                     }
@@ -159,6 +184,7 @@ static NPM_PACKAGE_MANAGER: Lazy<PackageManager> = Lazy::new(|| PackageManager {
     remove: "uninstall".into(),
     script_executor: "npx".into(),
     command_executor: "npm".into(),
+    development_flag: "--save-dev".into(),
 });
 
 static PNPM_PACKAGE_MANAGER: Lazy<PackageManager> = Lazy::new(|| PackageManager {
@@ -166,6 +192,7 @@ static PNPM_PACKAGE_MANAGER: Lazy<PackageManager> = Lazy::new(|| PackageManager 
     remove: "remove".into(),
     script_executor: "pnpm".into(),
     command_executor: "pnpm".into(),
+    development_flag: "--save-dev".into(),
 });
 
 static YARN_PACKAGE_MANAGER: Lazy<PackageManager> = Lazy::new(|| PackageManager {
@@ -173,4 +200,5 @@ static YARN_PACKAGE_MANAGER: Lazy<PackageManager> = Lazy::new(|| PackageManager 
     remove: "remove".into(),
     script_executor: "yarn".into(),
     command_executor: "yarn".into(),
+    development_flag: "--dev".into(),
 });

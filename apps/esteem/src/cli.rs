@@ -40,7 +40,11 @@ pub fn perform_add(
     project.write_dependencies();
     if !skip_package_manager {
         let mut manager = PackageManager::get_command_executor(true).unwrap();
-        manager.add_dependencies(to_add);
+        if is_development {
+            manager.add_development_dependencies(to_add);
+        } else {
+            manager.add_required_dependencies(to_add);
+        }
         manager.execute_command();
     }
     Ok(())
@@ -181,7 +185,11 @@ pub fn perform_workspace_add(
     workspace.write_dependencies();
     if !skip_package_manager {
         let mut manager = PackageManager::get_command_executor(true).unwrap();
-        manager.add_dependencies(to_add);
+        if is_development {
+            manager.add_development_dependencies(to_add);
+        } else {
+            manager.add_required_dependencies(to_add);
+        }
         manager.execute_command();
     }
     Ok(())
