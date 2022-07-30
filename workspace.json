@@ -1,7 +1,11 @@
 {
-  "version": 2,
   "projects": {
     "cinder": "apps/cinder",
     "esteem": "apps/esteem"
-  }
+  },
+  "dependencies": {
+    "required": [],
+    "development": ["@nxrs/cargo"]
+  },
+  "version": 2
 }
