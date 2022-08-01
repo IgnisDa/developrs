@@ -1,6 +1,11 @@
 [package]
 name = "esteem_core"
 version = "0.0.1"
+description = "The core APIs that are used by esteem to calculate dependencies"
+repository = "https://github.com/IgnisDa/developrs"
+authors = ["Diptesh Choudhuri <ignisda2001@gmail.com>"]
+readme = "README.md"
+license = "MIT"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

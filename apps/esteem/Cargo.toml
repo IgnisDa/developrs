@@ -9,7 +9,7 @@ license = "MIT"
 edition = "2021"
 
 [dependencies]
-esteem_core = { path  = "../../libs/esteem_core" }
+esteem_core = { version = "0.0.1", path  = "../../libs/esteem_core" }
 clap = { version = "3.0.4", features = ["cargo"] }
 duct = "0.13.5"
 env_logger = "0.9.0"

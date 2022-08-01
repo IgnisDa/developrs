@@ -10,40 +10,21 @@ use std::{
 use tempfile::NamedTempFile;
 
 #[derive(Debug)]
-pub struct CommandExecutor {
-    /// the installation subcommand of the package manager
-    install: String,
-    /// the remove subcommand of the package manager
-    remove: String,
-    /// the script execution binary
-    script_executor: String,
-    /// the command that executes normal scripts
-    command_executor: String,
+pub struct CommandExecutor<'a> {
     /// the command that has to be executed
     command_to_execute: Vec<String>,
     /// whether to directly call the command executor without using `script_executor`
     call_script_executor: bool,
-    /// the flag to use while adding development dependency
-    development_flag: String,
+    /// the package manager configuration for this command
+    package_manager: &'a PackageManager,
 }
 
-impl CommandExecutor {
-    fn new(
-        install: String,
-        remove: String,
-        script_executor: String,
-        command_executor: String,
-        development_flag: String,
-        call_script_executor: bool,
-    ) -> Self {
+impl CommandExecutor<'_> {
+    fn new(call_script_executor: bool, package_manager: &'static PackageManager) -> Self {
         Self {
-            install,
-            remove,
-            script_executor,
-            command_executor,
             command_to_execute: vec![],
             call_script_executor,
-            development_flag,
+            package_manager,
         }
     }
 
@@ -54,12 +35,14 @@ impl CommandExecutor {
 
     pub fn add_development_dependencies(&mut self, to_add: Vec<String>) {
         self.start_install_command();
-        self.command_to_execute.push(self.development_flag.clone());
+        self.command_to_execute
+            .push(self.package_manager.development_flag.clone());
         self.push_dependencies_args(to_add);
     }
 
     fn start_install_command(&mut self) {
-        self.command_to_execute.push(self.install.clone());
+        self.command_to_execute
+            .push(self.package_manager.install.clone());
     }
 
     fn push_dependencies_args(&mut self, to_add: Vec<String>) {
@@ -69,7 +52,8 @@ impl CommandExecutor {
     }
 
     pub fn remove_dependencies(&mut self, to_remove: Vec<String>) {
-        self.command_to_execute.push(self.remove.clone());
+        self.command_to_execute
+            .push(self.package_manager.remove.clone());
         to_remove.into_iter().for_each(|f| {
             self.command_to_execute.push(f);
         });
@@ -90,13 +74,19 @@ impl CommandExecutor {
     }
 
     pub fn execute_command(self) {
-        let command = cmd(&self.command_executor, &self.command_to_execute);
+        let command = cmd(
+            &self.package_manager.command_executor,
+            &self.command_to_execute,
+        );
         self.execute(command);
     }
 
     pub fn execute_script(self) {
         let command = match self.call_script_executor {
-            true => cmd(&self.script_executor, &self.command_to_execute),
+            true => cmd(
+                &self.package_manager.script_executor,
+                &self.command_to_execute,
+            ),
             false => {
                 let program = self.command_to_execute[..1].get(0).unwrap();
                 let args = &self.command_to_execute[1..];
@@ -116,7 +106,7 @@ impl CommandExecutor {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct PackageManager {
     /// the installation subcommand of the package manager
     install: String,
@@ -133,46 +123,19 @@ pub struct PackageManager {
 impl PackageManager {
     pub fn get_command_executor(
         call_script_executor: bool,
-    ) -> Result<CommandExecutor, LibraryError> {
+    ) -> Result<CommandExecutor<'static>, LibraryError> {
         let dir = read_dir(current_dir().unwrap()).unwrap();
         for file in dir {
-            let executor =
-                match file.unwrap().file_name().to_os_string().to_str().unwrap() {
-                    "yarn.lock" => {
-                        let pm = YARN_PACKAGE_MANAGER.clone();
-                        CommandExecutor::new(
-                            pm.install,
-                            pm.remove,
-                            pm.script_executor,
-                            pm.command_executor,
-                            pm.development_flag,
-                            call_script_executor,
-                        )
-                    }
-                    "pnpm-lock.yaml" => {
-                        let pm = PNPM_PACKAGE_MANAGER.clone();
-                        CommandExecutor::new(
-                            pm.install,
-                            pm.remove,
-                            pm.script_executor,
-                            pm.command_executor,
-                            pm.development_flag,
-                            call_script_executor,
-                        )
-                    }
-                    "package-lock.json" => {
-                        let pm = NPM_PACKAGE_MANAGER.clone();
-                        CommandExecutor::new(
-                            pm.install,
-                            pm.remove,
-                            pm.script_executor,
-                            pm.command_executor,
-                            pm.development_flag,
-                            call_script_executor,
-                        )
-                    }
-                    _ => continue,
-                };
+            let executor = match file.unwrap().file_name().to_os_string().to_str().unwrap() {
+                "yarn.lock" => CommandExecutor::new(call_script_executor, &YARN_PACKAGE_MANAGER),
+                "pnpm-lock.yaml" => {
+                    CommandExecutor::new(call_script_executor, &PNPM_PACKAGE_MANAGER)
+                }
+                "package-lock.json" => {
+                    CommandExecutor::new(call_script_executor, &NPM_PACKAGE_MANAGER)
+                }
+                _ => continue,
+            };
             return Ok(executor);
         }
         Err(LibraryError("Could not guess an appropriate NPM package manager. Only `NPM`, `YARN` and `PNPM` are supported. Please open an issue in the repository if you would like to see any other manager supported.".to_owned()))
