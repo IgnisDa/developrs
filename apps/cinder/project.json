@@ -3,7 +3,7 @@
   "sourceRoot": "apps/cinder/src",
   "targets": {
     "build": {
-      "executor": "@nxrs/cargo:build",
+      "executor": "@ignisda/nx-rust:build",
       "options": {
         "release": false
       },
@@ -14,11 +14,11 @@
       }
     },
     "test": {
-      "executor": "@nxrs/cargo:test",
+      "executor": "@ignisda/nx-rust:test",
       "options": {}
     },
     "lint": {
-      "executor": "@nxrs/cargo:clippy",
+      "executor": "@ignisda/nx-rust:clippy",
       "options": {
         "fix": false,
         "failOnWarnings": true,

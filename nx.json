@@ -23,5 +23,5 @@
       "dependsOn": ["^build"]
     }
   },
-  "plugins": ["@nxrs/cargo"]
+  "plugins": ["@ignisda/nx-rust"]
 }

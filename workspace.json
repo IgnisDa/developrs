@@ -6,7 +6,7 @@
   },
   "dependencies": {
     "required": [],
-    "development": ["@nxrs/cargo"]
+    "development": ["@ignisda/nx-rust"]
   },
   "version": 2
 }
