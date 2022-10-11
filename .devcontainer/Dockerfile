@@ -1,11 +1,28 @@
-FROM mcr.microsoft.com/vscode/devcontainers/rust
+FROM archlinux
 
-RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-   && apt-get -y install clang lld libpq-dev libssl-dev pkg-config \
-   && apt-get autoremove -y && apt-get clean -y
+ENV UUID=1000
+ENV GUID=${UUID}
+ENV USERNAME=code
 
-RUN cargo install sea-orm-cli ;\
-    cargo install sqlx-cli --no-default-features --features "postgres,native-tls" ;
+RUN pacman -Syyu --noconfirm reflector
+RUN reflector --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+RUN pacman -S --noconfirm --needed base-devel git sudo
 
-RUN cargo install cargo-edit ; \
-    cargo install cargo-watch
+RUN groupadd -g ${GUID} ${USERNAME}
+RUN useradd -ms /bin/bash ${USERNAME} -u ${UUID} -g ${USERNAME} -g wheel
+RUN echo "ALL ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME}
+RUN chmod 0440 /etc/sudoers.d/${USERNAME}
+
+RUN pacman -S --noconfirm rustup nodejs npm python3 python-pip fish curl wget
+RUN npm install --global pnpm yarn
+
+RUN wget "https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz" -O "/tmp/cargo-binstall.tgz"
+RUN tar zxvf "/tmp/cargo-binstall.tgz"
+RUN mv cargo-binstall "/usr/bin/"
+
+USER $USERNAME
+
+RUN rustup default stable
+RUN cargo binstall sea-orm-cli cargo-nextest cargo-watch --no-confirm
+RUN cargo install sqlx-cli --no-default-features --features "postgres,native-tls"
+RUN pip install httpie

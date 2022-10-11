@@ -12,18 +12,5 @@
     "GIT_COMMITTER_NAME": "${localEnv:GIT_COMMITTER_NAME}",
     "GIT_COMMITTER_EMAIL": "${localEnv:GIT_COMMITTER_EMAIL}",
     "VISUAL": "code --wait"
-  },
-  "features": {
-    "fish": "latest",
-    "node": {
-      "version": "16"
-    },
-    "rust": {
-      "version": "latest",
-      "profile": "default"
-    },
-    "python": {
-      "version": "os-provided"
-    }
   }
 }

@@ -1,4 +1,4 @@
-version: "3.9"
+version: '3.9'
 
 services:
   app:
@@ -8,7 +8,7 @@ services:
     volumes:
       - ..:/workspace:cached
     command: sleep infinity
-    user: vscode
+    user: code
 
   db:
     image: postgres:latest
