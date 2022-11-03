@@ -1,4 +1,4 @@
-FROM rust:1.58-buster as builder
+FROM rust:1.65-buster as builder
 RUN rustup target add x86_64-unknown-linux-musl
 RUN apt-get update && \
     apt-get -y install ca-certificates cmake musl-tools libssl-dev pkg-config libpq-dev && \
