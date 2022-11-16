@@ -8,7 +8,7 @@ ENV PKG_CONFIG_ALLOW_CROSS=1
 RUN cargo build --target x86_64-unknown-linux-musl --release --package cinder
 RUN strip /target/x86_64-unknown-linux-musl/release/cinder
 
-FROM alpine:3.8
+FROM alpine:3.17
 RUN apk --no-cache add ca-certificates
 ENV SERVER_HOST="0.0.0.0:80" \
     MODE="production"
