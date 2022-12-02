@@ -24,6 +24,6 @@ sqlx-core = { version = "0.5.10", features = [ "runtime-async-std-native-tls" ] 
 uuid = { version = "0.8", features = ["serde", "v4"] }
 
 [dependencies.sea-orm]
-version = "0.5.0"
+version = "0.10.5"
 features = ["sqlx-postgres", "macros", "runtime-async-std-native-tls", "debug-print"]
 default-features = false
