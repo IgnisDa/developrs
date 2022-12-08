@@ -1,0 +1,13 @@
+[package]
+name = "stacona_core"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+cc = "*"
+tree-sitter = "0.20.9"
+tree-sitter-rust = "0.20.1"
+tree-sitter-traversal = "0.1.2"
+tree-sitter-typescript = "0.20.1"

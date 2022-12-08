@@ -1,6 +1,7 @@
 [workspace]
 members = [
-    "libs/esteem_core",
-    "apps/esteem",
-    "apps/cinder",
+  "libs/esteem_core",
+  "apps/esteem",
+  "apps/cinder",
+  "libs/stacona_core"
 ]

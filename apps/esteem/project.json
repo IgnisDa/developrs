@@ -17,6 +17,10 @@
       "executor": "@ignisda/nx-rust:test",
       "options": {}
     },
+    "run": {
+      "executor": "@ignisda/nx-rust:run",
+      "options": {}
+    },
     "lint": {
       "executor": "@ignisda/nx-rust:clippy",
       "options": {

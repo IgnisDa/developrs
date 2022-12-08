@@ -651,9 +651,9 @@ checksum = "c1db59621ec70f09c5e9b597b220c7a2b43611f4710dc03ceb8748637775692c"
 
 [[package]]
 name = "cc"
-version = "1.0.72"
+version = "1.0.73"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "22a9137b95ea06864e018375b72adfb7db6e6f68cfc8df5a04d00288050485ee"
+checksum = "2fff2a6927b3bb87f9595d67196a70493f627687a71d87a0d692242c33f58c11"
 
 [[package]]
 name = "cfg-if"
@@ -2507,6 +2507,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 
 [[package]]
+name = "stacona_core"
+version = "0.1.0"
+dependencies = [
+ "cc",
+ "tree-sitter",
+ "tree-sitter-rust",
+ "tree-sitter-traversal",
+ "tree-sitter-typescript",
+]
+
+[[package]]
 name = "standback"
 version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2794,6 +2805,45 @@ checksum = "97d095ae15e245a057c8e8451bab9b3ee1e1f68e9ba2b4fbc18d0ac5237835f2"
 dependencies = [
  "pin-project 1.0.10",
  "tracing",
+]
+
+[[package]]
+name = "tree-sitter"
+version = "0.20.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d4423c784fe11398ca91e505cdc71356b07b1a924fc8735cfab5333afe3e18bc"
+dependencies = [
+ "cc",
+ "regex",
+]
+
+[[package]]
+name = "tree-sitter-rust"
+version = "0.20.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "13470fafb7327a3acf96f5bc1013b5539a899a182f01c59b5af53f6b93195717"
+dependencies = [
+ "cc",
+ "tree-sitter",
+]
+
+[[package]]
+name = "tree-sitter-traversal"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "df8a158225e4a4d8505f071340bba9edd109b23f01b70540dccb7c799868f307"
+dependencies = [
+ "tree-sitter",
+]
+
+[[package]]
+name = "tree-sitter-typescript"
+version = "0.20.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4e8ed0ecb931cdff13c6a13f45ccd615156e2779d9ffb0395864e05505e6e86d"
+dependencies = [
+ "cc",
+ "tree-sitter",
 ]
 
 [[package]]

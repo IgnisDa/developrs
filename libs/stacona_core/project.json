@@ -1,0 +1,19 @@
+{
+  "projectType": "library",
+  "sourceRoot": "libs/stacona_core/src",
+  "targets": {
+    "test": {
+      "executor": "@ignisda/nx-rust:nextest",
+      "options": {}
+    },
+    "lint": {
+      "executor": "@ignisda/nx-rust:clippy",
+      "options": {
+        "fix": false,
+        "failOnWarnings": true,
+        "noDeps": true
+      }
+    }
+  },
+  "tags": []
+}

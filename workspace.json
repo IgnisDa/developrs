@@ -2,7 +2,8 @@
   "projects": {
     "cinder": "apps/cinder",
     "esteem": "apps/esteem",
-    "esteem_core": "libs/esteem_core"
+    "esteem_core": "libs/esteem_core",
+    "stacona_core": "libs/stacona_core"
   },
   "dependencies": {
     "required": [],
