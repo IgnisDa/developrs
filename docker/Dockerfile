@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM archlinux/archlinux:latest
 
 LABEL maintainer="ignisda2001@gmail.com"
 
@@ -7,66 +7,49 @@ ARG BUILD_DATE
 # Labels.
 LABEL org.label-schema.schema-version="1.0"
 LABEL org.label-schema.build-date=$BUILD_DATE
-LABEL org.label-schema.name="IgnisDa/developr-workspace"
+LABEL org.label-schema.name="ignisda/archlinux"
 LABEL org.label-schema.description="The containerized workspace for smooth code development"
-LABEL org.label-schema.vcs-url="https://github.com/IgnisDa/developr"
+LABEL org.label-schema.vcs-url="https://github.com/ignisda/developr"
 
 ARG UUID=1000
 ARG GUID=$UUID
-ARG POSTGRES_VERSION=14
-ENV USERNAME=developr
-ENV HOME=/home/${USERNAME}
-ENV WORKSPACE="/workspace"
-ENV PATH="$PATH:/usr/lib/postgresql/${POSTGRES_VERSION}/bin"
-ENV PSQL_BASE_PATH="${WORKSPACE}/.postgresql"
-ENV PGDATA="${PSQL_BASE_PATH}/pgsql/data"
+ENV USERNAME=archlinux
 
-RUN set -x ; \
-    export DEBIAN_FRONTEND=noninteractive ; \
-    apt-get update -y && apt-get install -y curl wget gnupg2 lsb-release ; \
-    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - ;\
-    sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" >> /etc/apt/sources.list.d/pgdg.list' ;\
-    curl -fsSL https://deb.nodesource.com/setup_16.x | bash - ; \
-    apt-get update -y ;\
-    apt-get install -y nodejs ; \
-    npm --version && node --version && npm install --global yarn pnpm ; \
-    apt-get install -y libssl-dev pkg-config postgresql-${POSTGRES_VERSION} postgresql-contrib-${POSTGRES_VERSION} \
-    neovim bash python3 python3-pip python3-dev procps sudo psmisc libpq-dev fish git ; \
-    groupadd -g ${GUID} ${USERNAME} ; \
-    useradd -ms /bin/bash ${USERNAME} -u ${UUID} -g ${USERNAME} -g sudo ; \
-    echo "ALL ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} && chmod 0440 /etc/sudoers.d/${USERNAME} ; \
-    # Setup user workspace
-    mkdir -p ${WORKSPACE} && chown -R ${USERNAME}:${USERNAME} ${WORKSPACE} ; \
-    # Setup locales
-    echo en_US.UTF-8 UTF-8 > /etc/locale.gen ; \
-    locale-gen en_US.UTF-8 ; \
-    pip3 install cookiecutter poetry ; \
-    # Install just command runner
-    curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/bin ;\
-    # Install printr
-    curl https://raw.githubusercontent.com/IgnisDa/printr/main/get-printr.sh | sh -s -- --yes ; \
-    # Install tokei to count code count
-    wget --quiet -O tokei.tar.gz https://github.com/XAMPPRocky/tokei/releases/latest/download/tokei-x86_64-unknown-linux-gnu.tar.gz ;\
-    tar xf tokei.tar.gz -C /usr/local/bin ;
+RUN pacman -Syyu --noconfirm reflector ;\
+    reflector --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist ;\
+    pacman -S --noconfirm --needed base-devel git sudo
 
-USER ${USERNAME}
+RUN groupadd -g ${GUID} ${USERNAME} ;\
+    useradd -ms /bin/bash ${USERNAME} -u ${UUID} -g ${USERNAME} -g wheel ;\
+    echo "ALL ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} ;\
+    chmod 0440 /etc/sudoers.d/${USERNAME}
 
-RUN set -eux ; \
-    sudo chown -R ${USERNAME}:${USERNAME} ~/ ; \
-    git config --global pull.rebase true ; \
-    curl -sSL https://raw.githubusercontent.com/IgnisDa/Gitzer/main/get-gitzer.py | python3 ; \
-    npm config set store-dir ~/.pnpm-store
+RUN for pkg in rustup nodejs npm python3 fish curl wget python-pip; do pacman -S --noconfirm $pkg; done
 
-# Setup PostgreSQL server for user, taken from
-# https://github.com/gitpod-io/workspace-images/blob/master/postgres/Dockerfile
-RUN set -eux ; \
-    mkdir -p ${PSQL_BASE_PATH}/.pg_ctl/bin ${PSQL_BASE_PATH}/.pg_ctl/sockets \
-    && printf '#!/bin/bash\n[ ! -d $PGDATA ] && mkdir -p $PGDATA && initdb -D $PGDATA\npg_ctl -D $PGDATA -l ${PSQL_BASE_PATH}/.pg_ctl/log -o "-k ${PSQL_BASE_PATH}/.pg_ctl/sockets" start\n' > ${PSQL_BASE_PATH}/.pg_ctl/bin/pg_start \
-    && printf '#!/bin/bash\npg_ctl -D $PGDATA -l ${PSQL_BASE_PATH}/.pg_ctl/log -o "-k ${PSQL_BASE_PATH}/.pg_ctl/sockets" stop\n' > ${PSQL_BASE_PATH}/.pg_ctl/bin/pg_stop \
-    && chmod +x ${PSQL_BASE_PATH}/.pg_ctl/bin/* ; \
-    printf "sudo chown -R \$USERNAME:\$USERNAME \"\$PGDATA\"\n" | sudo tee -a /etc/bash.bashrc ; \
-    printf "if [ -z \"\$(ls -A \"\$PGDATA\")\" ];\n     then initdb;\nfi\n" | sudo tee -a /etc/bash.bashrc ; \
-    printf "[[ \$(pg_ctl status | grep PID) ]] || pg_start > /dev/null\n" | sudo tee -a /etc/bash.bashrc ;
 
-ENV PGHOSTADDR="127.0.0.1"
-ENV PATH="$PATH:${PSQL_BASE_PATH}/.pg_ctl/bin"
+RUN printf '#!/bin/sh\nexport PATH=$PATH:$HOME/.cargo/bin\n' >> /etc/profile.d/paths.sh ;\
+    printf '#!/bin/sh\nexport PATH=$PATH:$HOME/.local/bin\n' >> /etc/profile.d/paths.sh ;\
+    printf '#!/bin/sh\nexport PATH=$PATH:$HOME/.moon/tools/moon/latest\n' >> /etc/profile.d/paths.sh ;\
+    chmod +x /etc/profile.d/paths.sh
+
+RUN set -eu ;\
+    npm install -g yarn ;\
+    wget "https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz" -O "cargo-binstall.tgz" ;\
+    tar zxvf "cargo-binstall.tgz" ;\
+    mv "cargo-binstall" "/usr/bin/cargo-binstall"
+
+USER $USERNAME
+
+RUN rustup default stable
+
+RUN cd /tmp ;\
+    git clone "https://aur.archlinux.org/paru-bin.git" paru ;\
+    cd paru ;\
+    makepkg -si --noconfirm ;\
+    paru --version
+
+RUN curl -fsSL https://moonrepo.dev/install.sh | bash
+
+RUN cargo binstall cargo-nextest cargo-watch --no-confirm
+
+RUN paru -S httpie --noconfirm
