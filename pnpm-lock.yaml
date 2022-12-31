@@ -10,7 +10,6 @@ specifiers:
   '@nrwl/cli': 14.6.4
   '@nrwl/workspace': 14.6.4
   commitizen: 4.2.5
-  husky: 8.0.1
   nx: 14.6.4
   prettier: 2.7.1
   typescript: 4.7.4
@@ -25,7 +24,6 @@ devDependencies:
   '@nrwl/cli': 14.6.4
   '@nrwl/workspace': 14.6.4_bphldbyen6hdc2fs6vsq5rpjgq
   commitizen: 4.2.5
-  husky: 8.0.1
   nx: 14.6.4
   prettier: 2.7.1
   typescript: 4.7.4
@@ -473,7 +471,7 @@ packages:
       '@types/node': 18.0.6
       chalk: 4.1.2
       cosmiconfig: 7.0.1
-      cosmiconfig-typescript-loader: 2.0.2_tdn3ypgnfy6bmey2q4hu5jonwi
+      cosmiconfig-typescript-loader: 2.0.2_4zav32yaxxyiay2tbjqjsn6j64
       lodash: 4.17.21
       resolve-from: 5.0.0
       typescript: 4.7.4
@@ -1561,8 +1559,8 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
     dependencies:
-      is-text-path: 1.0.1
       JSONStream: 1.3.5
+      is-text-path: 1.0.1
       lodash: 4.17.21
       meow: 8.1.2
       split2: 3.2.2
@@ -1575,11 +1573,12 @@ packages:
       safe-buffer: 5.1.2
     dev: true
 
-  /cosmiconfig-typescript-loader/2.0.2_tdn3ypgnfy6bmey2q4hu5jonwi:
+  /cosmiconfig-typescript-loader/2.0.2_4zav32yaxxyiay2tbjqjsn6j64:
     resolution: {integrity: sha512-KmE+bMjWMXJbkWCeY4FJX/npHuZPNr9XF9q9CIQ/bpFwi1qHfCmSiKarrCcRa0LO4fWjk93pVoeRtJAkTGcYNw==}
     engines: {node: '>=12', npm: '>=6'}
     peerDependencies:
       '@types/node': '*'
+      cosmiconfig: '>=7'
       typescript: '>=3'
     dependencies:
       '@types/node': 18.0.6
@@ -2119,12 +2118,6 @@ packages:
   /human-signals/2.1.0:
     resolution: {integrity: sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==}
     engines: {node: '>=10.17.0'}
-    dev: true
-
-  /husky/8.0.1:
-    resolution: {integrity: sha512-xs7/chUH/CKdOCs7Zy0Aev9e/dKOMZf3K1Az1nar3tzlv0jfqnYtu235bstsWTmXOR0EfINrPa97yy4Lz6RiKw==}
-    engines: {node: '>=14'}
-    hasBin: true
     dev: true
 
   /iconv-lite/0.4.24:

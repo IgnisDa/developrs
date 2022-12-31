@@ -15,9 +15,7 @@ ARG UUID=1000
 ARG GUID=$UUID
 ENV USERNAME=archlinux
 
-RUN pacman -Syyu --noconfirm reflector ;\
-    reflector --latest 20 --protocol https --sort rate --save /etc/pacman.d/mirrorlist ;\
-    pacman -S --noconfirm --needed base-devel git sudo
+RUN pacman -Syyu --noconfirm --needed reflector base-devel git sudo
 
 RUN groupadd -g ${GUID} ${USERNAME} ;\
     useradd -ms /bin/bash ${USERNAME} -u ${UUID} -g ${USERNAME} -g wheel ;\
@@ -45,11 +43,12 @@ RUN rustup default stable
 RUN cd /tmp ;\
     git clone "https://aur.archlinux.org/paru-bin.git" paru ;\
     cd paru ;\
-    makepkg -si --noconfirm ;\
-    paru --version
+    makepkg -si --noconfirm
 
 RUN curl -fsSL https://moonrepo.dev/install.sh | bash
 
 RUN cargo binstall cargo-nextest cargo-watch --no-confirm
 
 RUN paru -S httpie --noconfirm
+
+RUN npm config set store-dir "$HOME/.store"

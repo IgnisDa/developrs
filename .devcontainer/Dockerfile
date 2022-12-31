@@ -1,4 +1,4 @@
-FROM ignisda/archlinux
+FROM ignisda/archlinux:latest
 
 USER root
 

@@ -1,6 +1,7 @@
 {
   "name": "developrs",
   "dockerComposeFile": "docker-compose.yml",
+  "remoteUser": "archlinux",
   "service": "app",
   "forwardPorts": [],
   "workspaceFolder": "/workspace",
