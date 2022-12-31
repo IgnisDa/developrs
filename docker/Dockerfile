@@ -24,6 +24,8 @@ RUN groupadd -g ${GUID} ${USERNAME} ;\
 
 RUN for pkg in rustup nodejs npm python3 fish curl wget python-pip; do pacman -S --noconfirm $pkg; done
 
+RUN sed -e '/NoProgressBar/ s/^#*/#/' -i /etc/pacman.conf ;\
+    sed -e '/Color/ s/^#//' -i /etc/pacman.conf
 
 RUN printf '#!/bin/sh\nexport PATH=$PATH:$HOME/.cargo/bin\n' >> /etc/profile.d/paths.sh ;\
     printf '#!/bin/sh\nexport PATH=$PATH:$HOME/.local/bin\n' >> /etc/profile.d/paths.sh ;\
@@ -49,6 +51,6 @@ RUN curl -fsSL https://moonrepo.dev/install.sh | bash
 
 RUN cargo binstall cargo-nextest cargo-watch --no-confirm
 
-RUN paru -S httpie --noconfirm
+RUN paru -S --noconfirm neovim httpie
 
 RUN npm config set store-dir "$HOME/.store"
