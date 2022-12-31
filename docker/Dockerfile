@@ -51,6 +51,6 @@ RUN curl -fsSL https://moonrepo.dev/install.sh | bash
 
 RUN cargo binstall cargo-nextest cargo-watch --no-confirm
 
-RUN paru -S --noconfirm neovim httpie
+RUN paru -S --noconfirm neovim httpie tokei-bin
 
 RUN npm config set store-dir "$HOME/.store"
