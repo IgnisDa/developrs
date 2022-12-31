@@ -33,10 +33,12 @@ jobs:
         run: echo "date=$(date -u +'%Y-%m-%dT')" >> $GITHUB_OUTPUT
 
       - name: Build and push latest tag
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: .
           build-args: BUILD_DATE=${{ steps.args.outputs.date }}
           file: ./docker/Dockerfile
           push: true
           tags: ignisda/archlinux:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
