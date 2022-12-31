@@ -2,5 +2,4 @@
 members = [
     "libs/esteem_core",
     "apps/esteem",
-    "apps/cinder",
 ]
