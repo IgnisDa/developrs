@@ -33,7 +33,7 @@ RUN printf '#!/bin/sh\nexport PATH=$PATH:$HOME/.cargo/bin\n' >> /etc/profile.d/p
     chmod +x /etc/profile.d/paths.sh
 
 RUN set -eu ;\
-    npm install -g yarn ;\
+    npm install -g yarn zx ;\
     wget "https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz" -O "cargo-binstall.tgz" ;\
     tar zxvf "cargo-binstall.tgz" ;\
     mv "cargo-binstall" "/usr/bin/cargo-binstall"
