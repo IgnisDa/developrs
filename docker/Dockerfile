@@ -27,6 +27,9 @@ RUN for pkg in rustup nodejs npm python3 fish curl wget python-pip; do pacman -S
 RUN sed -e '/NoProgressBar/ s/^#*/#/' -i /etc/pacman.conf ;\
     sed -e '/Color/ s/^#//' -i /etc/pacman.conf
 
+RUN curl https://zyedidia.github.io/eget.sh | sh ;\
+    mv eget /usr/bin/eget
+
 RUN printf '#!/bin/sh\nexport PATH=$PATH:$HOME/.cargo/bin\n' >> /etc/profile.d/paths.sh ;\
     printf '#!/bin/sh\nexport PATH=$PATH:$HOME/.local/bin\n' >> /etc/profile.d/paths.sh ;\
     printf '#!/bin/sh\nexport PATH=$PATH:$HOME/.moon/tools/moon/latest\n' >> /etc/profile.d/paths.sh ;\
