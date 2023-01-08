@@ -1,3 +1,5 @@
+# DEV: Just collapsing the `RUN` commands into one does not reduce the final image size.
+
 FROM archlinux/archlinux:latest
 
 LABEL maintainer="ignisda2001@gmail.com"
