@@ -15,47 +15,39 @@ ARG UUID=1000
 ARG GUID=$UUID
 ENV USERNAME=archlinux
 
-RUN pacman -Syyu --noconfirm --needed reflector base-devel git sudo
-
-RUN groupadd -g ${GUID} ${USERNAME} ;\
+RUN set -eu ;\
+    cd /tmp ;\
+    pacman -Syyu --noconfirm --needed reflector base-devel git sudo ;\
+    groupadd -g ${GUID} ${USERNAME} ;\
     useradd -ms /bin/bash ${USERNAME} -u ${UUID} -g ${USERNAME} -g wheel ;\
     echo "ALL ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} ;\
-    chmod 0440 /etc/sudoers.d/${USERNAME}
-
-RUN for pkg in rustup nodejs npm python3 fish curl wget python-pip; do pacman -S --noconfirm $pkg; done
-
-RUN sed -e '/NoProgressBar/ s/^#*/#/' -i /etc/pacman.conf ;\
-    sed -e '/Color/ s/^#//' -i /etc/pacman.conf
-
-RUN curl https://zyedidia.github.io/eget.sh | sh ;\
-    mv eget /usr/bin/eget
-
-RUN printf '#!/bin/sh\nexport PATH=$PATH:$HOME/.cargo/bin\n' >> /etc/profile.d/paths.sh ;\
+    chmod 0440 /etc/sudoers.d/${USERNAME} ;\
+    for pkg in rustup nodejs npm python3 fish curl wget python-pip; do pacman -S --noconfirm $pkg; done ;\
+    sed -e '/NoProgressBar/ s/^#*/#/' -i /etc/pacman.conf ;\
+    sed -e '/Color/ s/^#//' -i /etc/pacman.conf ;\
+    sed -e '/ParallelDownloads/ s/^#*/#/' -i /etc/pacman.conf ;\
+    curl https://zyedidia.github.io/eget.sh | sh ;\
+    mv eget /usr/bin/eget ;\
+    printf '#!/bin/sh\nexport PATH=$PATH:$HOME/.cargo/bin\n' >> /etc/profile.d/paths.sh ;\
     printf '#!/bin/sh\nexport PATH=$PATH:$HOME/.local/bin\n' >> /etc/profile.d/paths.sh ;\
     printf '#!/bin/sh\nexport PATH=$PATH:$HOME/.moon/tools/moon/latest\n' >> /etc/profile.d/paths.sh ;\
-    chmod +x /etc/profile.d/paths.sh
-
-RUN set -eu ;\
+    chmod +x /etc/profile.d/paths.sh ;\
     npm install -g yarn zx ;\
     wget "https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz" -O "cargo-binstall.tgz" ;\
     tar zxvf "cargo-binstall.tgz" ;\
-    mv "cargo-binstall" "/usr/bin/cargo-binstall"
+    mv "cargo-binstall" "/usr/bin/cargo-binstall" ;\
+    rm "cargo-binstall.tgz"
 
-USER $USERNAME
+USER ${USERNAME}
 
-RUN rustup default stable
-
-RUN cd /tmp ;\
+RUN set -eu ;\
+    cd /tmp ;\
+    rustup default stable ;\
     git clone "https://aur.archlinux.org/paru-bin.git" paru ;\
     cd paru ;\
-    makepkg -si --noconfirm
-
-RUN curl -fsSL https://moonrepo.dev/install.sh | bash
-
-RUN cargo binstall cargo-nextest cargo-watch --no-confirm
-
-RUN paru -S --noconfirm neovim httpie tokei-bin
-
-RUN npm config set store-dir "$HOME/.store"
-
-RUN git config --global init.defaultBranch main
+    makepkg -si --noconfirm ;\
+    curl -fsSL https://moonrepo.dev/install.sh | bash ;\
+    cargo binstall cargo-nextest cargo-watch --no-confirm ;\
+    paru -S --noconfirm neovim httpie tokei-bin ;\
+    npm config set store-dir "$HOME/.store" ;\
+    git config --global init.defaultBranch main
