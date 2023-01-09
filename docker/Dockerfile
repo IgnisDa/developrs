@@ -44,11 +44,6 @@ RUN set -eu ;\
     mv "cargo-binstall" "/usr/bin/cargo-binstall" ;\
     rm -rf "cargo-binstall.tgz"
 
-ADD docker/init-ssh.sh /init-ssh.sh
-
-RUN chmod +x /init-ssh.sh ;\
-    /init-ssh.sh ;\
-    rm -rf /init-ssh.sh
 
 USER $USERNAME
 
@@ -70,3 +65,12 @@ RUN paru -S --noconfirm neovim httpie tokei-bin helix
 RUN npm config set store-dir "$HOME/.store"
 
 RUN git config --global init.defaultBranch main
+
+USER root
+
+ADD docker/init-ssh.sh /init-ssh.sh
+RUN chmod +x /init-ssh.sh ;\
+    /init-ssh.sh ;\
+    rm -rf /init-ssh.sh
+
+USER ${USERNAME}

@@ -3,7 +3,6 @@
 set -uex
 
 SSHD_PORT=2222
-echo "${USERNAME}:password" | chpasswd
 
 pacman -S --noconfirm openssh lsof
 groupadd ssh
@@ -30,5 +29,4 @@ exec "$@"
 EOF
 chmod +x /usr/local/share/ssh-init.sh
 
-#ssh-keygen -A
-#/usr/local/share/ssh-init.sh
+ssh-keygen -A
