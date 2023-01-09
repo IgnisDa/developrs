@@ -43,13 +43,11 @@ RUN set -eu ;\
     tar zxvf "cargo-binstall.tgz" ;\
     mv "cargo-binstall" "/usr/bin/cargo-binstall"
 
-RUN rustup default stable ;\
-    rustup component add rust-analyzer ;\
-    ln -s $(rustup which rust-analyzer) "/usr/local/bin/rust-analyzer"
-        
 USER $USERNAME
 
-RUN rustup default stable
+RUN rustup default stable ;\
+    rustup component add rust-analyzer ;\
+    sudo ln -s $(rustup which rust-analyzer) "/usr/local/bin/rust-analyzer"
 
 RUN cd /tmp ;\
     git clone "https://aur.archlinux.org/paru-bin.git" paru ;\
