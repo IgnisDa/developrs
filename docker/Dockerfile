@@ -41,7 +41,14 @@ RUN set -eu ;\
     npm install -g yarn zx ;\
     wget "https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz" -O "cargo-binstall.tgz" ;\
     tar zxvf "cargo-binstall.tgz" ;\
-    mv "cargo-binstall" "/usr/bin/cargo-binstall"
+    mv "cargo-binstall" "/usr/bin/cargo-binstall" ;\
+    rm -rf "cargo-binstall.tgz"
+
+ADD docker/init-ssh.sh /init-ssh.sh
+
+RUN chmod +x /init-ssh.sh ;\
+    /init-ssh.sh ;\
+    rm -rf /init-ssh.sh
 
 USER $USERNAME
 
