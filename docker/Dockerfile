@@ -43,7 +43,8 @@ RUN set -eu ;\
     tar zxvf "cargo-binstall.tgz" ;\
     mv "cargo-binstall" "/usr/bin/cargo-binstall"
 
-RUN rustup component add rust-analyzer ;\
+RUN rustup default stable ;\
+    rustup component add rust-analyzer ;\
     ln -s $(rustup which rust-analyzer) "/usr/local/bin/rust-analyzer"
         
 USER $USERNAME
