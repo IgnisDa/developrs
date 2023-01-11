@@ -33,8 +33,8 @@ RUN curl https://zyedidia.github.io/eget.sh | sh ;\
     mv eget /usr/bin/eget
 
 RUN printf '#!/bin/sh\nexport PATH=$PATH:$HOME/.cargo/bin\n' >> /etc/profile.d/paths.sh ;\
-    printf '#!/bin/sh\nexport PATH=$PATH:$HOME/.local/bin\n' >> /etc/profile.d/paths.sh ;\
-    printf '#!/bin/sh\nexport PATH=$PATH:$HOME/.moon/tools/moon/latest\n' >> /etc/profile.d/paths.sh ;\
+    printf '#export PATH=$PATH:$HOME/.local/bin\n' >> /etc/profile.d/paths.sh ;\
+    printf '#export PATH=$PATH:$HOME/.moon/tools/moon/latest\n' >> /etc/profile.d/paths.sh ;\
     chmod +x /etc/profile.d/paths.sh
 
 RUN set -eu ;\
