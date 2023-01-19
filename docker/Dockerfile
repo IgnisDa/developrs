@@ -64,7 +64,9 @@ RUN rustup default stable ;\
 RUN cd /tmp ;\
     git clone "https://aur.archlinux.org/paru-bin.git" paru ;\
     cd paru ;\
-    makepkg -si --noconfirm
+    makepkg -si --noconfirm ;\
+    cd .. ;\
+    rm -rf paru
 
 RUN curl -fsSL https://moonrepo.dev/install.sh | bash
 
