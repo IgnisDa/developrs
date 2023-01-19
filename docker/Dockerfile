@@ -35,9 +35,9 @@ RUN curl https://zyedidia.github.io/eget.sh | sh ;\
 
 COPY <<EOF /etc/profile.d/paths.sh
 #!/bin/sh
-export PATH="$PATH:$HOME/.cargo/bin"
-export PATH="$PATH:$HOME/.local/bin"
-export PATH="$PATH:$HOME/.moon/tools/moon/latest"
+export PATH='$PATH:$HOME/.cargo/bin'
+export PATH='$PATH:$HOME/.local/bin'
+export PATH='$PATH:$HOME/.moon/tools/moon/latest'
 EOF
 
 RUN chmod +x /etc/profile.d/paths.sh
