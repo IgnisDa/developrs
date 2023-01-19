@@ -1,5 +1,6 @@
-# DEV: Just collapsing the `RUN` commands into one does not reduce the final image size.
+# syntax=docker/dockerfile:1.3-labs
 
+# DEV: Just collapsing the `RUN` commands into one does not reduce the final image size.
 FROM archlinux/archlinux:latest
 
 LABEL maintainer="ignisda2001@gmail.com"
@@ -32,10 +33,14 @@ RUN sed -e '/NoProgressBar/ s/^#*/#/' -i /etc/pacman.conf ;\
 RUN curl https://zyedidia.github.io/eget.sh | sh ;\
     mv eget /usr/bin/eget
 
-RUN printf '#!/bin/sh\nexport PATH=$PATH:$HOME/.cargo/bin\n' >> /etc/profile.d/paths.sh ;\
-    printf 'export PATH=$PATH:$HOME/.local/bin\n' >> /etc/profile.d/paths.sh ;\
-    printf 'export PATH=$PATH:$HOME/.moon/tools/moon/latest\n' >> /etc/profile.d/paths.sh ;\
-    chmod +x /etc/profile.d/paths.sh
+COPY <<EOF /etc/profile.d/paths.sh
+#!/bin/sh
+export PATH="$PATH:$HOME/.cargo/bin"
+export PATH="$PATH:$HOME/.local/bin"
+export PATH="$PATH:$HOME/.moon/tools/moon/latest"
+EOF
+
+RUN chmod +x /etc/profile.d/paths.sh
 
 RUN set -eu ;\
     npm install -g yarn zx ;\
@@ -70,3 +75,5 @@ RUN paru -S --noconfirm neovim httpie tokei-bin helix lazygit
 RUN npm config set store-dir "$HOME/.store"
 
 RUN git config --global init.defaultBranch main
+
+RUN echo "source /etc/profile.d/paths.sh" >> "${HOME}/.config/fish/config.fish"
