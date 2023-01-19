@@ -33,8 +33,6 @@ RUN sed -e '/NoProgressBar/ s/^#*/#/' -i /etc/pacman.conf ;\
 RUN curl https://zyedidia.github.io/eget.sh | sh ;\
     mv eget /usr/bin/eget
 
-RUN fish -c "set -U fish_user_paths $HOME/.cargo/bin $HOME/.local/bin $HOME/.moon/tools/moon/latest"
-
 RUN set -eu ;\
     npm install -g yarn zx ;\
     wget "https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz" -O "cargo-binstall.tgz" ;\
@@ -70,5 +68,7 @@ RUN paru -S --noconfirm neovim httpie tokei-bin helix lazygit
 RUN npm config set store-dir "$HOME/.store"
 
 RUN git config --global init.defaultBranch main
+
+RUN fish -c "set -U fish_user_paths $HOME/.cargo/bin $HOME/.local/bin $HOME/.moon/tools/moon/latest"
 
 CMD ["fish"]
