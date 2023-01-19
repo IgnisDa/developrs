@@ -33,14 +33,7 @@ RUN sed -e '/NoProgressBar/ s/^#*/#/' -i /etc/pacman.conf ;\
 RUN curl https://zyedidia.github.io/eget.sh | sh ;\
     mv eget /usr/bin/eget
 
-COPY <<EOF /etc/profile.d/paths.sh
-#!/bin/sh
-export PATH='$PATH:$HOME/.cargo/bin'
-export PATH='$PATH:$HOME/.local/bin'
-export PATH='$PATH:$HOME/.moon/tools/moon/latest'
-EOF
-
-RUN chmod +x /etc/profile.d/paths.sh
+RUN fish -c "set -U fish_user_paths $HOME/.cargo/bin $HOME/.local/bin $HOME/.moon/tools/moon/latest"
 
 RUN set -eu ;\
     npm install -g yarn zx ;\
@@ -77,8 +70,5 @@ RUN paru -S --noconfirm neovim httpie tokei-bin helix lazygit
 RUN npm config set store-dir "$HOME/.store"
 
 RUN git config --global init.defaultBranch main
-
-RUN mkdir -p "${HOME}/.config/fish" ;\
-    echo "source /etc/profile.d/paths.sh" >> "${HOME}/.config/fish/config.fish"
 
 CMD ["fish"]
