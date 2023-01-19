@@ -76,4 +76,7 @@ RUN npm config set store-dir "$HOME/.store"
 
 RUN git config --global init.defaultBranch main
 
-RUN echo "source /etc/profile.d/paths.sh" >> "${HOME}/.config/fish/config.fish"
+RUN mkdir -p "${HOME}/.config/fish" ;\
+    echo "source /etc/profile.d/paths.sh" >> "${HOME}/.config/fish/config.fish"
+
+CMD ["fish"]
