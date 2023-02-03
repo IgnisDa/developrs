@@ -40,5 +40,3 @@ jobs:
           file: ./docker/Dockerfile
           push: true
           tags: ignisda/archlinux:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
