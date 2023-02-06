@@ -69,6 +69,6 @@ RUN npm config set store-dir "$HOME/.store"
 
 RUN git config --global init.defaultBranch main
 
-RUN fish -c "set -U fish_user_paths $HOME/.cargo/bin $HOME/.local/bin $HOME/.moon/tools/moon/latest $HOME/.surrealdb"
+RUN fish -c "set -Ua fish_user_paths $HOME/.cargo/bin $HOME/.local/bin $HOME/.moon/tools/moon/latest"
 
 CMD ["fish"]
