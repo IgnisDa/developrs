@@ -25,7 +25,7 @@ RUN groupadd -g ${GUID} ${USERNAME} ;\
     echo "ALL ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} ;\
     chmod 0440 /etc/sudoers.d/${USERNAME}
 
-RUN for pkg in rustup nodejs npm python3 fish curl wget python-pip; do pacman -S --noconfirm $pkg; done
+RUN for pkg in nushell rustup nodejs npm python3 fish curl wget python-pip; do pacman -S --noconfirm $pkg; done
 
 RUN sed -e '/NoProgressBar/ s/^#*/#/' -i /etc/pacman.conf ;\
     sed -e '/Color/ s/^#//' -i /etc/pacman.conf
@@ -63,7 +63,7 @@ RUN curl -fsSL https://moonrepo.dev/install.sh | bash
 
 RUN cargo binstall cargo-nextest cargo-watch --no-confirm
 
-RUN paru -S --noconfirm neovim httpie tokei-bin helix helixbinhx gitui mprocs-bin
+RUN paru -S --noconfirm neovim httpie tokei-bin helix gitui mprocs-bin
 
 RUN npm config set store-dir "$HOME/.store"
 
