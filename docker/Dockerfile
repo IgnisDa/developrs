@@ -60,6 +60,7 @@ RUN cd /tmp ;\
     rm -rf paru
 
 RUN curl -fsSL https://moonrepo.dev/install.sh | bash
+RUN curl -fsSL https://moonrepo.dev/install/proto.sh | bash
 
 RUN cargo binstall cargo-nextest cargo-watch --no-confirm
 
@@ -69,6 +70,6 @@ RUN npm config set store-dir "$HOME/.store"
 
 RUN git config --global init.defaultBranch main
 
-RUN fish -c "set -Ua fish_user_paths $HOME/.cargo/bin $HOME/.local/bin $HOME/.moon/tools/moon/latest"
+RUN fish -c "set -Ua fish_user_paths $HOME/.cargo/bin $HOME/.local/bin $HOME/.moon/tools/moon/latest $HOME/.proto/bin"
 
 CMD ["fish"]
