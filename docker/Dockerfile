@@ -52,11 +52,11 @@ RUN rustup default stable ;\
     rustup component add rust-analyzer ;\
     sudo ln -s $(rustup which rust-analyzer) "/usr/local/bin/rust-analyzer"
 
-RUN cd /tmp ;\
+RUN pushd /tmp ;\
     git clone "https://aur.archlinux.org/paru-bin.git" paru ;\
-    cd paru ;\
+    pushd paru ;\
     makepkg -si --noconfirm ;\
-    cd .. ;\
+    popd -2 ;\
     rm -rf paru
 
 RUN curl -fsSL https://moonrepo.dev/install.sh | bash
