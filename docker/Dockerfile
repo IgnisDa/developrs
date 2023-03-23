@@ -18,6 +18,9 @@ ARG UUID=1000
 ARG GUID=$UUID
 ENV USERNAME=archlinux
 
+RUN sed -e '/NoProgressBar/ s/^#*/#/' -i /etc/pacman.conf ;\
+    sed -e '/Color/ s/^#//' -i /etc/pacman.conf
+
 RUN pacman -Syyu --noconfirm --needed reflector base-devel git sudo
 
 RUN groupadd -g ${GUID} ${USERNAME} ;\
@@ -25,10 +28,7 @@ RUN groupadd -g ${GUID} ${USERNAME} ;\
     echo "ALL ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} ;\
     chmod 0440 /etc/sudoers.d/${USERNAME}
 
-RUN for pkg in nushell rustup nodejs npm python3 fish curl wget python-pip; do pacman -S --noconfirm $pkg; done
-
-RUN sed -e '/NoProgressBar/ s/^#*/#/' -i /etc/pacman.conf ;\
-    sed -e '/Color/ s/^#//' -i /etc/pacman.conf
+RUN for pkg in rustup nodejs npm python3 fish curl wget python-pip; do pacman -S --noconfirm $pkg; done
 
 RUN curl https://zyedidia.github.io/eget.sh | sh ;\
     mv eget /usr/bin/eget
