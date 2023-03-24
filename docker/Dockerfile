@@ -62,7 +62,7 @@ RUN pushd /tmp ;\
 RUN curl -fsSL https://moonrepo.dev/install.sh | bash
 RUN curl -fsSL https://moonrepo.dev/install/proto.sh | bash
 
-RUN cargo binstall cargo-nextest cargo-watch --no-confirm
+RUN cargo binstall cargo-nextest cargo-watch cargo-udeps --no-confirm
 
 RUN paru -S --noconfirm httpie tokei-bin helix-git gitui mprocs-bin
 
