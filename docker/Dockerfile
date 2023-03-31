@@ -64,7 +64,7 @@ RUN curl -fsSL https://moonrepo.dev/install/proto.sh | bash
 
 RUN cargo binstall cargo-nextest cargo-watch cargo-udeps --no-confirm
 
-RUN paru -S --noconfirm httpie tokei-bin helix-git gitui mprocs-bin
+RUN paru -S --noconfirm httpie tokei-bin helix helixbinhx gitui mprocs-bin
 
 RUN npm config set store-dir "$HOME/.store"
 
