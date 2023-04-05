@@ -17,6 +17,7 @@ LABEL org.label-schema.vcs-url="https://github.com/ignisda/developr"
 ARG UUID=1000
 ARG GUID=$UUID
 ENV USERNAME=archlinux
+ENV TZ="Asia/Kolkata"
 
 RUN sed -e '/NoProgressBar/ s/^#*/#/' -i /etc/pacman.conf ;\
     sed -e '/Color/ s/^#//' -i /etc/pacman.conf
