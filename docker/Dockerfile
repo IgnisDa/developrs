@@ -35,7 +35,6 @@ RUN curl https://zyedidia.github.io/eget.sh | sh ;\
     mv eget /usr/bin/eget
 
 RUN set -eu ;\
-    npm install -g yarn zx ;\
     wget "https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz" -O "cargo-binstall.tgz" ;\
     tar zxvf "cargo-binstall.tgz" ;\
     mv "cargo-binstall" "/usr/bin/cargo-binstall" ;\
@@ -71,12 +70,13 @@ RUN npm config set store-dir "$HOME/.store"
 
 RUN git config --global init.defaultBranch main
 
-RUN fish -c "set -Ua fish_user_paths \
+SHELL ["/usr/bin/fish", "--command"]
+
+RUN set -Ua fish_user_paths \
     $HOME/.cargo/bin \
     $HOME/.local/bin \
     $HOME/.moon/bin \
     $HOME/.proto/bin \
-    $HOME/.proto/tools/node/globals/bin \
-    "
+    $HOME/.proto/tools/node/globals/bin
 
-CMD ["fish"]
+RUN for pkg in yarn zx; proto install-global node $pkg; end
