@@ -79,4 +79,4 @@ RUN set -Ua fish_user_paths \
 RUN curl -fsSL https://moonrepo.dev/install/moon.sh | bash && moon --version
 RUN curl -fsSL https://moonrepo.dev/install/proto.sh | bash && proto --version
 
-RUN for pkg in yarn zx; proto install-global node $pkg; end
+RUN proto install-global node zx
