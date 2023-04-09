@@ -59,9 +59,6 @@ RUN pushd /tmp ;\
     popd -2 ;\
     rm -rf paru
 
-RUN curl -fsSL https://moonrepo.dev/install/moon.sh | bash
-RUN curl -fsSL https://moonrepo.dev/install/proto.sh | bash
-
 RUN cargo binstall cargo-nextest cargo-watch cargo-udeps --no-confirm
 
 RUN paru -S --noconfirm httpie tokei-bin helix helixbinhx gitui mprocs-bin
@@ -78,5 +75,8 @@ RUN set -Ua fish_user_paths \
     $HOME/.moon/bin \
     $HOME/.proto/bin \
     $HOME/.proto/tools/node/globals/bin
+
+RUN curl -fsSL https://moonrepo.dev/install/moon.sh | bash && moon --version
+RUN curl -fsSL https://moonrepo.dev/install/proto.sh | bash && proto --version
 
 RUN for pkg in yarn zx; proto install-global node $pkg; end
