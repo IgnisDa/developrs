@@ -61,7 +61,7 @@ RUN pushd /tmp ;\
 
 RUN cargo binstall cargo-nextest cargo-watch cargo-udeps --no-confirm
 
-RUN paru -S --noconfirm httpie tokei-bin helix helixbinhx gitui mprocs-bin lf
+RUN paru -S --noconfirm httpie tokei-bin helix helixbinhx gitui mprocs-bin lf marksman-bin
 
 RUN npm config set store-dir "$HOME/.store"
 
