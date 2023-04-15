@@ -12,7 +12,7 @@ LABEL org.label-schema.schema-version="1.0"
 LABEL org.label-schema.build-date=$BUILD_DATE
 LABEL org.label-schema.name="ignisda/archlinux"
 LABEL org.label-schema.description="The containerized workspace for smooth code development"
-LABEL org.label-schema.vcs-url="https://github.com/ignisda/developr"
+LABEL org.label-schema.vcs-url="https://github.com/ignisda/developrs"
 
 ARG UUID=1000
 ARG GUID=$UUID
