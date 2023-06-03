@@ -77,6 +77,7 @@ RUN set -Ua fish_user_paths \
 RUN curl -fsSL https://moonrepo.dev/install/moon.sh | bash && moon --version
 RUN curl -fsSL https://moonrepo.dev/install/proto.sh | bash && proto --version
 
+RUN mkdir -p ~/.config/fish/completions
 RUN moon completions --shell fish > ~/.config/fish/completions/moon.fish
 RUN proto completions --shell fish > ~/.config/fish/completions/proto.fish
 
