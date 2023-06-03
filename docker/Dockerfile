@@ -48,10 +48,6 @@ RUN chmod +x /init-ssh.sh ;\
 
 USER $USERNAME
 
-RUN rustup default stable ;\
-    rustup component add rust-analyzer ;\
-    sudo ln -s $(rustup which rust-analyzer) "/usr/local/bin/rust-analyzer"
-
 RUN pushd /tmp ;\
     git clone "https://aur.archlinux.org/paru-bin.git" paru ;\
     pushd paru ;\
@@ -61,7 +57,7 @@ RUN pushd /tmp ;\
 
 RUN cargo binstall cargo-nextest cargo-watch cargo-udeps --no-confirm
 
-RUN paru -S --noconfirm httpie tokei-bin helix helixbinhx gitui mprocs-bin lf marksman-bin
+RUN paru -S --noconfirm httpie tokei-bin helix helixbinhx gitui mprocs-bin lf marksman-bin rust-analyzer
 
 RUN npm config set store-dir "$HOME/.store"
 
