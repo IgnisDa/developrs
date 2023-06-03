@@ -55,6 +55,8 @@ RUN pushd /tmp ;\
     popd -2 ;\
     rm -rf paru
 
+RUN rustup default stable
+
 RUN cargo binstall cargo-nextest cargo-watch cargo-udeps --no-confirm
 
 RUN paru -S --noconfirm httpie tokei-bin helix helixbinhx gitui mprocs-bin lf marksman-bin rust-analyzer
