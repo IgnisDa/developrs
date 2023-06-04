@@ -24,10 +24,10 @@ RUN sed -e '/NoProgressBar/ s/^#*/#/' -i /etc/pacman.conf ;\
 
 RUN pacman -Syyu --noconfirm --needed reflector base-devel git sudo
 
-RUN groupadd -g ${GUID} ${USERNAME} ;\
-    useradd -ms /bin/bash ${USERNAME} -u ${UUID} -g ${USERNAME} -g wheel ;\
-    echo "ALL ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME} ;\
-    chmod 0440 /etc/sudoers.d/${USERNAME}
+RUN groupadd -g "${GUID}" "${USERNAME}" ;\
+    useradd -ms /bin/bash "${USERNAME}" -u "${UUID}" -g "${USERNAME}" -g wheel ;\
+    echo "ALL ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/${USERNAME}" ;\
+    chmod 0440 "/etc/sudoers.d/${USERNAME}"
 
 RUN pacman -S --noconfirm rustup nodejs npm python3 fish curl wget python-pip openssl-1.1
 
