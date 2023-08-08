@@ -32,8 +32,7 @@ RUN groupadd -g "${GUID}" "${USERNAME}" ;\
 RUN pacman -S --noconfirm rustup nodejs npm python3 fish curl wget python-pip openssl-1.1
 
 RUN curl https://zyedidia.github.io/eget.sh | sh ;\
-    mv eget /usr/bin/eget ;\
-    eget --asset "^gnu" ouch-org/ouch --to /usr/local/bin
+    mv eget /usr/bin/eget
 
 RUN set -eu ;\
     wget "https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz" -O "cargo-binstall.tgz" ;\
@@ -60,9 +59,7 @@ RUN rustup default stable
 
 RUN cargo binstall cargo-nextest cargo-watch cargo-udeps --no-confirm
 
-RUN paru -S --noconfirm httpie tokei helix helixbinhx gitui mprocs-bin lf marksman-bin rust-analyzer
-
-RUN npm config set store-dir "$HOME/.store"
+RUN paru -S --noconfirm httpie tokei helix helixbinhx gitui mprocs-bin lf marksman-bin rust-analyzer ouch
 
 RUN git config --global init.defaultBranch main
 
