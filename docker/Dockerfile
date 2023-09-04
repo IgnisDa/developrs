@@ -57,7 +57,7 @@ RUN pushd /tmp ;\
 
 RUN rustup default stable
 
-RUN cargo binstall cargo-nextest cargo-watch cargo-udeps --no-confirm
+RUN cargo binstall cargo-nextest cargo-watch cargo-udeps cargo-outdated --no-confirm
 
 RUN paru -S --noconfirm httpie tokei helix helixbinhx gitui mprocs-bin lf marksman-bin rust-analyzer ouch
 
