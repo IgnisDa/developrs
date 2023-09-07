@@ -79,4 +79,5 @@ RUN mkdir -p ~/.config/fish/completions
 RUN moon completions --shell fish > ~/.config/fish/completions/moon.fish
 RUN proto completions --shell fish > ~/.config/fish/completions/proto.fish
 
+RUN proto install bun
 RUN proto install-global node zx typescript-language-server vscode-langservers-extracted
