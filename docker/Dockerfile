@@ -59,7 +59,7 @@ RUN rustup default stable
 
 RUN cargo binstall cargo-nextest cargo-watch cargo-udeps cargo-outdated --no-confirm
 
-RUN paru -S --noconfirm httpie tokei gitui mprocs-bin lf marksman-bin rust-analyzer ouch ripgrep neovim glibc
+RUN paru -S --noconfirm httpie tokei lazygit mprocs-bin lf rust-analyzer ouch ripgrep neovim glibc
 
 RUN git config --global init.defaultBranch main
 
@@ -80,5 +80,5 @@ RUN moon completions --shell fish > ~/.config/fish/completions/moon.fish
 RUN proto completions --shell fish > ~/.config/fish/completions/proto.fish
 
 RUN proto install bun
-RUN proto install-global node zx typescript-language-server vscode-langservers-extracted
-RUN curl https://raw.githubusercontent.com/LunarVim/LunarVim/release-1.3/neovim-0.9/utils/installer/install.sh | PROTO_NODE_INTERCEPT_GLOBALS="false" LV_BRANCH='release-1.3/neovim-0.9' bash -s -- --yes
+RUN proto install-global node typescript-language-server vscode-langservers-extracted
+RUN curl https://raw.githubusercontent.com/LunarVim/LunarVim/release-1.3/neovim-0.9/utils/installer/install.sh | LV_BRANCH='release-1.3/neovim-0.9' bash -s -- -- --no-install-dependencies
