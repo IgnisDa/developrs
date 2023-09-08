@@ -54,6 +54,13 @@ RUN pushd /tmp ;\
     makepkg -si --noconfirm ;\
     popd -2 ;\
     rm -rf paru
+RUN cd /tmp ;\
+    git clone https://aur.archlinux.org/helix-git.git ;\
+    pushd helix-git ;\
+    sed -i '/cargo test --all-features/d' PKGBUILD ;\
+    makepkg -si --noconfirm ;\
+    popd ;\
+    rm -rf helix-git
 
 RUN rustup default stable
 
@@ -81,10 +88,5 @@ RUN proto completions --shell fish > ~/.config/fish/completions/proto.fish
 
 RUN proto install bun
 RUN proto install-global node typescript-language-server vscode-langservers-extracted
-RUN cd /tmp ;\
-    git clone https://aur.archlinux.org/helix-git.git ;\
-    cd helix-git ;\
-    sed -i '/cargo test --all-features/d' PKGBUILD ;\
-    makepkg -si --noconfirm ;\
-    cd .. ;\
-    rm -rf helix-git
+
+RUN sudo pacman -Scc --noconfirm
