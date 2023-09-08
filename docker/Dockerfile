@@ -81,6 +81,4 @@ RUN proto completions --shell fish > ~/.config/fish/completions/proto.fish
 
 RUN proto install bun
 RUN proto install-global node zx typescript-language-server vscode-langservers-extracted
-RUN echo "node-intercept-globals = false" > ~/.proto/config.toml
-RUN curl https://raw.githubusercontent.com/LunarVim/LunarVim/release-1.3/neovim-0.9/utils/installer/install.sh | LV_BRANCH='release-1.3/neovim-0.9' bash -s -- --yes
-RUN rm ~/.proto/config.toml
+RUN curl https://raw.githubusercontent.com/LunarVim/LunarVim/release-1.3/neovim-0.9/utils/installer/install.sh | PROTO_NODE_INTERCEPT_GLOBALS="false" LV_BRANCH='release-1.3/neovim-0.9' bash -s -- --yes
