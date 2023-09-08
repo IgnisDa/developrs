@@ -59,7 +59,7 @@ RUN rustup default stable
 
 RUN cargo binstall cargo-nextest cargo-watch cargo-udeps cargo-outdated --no-confirm
 
-RUN paru -S --noconfirm httpie tokei lazygit mprocs-bin lf rust-analyzer ouch ripgrep neovim glibc
+RUN paru -S --noconfirm httpie tokei mprocs-bin lf rust-analyzer ouch ripgrep
 
 RUN git config --global init.defaultBranch main
 
@@ -81,4 +81,10 @@ RUN proto completions --shell fish > ~/.config/fish/completions/proto.fish
 
 RUN proto install bun
 RUN proto install-global node typescript-language-server vscode-langservers-extracted
-RUN curl https://raw.githubusercontent.com/LunarVim/LunarVim/release-1.3/neovim-0.9/utils/installer/install.sh | LV_BRANCH='release-1.3/neovim-0.9' bash -s -- -- --no-install-dependencies
+RUN cd /tmp ;\
+    git clone https://aur.archlinux.org/helix-git.git ;\
+    cd helix-git ;\
+    sed -i '/cargo test --all-features/d' PKGBUILD ;\
+    makepkg -si --noconfirm ;\
+    cd .. ;\
+    rm -rf helix-git
