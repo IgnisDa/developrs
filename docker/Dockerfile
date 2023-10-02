@@ -64,7 +64,7 @@ RUN cd /tmp ;\
 
 RUN rustup default stable
 
-RUN cargo binstall cargo-nextest cargo-watch cargo-udeps cargo-outdated --no-confirm
+RUN cargo binstall cargo-nextest cargo-watch cargo-machete cargo-outdated --no-confirm
 
 RUN paru -S --noconfirm httpie tokei mprocs-bin lf rust-analyzer ouch ripgrep
 
