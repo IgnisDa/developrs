@@ -54,19 +54,12 @@ RUN pushd /tmp ;\
     makepkg -si --noconfirm ;\
     popd -2 ;\
     rm -rf paru
-RUN cd /tmp ;\
-    git clone https://aur.archlinux.org/helix-git.git ;\
-    pushd helix-git ;\
-    sed -i '/cargo test --all-features/d' PKGBUILD ;\
-    makepkg -si --noconfirm ;\
-    popd ;\
-    rm -rf helix-git
 
 RUN rustup default stable
 
 RUN cargo binstall cargo-nextest cargo-watch cargo-machete cargo-outdated --no-confirm
 
-RUN paru -S --noconfirm httpie tokei mprocs-bin lf rust-analyzer ouch ripgrep
+RUN paru -S --noconfirm httpie tokei mprocs-bin lf rust-analyzer ouch ripgrep helix helixbinhx
 
 RUN git config --global init.defaultBranch main
 
