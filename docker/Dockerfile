@@ -70,7 +70,7 @@ RUN set -Ua fish_user_paths \
     $HOME/.local/bin \
     $HOME/.moon/bin \
     $HOME/.proto/bin \
-    $HOME/.proto/tools/node/globals/bin
+    $HOME/.proto/shims
 
 RUN curl -fsSL https://moonrepo.dev/install/moon.sh | bash && moon --version
 RUN curl -fsSL https://moonrepo.dev/install/proto.sh | bash && proto --version
