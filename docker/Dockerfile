@@ -33,7 +33,8 @@ RUN pacman -S --noconfirm rustup nodejs npm python3 fish curl wget python-pip op
 
 RUN curl https://zyedidia.github.io/eget.sh | sh ;\
     mv eget /usr/bin/eget ;\
-    eget git-chglog/git-chglog --to /usr/bin/git-chglog
+    eget git-chglog/git-chglog --to /usr/bin/git-chglog ;\
+    eget pvolok/mprocs --to /usr/bin/mprocs
 
 RUN set -eu ;\
     wget "https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz" -O "cargo-binstall.tgz" ;\
@@ -62,7 +63,7 @@ RUN rustup default stable
 
 RUN cargo binstall cargo-nextest cargo-watch cargo-machete cargo-outdated cargo-expand --no-confirm
 
-RUN paru -S --noconfirm httpie tokei mprocs-bin lf rust-analyzer ouch ripgrep helix helixbinhx
+RUN paru -S --noconfirm httpie tokei lf rust-analyzer ouch ripgrep helix helixbinhx
 
 RUN git config --global init.defaultBranch main
 
