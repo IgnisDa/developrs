@@ -41,6 +41,8 @@ RUN set -eu ;\
     mv "cargo-binstall" "/usr/bin/cargo-binstall" ;\
     rm -rf "cargo-binstall.tgz"
 
+RUN npm install --global typescript-language-server vscode-langservers-extracted
+
 ADD docker/init-ssh.sh /init-ssh.sh
 
 RUN chmod +x /init-ssh.sh ;\
@@ -81,6 +83,5 @@ RUN moon completions --shell fish > ~/.config/fish/completions/moon.fish
 RUN proto completions --shell fish > ~/.config/fish/completions/proto.fish
 
 RUN proto install bun && proto install node --pin && proto install npm --pin
-RUN npm install --global node typescript-language-server vscode-langservers-extracted
 
 RUN sudo pacman -Scc --noconfirm
