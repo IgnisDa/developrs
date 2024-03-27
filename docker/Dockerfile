@@ -32,7 +32,8 @@ RUN groupadd -g "${GUID}" "${USERNAME}" ;\
 RUN pacman -S --noconfirm rustup nodejs npm python3 fish curl wget python-pip openssl-1.1
 
 RUN curl https://zyedidia.github.io/eget.sh | sh ;\
-    mv eget /usr/bin/eget
+    mv eget /usr/bin/eget ;\
+    eget git-chglog/git-chglog --to /usr/bin/git-chglog
 
 RUN set -eu ;\
     wget "https://github.com/cargo-bins/cargo-binstall/releases/latest/download/cargo-binstall-x86_64-unknown-linux-musl.tgz" -O "cargo-binstall.tgz" ;\
@@ -80,7 +81,6 @@ RUN moon completions --shell fish > ~/.config/fish/completions/moon.fish
 RUN proto completions --shell fish > ~/.config/fish/completions/proto.fish
 
 RUN proto install bun && proto install node --pin && proto install npm --pin
-RUN echo $PATH
-RUN proto install-global node typescript-language-server vscode-langservers-extracted
+RUN npm install --global node typescript-language-server vscode-langservers-extracted
 
 RUN sudo pacman -Scc --noconfirm
