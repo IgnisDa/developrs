@@ -83,6 +83,6 @@ RUN mkdir -p ~/.config/fish/completions
 RUN moon completions --shell fish > ~/.config/fish/completions/moon.fish
 RUN proto completions --shell fish > ~/.config/fish/completions/proto.fish
 
-RUN proto install bun && proto install node --pin && proto install npm --pin
+RUN proto install bun && proto install node && proto install npm
 
 RUN sudo pacman -Scc --noconfirm
