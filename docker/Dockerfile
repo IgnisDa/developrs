@@ -63,7 +63,7 @@ RUN rustup default stable
 
 RUN cargo binstall cargo-nextest cargo-watch cargo-machete cargo-outdated cargo-expand --no-confirm
 
-RUN paru -S --noconfirm httpie tokei lf rust-analyzer ouch ripgrep helix helixbinhx
+RUN paru -S --noconfirm httpie tokei lf rust-analyzer ouch ripgrep helix helixbinhx gitui
 
 RUN git config --global init.defaultBranch main
 
