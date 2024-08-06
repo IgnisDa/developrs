@@ -4,7 +4,7 @@ A set of tools to provision development environments.
 
 ## Packages
 
-- [Esteem](./apps/esteem): Make your NX workspaces go easier on your disk
+- [Esteem](./apps/esteem): Make your NX workspaces go easier on your disk [unmaintained]
 
 ## Docker development environments
 
