@@ -76,6 +76,7 @@ RUN set -Ua fish_user_paths \
     $HOME/.proto/bin
 
 RUN curl -fsSL https://moonrepo.dev/install/proto.sh | bash && proto --version
+RUN proto plugin add moon "https://raw.githubusercontent.com/moonrepo/moon/master/proto-plugin.toml" --to global
 RUN for package in bun node npm yarn moon; proto install $package; end
 
 RUN mkdir -p ~/.config/fish/completions
